@@ -24,12 +24,8 @@ install geneticalgorithm in Python.
 A simple example
 ----------------
 
-| Assume we want to find a set of X=(x1,x2,x3) that minimizes function
-f(X)=x1+x2+x3 where X can be any real number in [0,10].
-| This is a trivial problem and we already know that the answer is
-X=(0,0,0) where f(X)=0.
-| We just use this simple example to see how to implement
-geneticalgorithm:
+Assume we want to find a set of X=(x1,x2,x3) that minimizes function f(X)=x1+x2+x3 where X can be any real number in [0,10].
+This is a trivial problem and we already know that the answer is X=(0,0,0) where f(X)=0. We just use this simple example to see how to implement geneticalgorithm:
 
 First we import geneticalgorithm and `numpy <https://numpy.org>`__.
 Next, we define function f which we want to minimize and the boundaries
@@ -659,7 +655,10 @@ Implementation of geneticalgorithm for some benchmark problems:
 
     model.run()
 
-|image0| ## License
+.. figure:: https://github.com/rmsolgi/geneticalgorithm/blob/master/genetic_algorithm_Weierstrass.gif
+   :alt: 
+
+| ## License
 
 Copyright 2020 Ryan (Mohammad) Solgi
 
@@ -682,4 +681,3 @@ CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-.. |image0| image:: https://github.com/rmsolgi/geneticalgorithm/blob/master/genetic_algorithm_Weierstrass.gif
