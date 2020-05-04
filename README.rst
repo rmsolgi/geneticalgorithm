@@ -658,7 +658,8 @@ Implementation of geneticalgorithm for some benchmark problems:
 .. figure:: https://github.com/rmsolgi/geneticalgorithm/blob/master/genetic_algorithm_Weierstrass.gif
    :alt: 
 
-| ## License
+License
+----------------
 
 Copyright 2020 Ryan (Mohammad) Solgi
 
