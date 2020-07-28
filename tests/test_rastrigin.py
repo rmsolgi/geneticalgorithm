@@ -14,7 +14,7 @@ def f(X):
     return OF
 
 
-if __name__ == '__main__':
+def test_rastrigin():
     parameters={'max_num_iteration': 1000,
                 'population_size':200,
                 'mutation_probability':0.1,
@@ -23,7 +23,7 @@ if __name__ == '__main__':
                 'parents_portion': 0.3,
                 'crossover_type':'uniform',
                 'max_iteration_without_improv':None,
-                'multiprocessing_cores': 8,
+                'multiprocessing_ncpus': 1,
                 'multiprocessing_engine': None,
                 }
     varbound = np.array([[-5.12, 5.12]]*2)
@@ -32,3 +32,7 @@ if __name__ == '__main__':
             variable_boundaries=varbound, algorithm_parameters=parameters)
     model.run()
     assert model.best_function < 1e-8
+
+
+if __name__ == '__main__':
+    test_rastrigin()
