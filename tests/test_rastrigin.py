@@ -21,7 +21,7 @@ def test_rastrigin():
                 'elit_ratio': 0.02,
                 'crossover_probability': 0.5,
                 'parents_portion': 0.3,
-                'crossover_type':'uniform',
+                'crossover_type':'two_point',
                 'max_iteration_without_improv':None,
                 'multiprocessing_ncpus': 1,
                 'multiprocessing_engine': None,
