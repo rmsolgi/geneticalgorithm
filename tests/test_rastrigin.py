@@ -23,7 +23,7 @@ def test_rastrigin():
                 'parents_portion': 0.3,
                 'crossover_type':'two_point',
                 'max_iteration_without_improv':None,
-                'multiprocessing_ncpus': 1,
+                'multiprocessing_ncpus': 4,
                 'multiprocessing_engine': None,
                 }
     varbound = np.array([[-5.12, 5.12]]*2)
