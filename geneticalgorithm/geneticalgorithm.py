@@ -121,7 +121,7 @@ class geneticalgorithm():
             @ multiprocessing_ncpus <int> - number of cores to run the
             function in more than 1 CPU
             @ multiprocessing_engine <str> - multiprocessing engine. Native
-            multiprocessing module and ray.utils.multiprocessing are supported.
+            multiprocessing module and ray.util.multiprocessing are supported.
 
         for more details and examples of implementation please visit:
             https://github.com/rmsolgi/geneticalgorithm
@@ -270,8 +270,10 @@ class geneticalgorithm():
         if self.multiprocessing_ncpus > 1:
             if self.multiprocessing_engine is None:
                 from multiprocessing import Pool
+                print("using Python  multiprocessing")
             elif self.multiprocessing_engine == 'ray':
-                from ray.utils.multiprocessing import Pool
+                from ray.util.multiprocessing import Pool
+                print("using ray.util.multiprocessing")
             else:
                 raise NotImplementedError('Invalid multiprocessing_engine value')
 
@@ -433,7 +435,6 @@ class geneticalgorithm():
                     pop[k+1]=solo2.copy()
 
             if self.multiprocessing_ncpus > 1:
-                pool = Pool(self.multiprocessing_ncpus)
                 obj_list1 = pool.map(self.sim, var_list1)
                 obj_list2 = pool.map(self.sim, var_list2)
                 for k, ch1, obj1, ch2, obj2 in zip(k_list, var_list1,
