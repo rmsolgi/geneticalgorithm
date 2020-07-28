@@ -31,7 +31,7 @@ def test_rastrigin():
     model = ga(function=f, dimension=2, variable_type='real',
             variable_boundaries=varbound, algorithm_parameters=parameters)
     model.run()
-    assert model.best_function < 1e-8
+    assert model.best_function < 1e-6
 
 
 if __name__ == '__main__':
