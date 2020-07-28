@@ -1,3 +1,7 @@
+Github Actions status:
+
+[![Actions Status](https://github.com/rmsolgi/geneticalgorithm/workflows/pytest/badge.svg)](https://github.com/rmsolgi/geneticalgorithm/actions)
+
 
 # geneticalgorithm
 
