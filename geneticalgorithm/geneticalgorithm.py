@@ -64,6 +64,7 @@ class geneticalgorithm():
                  variable_boundaries=None,\
                  variable_type_mixed=None, \
                  function_timeout=10,\
+                 show_plot=True,\
                  algorithm_parameters={'max_num_iteration': None,\
                                        'population_size':100,\
                                        'mutation_probability':0.1,\
@@ -428,7 +429,8 @@ class geneticalgorithm():
         plt.xlabel('Iteration')
         plt.ylabel('Objective function')
         plt.title('Genetic Algorithm')
-        plt.show()
+        if self.show_plot:
+            plt.show()
         if self.stop_mniwi==True:
             sys.stdout.write('\nWarning: GA is terminated due to the'+\
                              ' maximum number of iterations without improvement was met!')
