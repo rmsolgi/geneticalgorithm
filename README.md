@@ -557,6 +557,38 @@ model.run()
 
 ```
 ![](https://github.com/rmsolgi/geneticalgorithm/blob/master/genetic_algorithm_Weierstrass.gif)
+
+## Option to disable automatic chart plotting
+```python
+
+import numpy as np
+from geneticalgorithm import geneticalgorithm as ga
+
+def f(X):
+    return np.sum(X)
+
+
+
+algorithm_param = {'max_num_iteration': 1000,\
+                   'population_size':100,\
+                   'mutation_probability':0.1,\
+                   'elit_ratio': 0.01,\
+                   'crossover_probability': 0.5,\
+                   'parents_portion': 0.3,\
+                   'crossover_type':'uniform',\
+                   'max_iteration_without_improv':None}
+
+model=ga(function=f,dimension=2,\
+         variable_type='real',\
+             plot=False,\  #Will not plot the graph
+             variable_boundaries=varbound,\
+             algorithm_parameters=algorithm_param)
+
+model.run()
+
+```
+
+
 ## License
 
 Copyright 2020 Ryan (Mohammad) Solgi
