@@ -64,6 +64,7 @@ class geneticalgorithm():
                  variable_boundaries=None,\
                  variable_type_mixed=None, \
                  function_timeout=10,\
+                 no_plot=False,\
                  algorithm_parameters={'max_num_iteration': None,\
                                        'population_size':100,\
                                        'mutation_probability':0.1,\
@@ -106,6 +107,8 @@ class geneticalgorithm():
         output before function_timeout (unit is seconds) the algorithm raise error.
         For example, when there is an infinite loop in the given function. 
         
+        @param no_plot <boolean> - do not plot results using matplotlib
+
         @param algorithm_parameters:
             @ max_num_iteration <int> - stoping criteria of the genetic algorithm (GA)
             @ population_size <int> 
@@ -123,6 +126,7 @@ class geneticalgorithm():
   
         '''
         self.__name__=geneticalgorithm
+        self.no_plot = no_plot
         #############################################################
         # input function
         assert (callable(function)),"function must be callable"     
@@ -424,14 +428,16 @@ class geneticalgorithm():
         sys.stdout.write('\n\n Objective function:\n %s\n' % (self.best_function))
         sys.stdout.flush() 
         re=np.array(self.report)
-        plt.plot(re)
-        plt.xlabel('Iteration')
-        plt.ylabel('Objective function')
-        plt.title('Genetic Algorithm')
-        plt.show()
+        if not self.no_plot:
+            plt.plot(re)
+            plt.xlabel('Iteration')
+            plt.ylabel('Objective function')
+            plt.title('Genetic Algorithm')
+            plt.show()
         if self.stop_mniwi==True:
             sys.stdout.write('\nWarning: GA is terminated due to the'+\
                              ' maximum number of iterations without improvement was met!')
+        return self.best_variable, self.best_function, self.report
 ##############################################################################         
 ##############################################################################         
     def cross(self,x,y,c_type):
