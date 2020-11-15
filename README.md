@@ -1,7 +1,10 @@
 
-# geneticalgorithm
+THIS IS THE SUPPORTED FORK OF NON-SUPPORTED PACKAGE https://github.com/rmsolgi/geneticalgorithm
 
-**geneticalgorithm** is a Python library distributed on [PyPI](https://pypi.org) for implementing standard and elitist 
+
+# geneticalgorithm2
+
+**geneticalgorithm2** is a Python library distributed on [PyPI](https://pypi.org) for implementing standard and elitist 
 [genetic-algorithm](https://towardsdatascience.com/introduction-to-optimization-with-genetic-algorithm-2f5001d9964b) (GA).
 
 This package solves *continuous*, [*combinatorial*](https://en.wikipedia.org/wiki/Combinatorial_optimization)
@@ -14,7 +17,7 @@ It provides an easy implementation of genetic-algorithm (GA) in Python.
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install geneticalgorithm in Python.
 
 ```python
-pip install geneticalgorithm
+pip install geneticalgorithm2
 ```
 
 
