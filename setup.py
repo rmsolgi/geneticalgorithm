@@ -27,15 +27,15 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="geneticalgorithm", 
-    version="1.0.1",
-    author="Ryan (Mohammad) Solgi",
-    author_email="ryan.solgi@gmail.com",
-    maintainer='Ryan (Mohammad) Solgi',
+    name="geneticalgorithm2", 
+    version="1.0.0",
+    author="Demetry Pascal",
+    author_email="qtckpuhdsa@gmail.com",
+    maintainer=['Ryan (Mohammad) Solgi', 'Demetry Pascal'],
     description="An easy implementation of genetic-algorithm (GA) to solve continuous and combinatorial optimization problems with real, integer, and mixed variables in Python",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/rmsolgi/geneticalgorithm",
+    url="https://github.com/PasaOpasen/geneticalgorithm2",
     keywords=['solve', 'optimization', 'problem', 'genetic', 'algorithm', 'GA', 'easy', 'fast', 'genetic-algorithm', 'combinatorial', 'mixed', 'evolutionary'],
     packages=setuptools.find_packages(),
     classifiers=[

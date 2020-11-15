@@ -36,7 +36,7 @@ import matplotlib.pyplot as plt
 ###############################################################################
 ###############################################################################
 
-class geneticalgorithm():
+class geneticalgorithm2():
     
     '''  Genetic Algorithm (Elitist version) for Python
     
@@ -122,7 +122,7 @@ class geneticalgorithm():
             https://github.com/rmsolgi/geneticalgorithm
   
         '''
-        self.__name__=geneticalgorithm
+        self.__name__=geneticalgorithm2
         #############################################################
         # input function
         assert (callable(function)),"function must be callable"     

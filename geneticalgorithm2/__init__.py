@@ -22,4 +22,4 @@ SOFTWARE.
 
 '''
 
-from .geneticalgorithm import geneticalgorithm
+from .geneticalgorithm2 import geneticalgorithm2
