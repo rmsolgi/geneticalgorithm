@@ -34,7 +34,7 @@ Then simply geneticalgorithm is called to solve the defined optimization problem
 
 ```python
 import numpy as np
-from geneticalgorithm import geneticalgorithm as ga
+from geneticalgorithm2 import geneticalgorithm2 as ga
 
 def f(X):
     return np.sum(X)
@@ -45,7 +45,6 @@ varbound = np.array([[0,10]]*3)
 model = ga(function=f, dimension=3, variable_type='real', variable_boundaries=varbound)
 
 model.run()
-
 ```
 
 Notice that we define the function f so that its output is the 
@@ -91,7 +90,7 @@ In this case the code is as the following:
 
 ```python
 import numpy as np
-from geneticalgorithm import geneticalgorithm as ga
+from geneticalgorithm2 import geneticalgorithm2 as ga
 
 def f(X):
     return np.sum(X)
@@ -102,8 +101,6 @@ varbound = np.array([[0,10]]*3)
 model = ga(function=f, dimension=3, variable_type='int', variable_boundaries=varbound)
 
 model.run()
-
-
 ```
 So, as it is seen the only difference is that for variable_type we use string 'int'. 
 
@@ -115,7 +112,7 @@ In this case the code is as the following:
 
 ```python
 import numpy as np
-from geneticalgorithm import geneticalgorithm as ga
+from geneticalgorithm2 import geneticalgorithm2 as ga
 
 def f(X):
     return np.sum(X)
@@ -124,8 +121,6 @@ def f(X):
 model = ga(function=f, dimension=30, variable_type='bool')
 
 model.run()
-
-
 ```
 
 Note for variable_type we use string 'bool' when all variables are Boolean.  
@@ -139,8 +134,9 @@ We already know that the answer is X=(0.5,1,0) where f(X)=1.5
 We implement geneticalgorithm as the following:
 
 ```python
+
 import numpy as np
-from geneticalgorithm import geneticalgorithm as ga
+from geneticalgorithm2 import geneticalgorithm2 as ga
 
 def f(X):
     return np.sum(X)
@@ -165,7 +161,7 @@ We already know that the answer is X=(10,10,10) where f(X)=30.
 
 ```python
 import numpy as np
-from geneticalgorithm import geneticalgorithm as ga
+from geneticalgorithm2 import geneticalgorithm2 as ga
 
 def f(X):
     return -np.sum(X)
@@ -175,7 +171,6 @@ varbound = np.array([[0,10]]*3)
 model = ga(function=f, dimension=3, variable_type='real', variable_boundaries=varbound)
 
 model.run()
-
 ```
 As seen above ```np.sum(X)``` is mulitplied by a negative sign. 
 
@@ -185,7 +180,7 @@ In such a case, a trick is to define penalty function. Hence we use the code bel
 
 ```python
 import numpy as np
-from geneticalgorithm import geneticalgorithm as ga
+from geneticalgorithm2 import geneticalgorithm2 as ga
 
 def f(X):
     pen=0
@@ -232,7 +227,7 @@ Another way of accessing this dictionary is using the command below:
 
 ```python
 import numpy as np
-from geneticalgorithm import geneticalgorithm as ga
+from geneticalgorithm2 import geneticalgorithm2 as ga
 
 def f(X):
     return np.sum(X)
@@ -248,7 +243,7 @@ An example of setting a new set of parameters for genetic algorithm and running 
 
 ```python
 import numpy as np
-from geneticalgorithm import geneticalgorithm as ga
+from geneticalgorithm2 import geneticalgorithm2 as ga
 
 def f(X):
     return np.sum(X)
@@ -442,19 +437,12 @@ Implementation of geneticalgorithm for some benchmark problems:
 
 ```python
 
-import numpy as np
 import math
-from geneticalgorithm import geneticalgorithm as ga
+import numpy as np
+from geneticalgorithm2 import geneticalgorithm2 as ga
 
 def f(X):
-
-    dim=len(X)         
-    
-    OF=0
-    for i in range (0,dim):
-        OF+=(X[i]**2)-10*math.cos(2*math.pi*X[i])+10
- 
-    return OF
+    return np.sum((X**2)-10*np.cos(2*math.pi*X)+10)
     
     
 varbound=np.array([[-5.12,5.12]]*2)
@@ -473,19 +461,17 @@ model.run()
 
 ```python
 
-import numpy as np
+
 import math
-from geneticalgorithm import geneticalgorithm as ga
+import numpy as np
+from geneticalgorithm2 import geneticalgorithm2 as ga
 
 def f(X):
 
     dim=len(X)
         
-    t1=0
-    t2=0
-    for i in range (0,dim):
-        t1+=X[i]**2
-        t2+=math.cos(2*math.pi*X[i])     
+    t1 = np.sum(X**2)
+    t2 = np.sum(np.cos(2*math.pi*X)) 
             
     OF=20+math.e-20*math.exp((t1/dim)*-0.2)-math.exp(t2/dim)
  
@@ -509,7 +495,7 @@ model.run()
 
 import numpy as np
 import math
-from geneticalgorithm import geneticalgorithm as ga
+from geneticalgorithm2 import geneticalgorithm2 as ga
 
 def f(X):
 
@@ -553,7 +539,7 @@ model.run()
 ![](https://github.com/rmsolgi/geneticalgorithm/blob/master/genetic_algorithm_Weierstrass.gif)
 ## License
 
-Copyright 2020 Ryan (Mohammad) Solgi
+Copyright 2020 **Ryan (Mohammad) Solgi**, **Demetry Pascal**
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of 
 this software and associated documentation files (the "Software"), to deal in 
