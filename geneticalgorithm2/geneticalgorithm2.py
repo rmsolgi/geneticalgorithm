@@ -64,6 +64,7 @@ class geneticalgorithm2():
                  variable_boundaries=None,\
                  variable_type_mixed=None, \
                  function_timeout=10,\
+                 no_plot = False,
                  algorithm_parameters={'max_num_iteration': None,\
                                        'population_size':100,\
                                        'mutation_probability':0.1,\
@@ -106,6 +107,8 @@ class geneticalgorithm2():
         output before function_timeout (unit is seconds) the algorithm raise error.
         For example, when there is an infinite loop in the given function. 
         
+        @param no_plot <boolean> - do not plot results using matplotlib
+
         @param algorithm_parameters:
             @ max_num_iteration <int> - stoping criteria of the genetic algorithm (GA)
             @ population_size <int> 
@@ -123,6 +126,9 @@ class geneticalgorithm2():
   
         '''
         self.__name__=geneticalgorithm2
+        self.plot = not no_plot
+        self.report = []
+
         #############################################################
         # input function
         assert (callable(function)),"function must be callable"     
@@ -418,21 +424,36 @@ class geneticalgorithm2():
         
         self.output_dict={'variable': self.best_variable, 'function':\
                           self.best_function}
+        
         show=' '*100
         sys.stdout.write('\r%s' % (show))
         sys.stdout.write('\r The best solution found:\n %s' % (self.best_variable))
         sys.stdout.write('\n\n Objective function:\n %s\n' % (self.best_function))
         sys.stdout.flush() 
+        
+        if self.plot:
+            self.plot_results()
+
+        if self.stop_mniwi==True:
+            sys.stdout.write('\nWarning: GA is terminated due to the'+\
+                             ' maximum number of iterations without improvement was met!')
+##############################################################################         
+
+    def plot_results(self):
+        """
+        Simple plot of self.report (if not empty)
+        """
+        if len(self.report) == 0:
+            sys.stdout.write("No results to plot!\n")
+            return
+
         re=np.array(self.report)
         plt.plot(re)
         plt.xlabel('Iteration')
         plt.ylabel('Objective function')
         plt.title('Genetic Algorithm')
         plt.show()
-        if self.stop_mniwi==True:
-            sys.stdout.write('\nWarning: GA is terminated due to the'+\
-                             ' maximum number of iterations without improvement was met!')
-##############################################################################         
+
 ##############################################################################         
     def cross(self,x,y,c_type):
          
