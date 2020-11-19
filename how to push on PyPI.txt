@@ -1,0 +1,10 @@
+https://medium.com/@joel.barmettler/how-to-upload-your-python-package-to-pypi-65edc5fe9c56
+
+https://realpython.com/pypi-publish-python-package/
+
+cd "C:\Users\qtckp\OneDrive\Рабочий стол\PersianG2P"
+
+python setup.py sdist
+python setup.py bdist_wheel
+
+twine upload dist/*

@@ -1,7 +1,10 @@
-geneticalgorithm
-================
+geneticalgorithm2
+=================
 
-geneticalgorithm is a Python library distributed on
+PLEASE CHECK THE HOMEPAGE FOR EXAMPLES OF USING
+-----------------------------------------------
+
+geneticalgorithm2 is a Python library distributed on
 `Pypi <https://pypi.org>`__ for implementing standard and elitist
 `genetic-algorithm <https://towardsdatascience.com/introduction-to-optimization-with-genetic-algorithm-2f5001d9964b>`__
 (GA). This package solves continuous,
@@ -15,11 +18,11 @@ Installation
 ------------
 
 Use the package manager `pip <https://pip.pypa.io/en/stable/>`__ to
-install geneticalgorithm in Python.
+install geneticalgorithm2 in Python.
 
 .. code:: python
 
-    pip install geneticalgorithm
+    pip install geneticalgorithm2
 
 A simple example
 ----------------
@@ -35,7 +38,7 @@ solve the defined optimization problem as follows:
 .. code:: python
 
     import numpy as np
-    from geneticalgorithm import geneticalgorithm as ga
+    from geneticalgorithm2 import geneticalgorithm2 as ga
 
     def f(X):
         return np.sum(X)
@@ -97,7 +100,7 @@ In this case the code is as the following:
 .. code:: python
 
     import numpy as np
-    from geneticalgorithm import geneticalgorithm as ga
+    from geneticalgorithm2 import geneticalgorithm2 as ga
 
     def f(X):
         return np.sum(X)
@@ -123,7 +126,7 @@ the code is as the following:
 .. code:: python
 
     import numpy as np
-    from geneticalgorithm import geneticalgorithm as ga
+    from geneticalgorithm2 import geneticalgorithm2 as ga
 
     def f(X):
         return np.sum(X)
@@ -151,7 +154,7 @@ as the following:
 .. code:: python
 
     import numpy as np
-    from geneticalgorithm import geneticalgorithm as ga
+    from geneticalgorithm2 import geneticalgorithm2 as ga
 
     def f(X):
         return np.sum(X)
