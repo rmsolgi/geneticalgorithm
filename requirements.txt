@@ -1,0 +1,3 @@
+numpy==1.18.4
+matplotlib==3.2.1
+func_timeout==4.3.5

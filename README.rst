@@ -1,8 +1,6 @@
 geneticalgorithm2
 =================
 
-PLEASE CHECK THE HOMEPAGE FOR EXAMPLES OF USING
------------------------------------------------
 
 geneticalgorithm2 is a Python library distributed on
 `Pypi <https://pypi.org>`__ for implementing standard and elitist
@@ -14,8 +12,8 @@ and mixed
 problems with continuous, discrete, and mixed variables. It provides an
 easy implementation of genetic-algorithm (GA) in Python.
 
-Installation
-------------
+Installation / PLEASE CHECK THE HOMEPAGE FOR CURRENT EXAMPLES OF USING
+--------------------------------------------------------------
 
 Use the package manager `pip <https://pip.pypa.io/en/stable/>`__ to
 install geneticalgorithm2 in Python.

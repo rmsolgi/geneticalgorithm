@@ -297,9 +297,9 @@ class geneticalgorithm2():
         #############################################################
         # Report
         self.report=[]
-        self.test_obj=obj
+        self.test_obj = obj
         self.best_variable=var.copy()
-        self.best_function=obj
+        self.best_function = obj
         ##############################################################   
                         
         t=1
@@ -534,15 +534,18 @@ class geneticalgorithm2():
     def evaluate(self):
         return self.f(self.temp)
 ###############################################################################    
-    def sim(self,X):
-        self.temp=X.copy()
-        obj=None
+    def sim(self, X):
+        self.temp = X.copy()
+        obj = None
         try:
-            obj=func_timeout(self.funtimeout,self.evaluate)
+            obj = func_timeout(self.funtimeout, self.evaluate)
         except FunctionTimedOut:
             print("given function is not applicable")
-        assert (obj!=None), "After "+str(self.funtimeout)+" seconds delay "+\
+        assert (obj is not None), "After "+str(self.funtimeout)+" seconds delay "+\
                 "func_timeout: the given function does not provide any output"
+                
+        assert ((type(obj)==int or type(obj)==float or obj.size==1)), "Function should return a number or an np.array with len == 1"
+        
         return obj
 
 ###############################################################################
