@@ -360,7 +360,12 @@ successive iterations without improvement. If None it is ineffective
 
 ## Methods and Properties of model:
 
-**run()**: implements the genetic algorithm (GA)  
+**run()**: implements the genetic algorithm (GA) with parameters:
+* @param **no_plot** <boolean> - do not plot results using matplotlib by default
+        
+* @param **set_function**: 2D-array -> 1D-array function, which applyes to matrix of population (size (samples, dimention)) to estimate their values
+        
+* @param **apply_function_to_parents** <boolean> - apply function to parents from previous generation (if it's needed)  
 
 **param**: a dictionary of parameters of the genetic algorithm (GA)
     
@@ -593,5 +598,78 @@ plt.ylabel('Objective function')
 plt.title('Genetic Algorithm')
 plt.show()
 ```
+## How to specify evaluated function for all population?
 
+U can do it using `set_function` parameter into `run()` method.
 
+This function should get numpy 2D-array (samples x dimention) and return 1D-array with results.
+
+By default it uses `set_function = geneticalgorithm2.default_set_function(function)`, where
+
+```python
+    def default_set_function(function_for_set):
+        def func(matrix):
+            return np.array([function_for_set(matrix[i,:]) for i in range(matrix.shape[0])])
+        return func
+```
+U may want to use it for creating some specific or fast-vectorised evaluations like here:
+
+```python
+
+def sigmoid(z):
+    return 1/(1+np.exp(-z))
+
+matrix = np.random.random((1000,100))
+
+def vectorised(X):
+    return sigmoid(matrix.dot(X))
+
+model.run(set_function = vectorised)
+```
+
+## What about parallelism?
+
+By using `set_function` u can demermine your own behavior for parallelism or u can use `geneticalgorithm2.set_function_multiprocess(f, n_jobs = -1)` for using just parallelism (recommented for heavy functions and big populations, not recommented for fast functions and small populations).
+
+For example:
+
+```python
+import numpy as np
+from geneticalgorithm2 import geneticalgorithm2 as ga
+
+def f(X):
+    import math
+    a = X[0]
+    b = X[1]
+    c = X[2]
+    s = 0
+    for i in range(10000):
+        s += math.sin(a*i) + math.sin(b*i) + math.cos(c*i)
+
+    return s
+ 
+
+algorithm_param = {'max_num_iteration': 50,
+                   'population_size':100,
+                   'mutation_probability':0.1,
+                   'elit_ratio': 0.01,
+                   'crossover_probability': 0.5,
+                   'parents_portion': 0.3,
+                   'crossover_type':'uniform',
+                   'max_iteration_without_improv':None}   
+    
+varbound = np.array([[-10,10]]*3)
+
+model = ga(function=f, dimension=3, 
+    variable_type='real',           
+    variable_boundaries=varbound, 
+    algorithm_parameters = algorithm_param)
+
+########
+
+%time model.run(no_plot = False)
+# Wall time: 1min 52s
+
+%time model.run(no_plot = False, set_function= ga.set_function_multiprocess(f, n_jobs = 6))
+# Wall time: 31.7 s
+```

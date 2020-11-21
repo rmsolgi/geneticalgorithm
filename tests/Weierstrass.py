@@ -4,6 +4,9 @@ Created on Thu Nov 19 16:37:01 2020
 
 @author: qtckp
 """
+import sys
+sys.path.append('..')
+
 
 import numpy as np
 import math

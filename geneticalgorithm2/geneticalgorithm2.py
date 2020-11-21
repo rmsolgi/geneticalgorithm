@@ -30,6 +30,7 @@ import sys
 import time
 
 import numpy as np
+from joblib import Parallel, delayed
 
 from func_timeout import func_timeout, FunctionTimedOut
 
@@ -255,9 +256,14 @@ class geneticalgorithm2():
 
         
         ############################################################# 
-    def run(self, no_plot = False):
+    def run(self, no_plot = False, set_function = None, apply_function_to_parents = False):
         """
         @param no_plot <boolean> - do not plot results using matplotlib by default
+        
+        @param set_function : 2D-array -> 1D-array function, which applyes to matrix of population (size (samples, dimention))
+        to estimate their values
+        
+        @param apply_function_to_parents <boolean> - apply function to parents from previous generation (if it's needed)
         """
         ############################################################# 
         # Initial Population
@@ -265,7 +271,8 @@ class geneticalgorithm2():
         self.integers = np.where(self.var_type == 'int')
         self.reals = np.where(self.var_type == 'real')
         
-        
+        if set_function == None:
+            set_function = geneticalgorithm2.default_set_function(self.f)
         
         pop = np.empty((self.pop_s, self.dim+1)) #np.array([np.zeros(self.dim+1)]*self.pop_s)
         solo = np.empty(self.dim+1)
@@ -301,7 +308,7 @@ class geneticalgorithm2():
         while t <= self.iterate:
             
             
-            self.progress(t, self.iterate, status = f"GA is running...{t} from {self.iterate}")
+            self.progress(t, self.iterate, status = f"GA is running...{t} gen from {self.iterate}")
             #############################################################
             #Sort
             pop = pop[pop[:,self.dim].argsort()]
@@ -312,7 +319,7 @@ class geneticalgorithm2():
                 self.best_function=pop[0, self.dim]#.copy()
                 self.best_variable=pop[0,:self.dim].copy()
                 
-                self.progress(t, self.iterate, status = f"GA is running...{t} from {self.iterate}...best value = {self.best_function}")
+                self.progress(t, self.iterate, status = f"GA is running...{t} gen from {self.iterate}...best value = {self.best_function}")
             else:
                 counter += 1
             #############################################################
@@ -386,14 +393,22 @@ class geneticalgorithm2():
                 ch2 = self.mutmidle(ch2, pvar1, pvar2)               
                 
                 solo[: self.dim] = ch1.copy()                
-                obj = self.sim(ch1)
-                solo[self.dim] = obj
+                #solo[self.dim] = self.sim(ch1)
                 pop[k] = solo.copy()                
                 
-                solo[: self.dim] = ch2.copy()                
-                obj = self.sim(ch2)               
-                solo[self.dim] = obj
+                solo[: self.dim] = ch2.copy()                             
+                #solo[self.dim] = self.sim(ch2) 
                 pop[k+1] = solo.copy()
+                
+            
+            if apply_function_to_parents:
+                pop[:,-1] = set_function(pop[:,:-1])
+            else:
+                pop[self.par_s:,-1] = set_function(pop[self.par_s:,:-1])
+            
+            
+            
+            
         #############################################################       
             t += 1
             if counter > self.mniwi:
@@ -552,7 +567,27 @@ class geneticalgorithm2():
 
         sys.stdout.write('\r%s %s%s %s' % (bar, percents, '%', status))
         sys.stdout.flush()     
-###############################################################################            
+        
+###############################################################################
+    @staticmethod
+    def default_set_function(function_for_set):
+        """
+        simple function for creating set_function 
+        function_for_set just applyes to each row of population
+        """
+        def func(matrix):
+            return np.array([function_for_set(matrix[i,:]) for i in range(matrix.shape[0])])
+        return func
+    
+    def set_function_multiprocess(function_for_set, n_jobs = -1):
+        """
+        like function_for_set but uses joblib with n_jobs (-1 goes to count of available processors)
+        """
+        def func(matrix):
+            result = Parallel(n_jobs=n_jobs)(delayed(function_for_set)(matrix[i,:]) for i in range(matrix.shape[0]))
+            return np.array(result)
+        return func
+            
 ###############################################################################
             
             
