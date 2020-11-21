@@ -380,9 +380,7 @@ class geneticalgorithm2():
                 pvar1 = ef_par[r1,:self.dim].copy()
                 pvar2 = ef_par[r2,:self.dim].copy()
                 
-                ch = self.cross(pvar1, pvar2, self.c_type)
-                ch1 = ch[0]#.copy()
-                ch2 = ch[1]#.copy()
+                ch1, ch2 = self.cross(pvar1, pvar2, self.c_type)
                 
                 ch1 = self.mut(ch1)
                 ch2 = self.mutmidle(ch2, pvar1, pvar2)               
@@ -456,88 +454,79 @@ class geneticalgorithm2():
         plt.show()
 
 ##############################################################################         
-    def cross(self,x,y,c_type):
+    def cross(self, x, y, c_type):
          
         ofs1=x.copy()
         ofs2=y.copy()
         
 
         if c_type=='one_point':
-            ran=np.random.randint(0,self.dim)
-            for i in range(0,ran):
-                ofs1[i]=y[i].copy()
-                ofs2[i]=x[i].copy()
+            ran=np.random.randint(0, self.dim)
+            ofs1[:ran] = y[:ran]
+            ofs2[:ran] = x[:ran]
   
-        if c_type=='two_point':
+        elif c_type=='two_point':
                 
-            ran1=np.random.randint(0,self.dim)
-            ran2=np.random.randint(ran1,self.dim)
-                
-            for i in range(ran1,ran2):
-                ofs1[i]=y[i].copy()
-                ofs2[i]=x[i].copy()
+            ran1=np.random.randint(0, self.dim)
+            ran2=np.random.randint(ran1, self.dim)
             
-        if c_type=='uniform':
-                
-            for i in range(0, self.dim):
-                ran=np.random.random()
-                if ran <0.5:
-                    ofs1[i]=y[i].copy()
-                    ofs2[i]=x[i].copy() 
+            ofs1[ran1:ran2] = y[ran1:ran2]
+            ofs2[ran1:ran2] = x[ran1:ran2]
+              
+        elif c_type=='uniform':
+            ran = np.random.random(self.dim) < 0.5
+            ofs1[ran] = y[ran]
+            ofs2[ran] = x[ran]
                    
-        return np.array([ofs1,ofs2])
+        
+        return (ofs1, ofs2)
 ###############################################################################  
     
     def mut(self,x):
         
         for i in self.integers[0]:
-            ran=np.random.random()
-            if ran < self.prob_mut:
-                
-                x[i]=np.random.randint(self.var_bound[i][0],\
-                 self.var_bound[i][1]+1) 
+            if np.random.random() < self.prob_mut:
+                x[i]=np.random.randint(self.var_bound[i][0], self.var_bound[i][1]+1) 
                     
         
 
         for i in self.reals[0]:                
-            ran=np.random.random()
-            if ran < self.prob_mut:   
-
-               x[i]=self.var_bound[i][0]+np.random.random()*\
-                (self.var_bound[i][1]-self.var_bound[i][0])    
+            if np.random.random() < self.prob_mut:   
+               x[i]=np.random.uniform(self.var_bound[i][0], self.var_bound[i][1]) #self.var_bound[i][0]+np.random.random()*\
+                #(self.var_bound[i][1]-self.var_bound[i][0])    
             
         return x
+
 ###############################################################################
     def mutmidle(self, x, p1, p2):
         for i in self.integers[0]:
-            ran=np.random.random()
-            if ran < self.prob_mut:
+
+            if np.random.random() < self.prob_mut:
                 if p1[i]<p2[i]:
                     x[i]=np.random.randint(p1[i],p2[i])
                 elif p1[i]>p2[i]:
                     x[i]=np.random.randint(p2[i],p1[i])
                 else:
-                    x[i]=np.random.randint(self.var_bound[i][0],\
-                 self.var_bound[i][1]+1)
+                    x[i]=np.random.randint(self.var_bound[i][0], self.var_bound[i][1]+1)
                         
         for i in self.reals[0]:                
             ran=np.random.random()
             if ran < self.prob_mut:   
-                if p1[i]<p2[i]:
-                    x[i]=p1[i]+np.random.random()*(p2[i]-p1[i])  
-                elif p1[i]>p2[i]:
-                    x[i]=p2[i]+np.random.random()*(p1[i]-p2[i])
+                if p1[i] != p2[i]:
+                    x[i]=np.random.uniform(p1[i], p2[i]) 
                 else:
-                    x[i]=self.var_bound[i][0]+np.random.random()*\
-                (self.var_bound[i][1]-self.var_bound[i][0]) 
+                    x[i]= np.random.uniform(self.var_bound[i][0], self.var_bound[i][1])
         return x
+
+
 ###############################################################################     
     def evaluate(self):
         return self.f(self.temp)
+    
 ###############################################################################    
     def sim(self, X):
         
-        self.temp = X.copy()
+        self.temp = X#.copy()
         
         obj = None
         try:
