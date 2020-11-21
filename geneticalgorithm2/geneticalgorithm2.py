@@ -66,7 +66,6 @@ class geneticalgorithm2():
                  variable_boundaries=None,\
                  variable_type_mixed=None, \
                  function_timeout=10,\
-                 no_plot = False,
                  algorithm_parameters={'max_num_iteration': None,\
                                        'population_size':100,\
                                        'mutation_probability':0.1,\
@@ -109,8 +108,6 @@ class geneticalgorithm2():
         output before function_timeout (unit is seconds) the algorithm raise error.
         For example, when there is an infinite loop in the given function. 
         
-        @param no_plot <boolean> - do not plot results using matplotlib by default
-
         @param algorithm_parameters:
             @ max_num_iteration <int> - stoping criteria of the genetic algorithm (GA)
             @ population_size <int> 
@@ -126,7 +123,6 @@ class geneticalgorithm2():
   
         '''
         self.__name__ = geneticalgorithm2
-        self.plot = not no_plot
         self.report = []
 
         #############################################################
@@ -259,9 +255,10 @@ class geneticalgorithm2():
 
         
         ############################################################# 
-    def run(self):
-        
-        
+    def run(self, no_plot = False):
+        """
+        @param no_plot <boolean> - do not plot results using matplotlib by default
+        """
         ############################################################# 
         # Initial Population
         
@@ -433,7 +430,7 @@ class geneticalgorithm2():
         sys.stdout.write('\n\n Objective function:\n %s\n' % (self.best_function))
         sys.stdout.flush() 
         
-        if self.plot:
+        if not no_plot:
             self.plot_results()
 
         if self.stop_mniwi==True:

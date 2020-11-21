@@ -1,5 +1,5 @@
 
-THIS IS THE SUPPORTED FORK OF NON-SUPPORTED PACKAGE https://github.com/rmsolgi/geneticalgorithm
+**THIS IS THE SUPPORTED FORK OF NON-SUPPORTED PACKAGE** https://github.com/rmsolgi/geneticalgorithm
 
 
 # geneticalgorithm2
@@ -537,6 +537,8 @@ model.run()
 
 ```
 ![](https://github.com/rmsolgi/geneticalgorithm/blob/master/genetic_algorithm_Weierstrass.gif)
+
+
 ## License
 
 Copyright 2020 **Ryan (Mohammad) Solgi**, **Demetry Pascal**
@@ -558,4 +560,36 @@ THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
 SOFTWARE.
+
+
+
+
+# Popular questions
+
+## How to disable autoplot?
+
+Just use `no_plot = True` param in `run` method:
+
+```python
+model.run(no_plot = True)
+```
+
+If u want, u can plot results later by using
+
+```python
+model.plot_results()
+```
+
+Also u can create your pretty plots using `model.report` object (it's a list of values):
+
+```python
+re = np.array(model.report)
+
+plt.plot(re)
+plt.xlabel('Iteration')
+plt.ylabel('Objective function')
+plt.title('Genetic Algorithm')
+plt.show()
+```
+
 

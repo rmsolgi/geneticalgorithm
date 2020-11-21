@@ -19,4 +19,4 @@ varbound = np.array([[0,10]]*3)
 
 model = ga(function=f, dimension=3, variable_type='real', variable_boundaries=varbound)
 
-model.run()
+model.run(no_plot = False)
