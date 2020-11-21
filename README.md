@@ -1,3 +1,5 @@
+[![PyPI
+version](https://badge.fury.io/py/BeeHiveOptimization.svg)](https://pypi.org/project/geneticalgorithm2/)
 
 **THIS IS THE SUPPORTED FORK OF NON-SUPPORTED PACKAGE** https://github.com/rmsolgi/geneticalgorithm
 
