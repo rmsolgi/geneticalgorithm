@@ -354,7 +354,10 @@ class geneticalgorithm2():
             # it can be vectorized
             for k in range(self.num_elit, self.par_s):
                 index = np.searchsorted(cumprob, np.random.random())
-                par[k] = pop[index].copy()
+                if index < cumprob.size:
+                    par[k] = pop[index].copy()
+                else:
+                    par[k] = pop[np.random.randint(0, index - 1)].copy()
                 
             ef_par_list = np.full(self.par_s, False) #np.array([False]*self.par_s)
             par_count = 0
