@@ -251,8 +251,8 @@ class geneticalgorithm2():
         "\n crossover_type must 'uniform', 'one_point', or 'two_point' Enter string" 
         
         
-        self.stop_mniwi=False
-        if self.param['max_iteration_without_improv'] == None:
+        self.stop_mniwi=False ## what
+        if self.param['max_iteration_without_improv'] == None or self.param['max_iteration_without_improv'] < 1:
             self.mniwi = self.iterate+1
         else: 
             self.mniwi = int(self.param['max_iteration_without_improv'])
@@ -270,22 +270,22 @@ class geneticalgorithm2():
         
         
         
-        pop = np.array([np.zeros(self.dim+1)]*self.pop_s)
-        solo = np.zeros(self.dim+1)
-        var = np.zeros(self.dim)       
+        pop = np.empty((self.pop_s, self.dim+1)) #np.array([np.zeros(self.dim+1)]*self.pop_s)
+        solo = np.empty(self.dim+1)
+        var = np.empty(self.dim)       
         
         for p in range(0, self.pop_s):
          
             for i in self.integers[0]:
-                var[i]=np.random.randint(self.var_bound[i][0],self.var_bound[i][1]+1)  
-                solo[i]=var[i].copy()
+                var[i] = np.random.randint(self.var_bound[i][0],self.var_bound[i][1]+1)  
+                solo[i] = var[i]#.copy()
             
             for i in self.reals[0]:
-                var[i] = self.var_bound[i][0]+np.random.random()*(self.var_bound[i][1]-self.var_bound[i][0])    
-                solo[i]=var[i].copy()
+                var[i] = np.random.uniform(self.var_bound[i][0], self.var_bound[i][1]) #self.var_bound[i][0]+np.random.random()*(self.var_bound[i][1]-self.var_bound[i][0])    
+                solo[i] = var[i]#.copy()
 
 
-            obj = self.sim(var)            
+            obj = self.sim(var)  # simulation returns exception or func value           
             solo[self.dim] = obj
             pop[p] = solo.copy()
 
@@ -300,7 +300,7 @@ class geneticalgorithm2():
         ##############################################################   
                         
         t=1
-        counter=0
+        counter = 0
         while t <= self.iterate:
             
             
@@ -312,7 +312,7 @@ class geneticalgorithm2():
                 
             if pop[0,self.dim] < self.best_function:
                 counter = 0
-                self.best_function=pop[0, self.dim].copy()
+                self.best_function=pop[0, self.dim]#.copy()
                 self.best_variable=pop[0,:self.dim].copy()
                 
                 self.progress(t, self.iterate, status = f"GA is running...{t} from {self.iterate}...best value = {self.best_function}")
@@ -329,36 +329,37 @@ class geneticalgorithm2():
             #normobj=  np.zeros(self.pop_s)
             
             minobj = pop[0, self.dim]
-            if minobj<0:
-                normobj=pop[:,self.dim]+abs(minobj)
+            if minobj < 0:
+                normobj=pop[:,self.dim] - minobj #+abs(minobj)
                 
             else:
                 normobj=pop[:,self.dim].copy()
     
             maxnorm = np.amax(normobj)
-            normobj = maxnorm-normobj + 1
+            normobj = (maxnorm + 1) - normobj 
 
             #############################################################        
             # Calculate probability
             
-            sum_normobj=np.sum(normobj)
-            #prob=np.zeros(self.pop_s)
-            prob=normobj/sum_normobj
-            cumprob=np.cumsum(prob)
+            sum_normobj = np.sum(normobj)
+            prob = normobj/sum_normobj
+            cumprob = np.cumsum(prob)
   
             #############################################################        
             # Select parents
-            par = np.array([np.zeros(self.dim+1)]*self.par_s)
+            par = np.empty((self.par_s, self.dim+1))  #np.array([np.zeros(self.dim+1)]*self.par_s)
             
             for k in range(0, self.num_elit):
                 par[k]=pop[k].copy()
+            # it can be vectorized
             for k in range(self.num_elit, self.par_s):
                 index = np.searchsorted(cumprob, np.random.random())
                 par[k] = pop[index].copy()
                 
-            ef_par_list = np.array([False]*self.par_s)
-            par_count=0
+            ef_par_list = np.full(self.par_s, False) #np.array([False]*self.par_s)
+            par_count = 0
             while par_count == 0:
+                # it can be vectorized
                 for k in range(0, self.par_s):
                     if np.random.random() <= self.prob_cross:
                         ef_par_list[k] = True
@@ -368,49 +369,53 @@ class geneticalgorithm2():
     
             #############################################################  
             #New generation
-            pop=np.array([np.zeros(self.dim+1)]*self.pop_s)
+            pop = np.empty((self.pop_s, self.dim+1))  #np.array([np.zeros(self.dim+1)]*self.pop_s)
             
-            for k in range(0,self.par_s):
-                pop[k]=par[k].copy()
+            for k in range(0 ,self.par_s):
+                pop[k] = par[k].copy()
                 
             for k in range(self.par_s, self.pop_s, 2):
-                r1=np.random.randint(0,par_count)
-                r2=np.random.randint(0,par_count)
-                pvar1=ef_par[r1,: self.dim].copy()
-                pvar2=ef_par[r2,: self.dim].copy()
+                r1 = np.random.randint(0, par_count)
+                r2 = np.random.randint(0, par_count)
+                pvar1 = ef_par[r1,:self.dim].copy()
+                pvar2 = ef_par[r2,:self.dim].copy()
                 
-                ch=self.cross(pvar1,pvar2,self.c_type)
-                ch1=ch[0].copy()
-                ch2=ch[1].copy()
+                ch = self.cross(pvar1, pvar2, self.c_type)
+                ch1 = ch[0]#.copy()
+                ch2 = ch[1]#.copy()
                 
-                ch1=self.mut(ch1)
-                ch2=self.mutmidle(ch2,pvar1,pvar2)               
-                solo[: self.dim]=ch1.copy()                
-                obj=self.sim(ch1)
-                solo[self.dim]=obj
-                pop[k]=solo.copy()                
-                solo[: self.dim]=ch2.copy()                
-                obj=self.sim(ch2)               
-                solo[self.dim]=obj
-                pop[k+1]=solo.copy()
+                ch1 = self.mut(ch1)
+                ch2 = self.mutmidle(ch2, pvar1, pvar2)               
+                
+                solo[: self.dim] = ch1.copy()                
+                obj = self.sim(ch1)
+                solo[self.dim] = obj
+                pop[k] = solo.copy()                
+                
+                solo[: self.dim] = ch2.copy()                
+                obj = self.sim(ch2)               
+                solo[self.dim] = obj
+                pop[k+1] = solo.copy()
         #############################################################       
-            t+=1
+            t += 1
             if counter > self.mniwi:
                 pop = pop[pop[:,self.dim].argsort()]
-                if pop[0,self.dim]>=self.best_function:
-                    t=self.iterate
-                    self.progress(t,self.iterate,status="GA is running...")
-                    time.sleep(2)
+                if pop[0,self.dim] >= self.best_function:
+                    t = self.iterate # to stop loop
+                    self.progress(t, self.iterate,status="GA is running...")
+                    time.sleep(0.7) #time.sleep(2)
                     t+=1
                     self.stop_mniwi=True
-                
+        
+        
+        
         #############################################################
         #Sort
         pop = pop[pop[:,self.dim].argsort()]
         
-        if pop[0,self.dim]<self.best_function:
+        if pop[0,self.dim] < self.best_function:
                 
-            self.best_function=pop[0,self.dim].copy()
+            self.best_function=pop[0,self.dim]#.copy()
             self.best_variable=pop[0,: self.dim].copy()
         #############################################################
         # Report
@@ -419,11 +424,9 @@ class geneticalgorithm2():
         
         
  
+        self.output_dict={'variable': self.best_variable, 'function': self.best_function}
         
-        self.output_dict={'variable': self.best_variable, 'function':\
-                          self.best_function}
-        
-        show=' '*100
+        show=' '*200
         sys.stdout.write('\r%s' % (show))
         sys.stdout.write('\r The best solution found:\n %s' % (self.best_variable))
         sys.stdout.write('\n\n Objective function:\n %s\n' % (self.best_function))
