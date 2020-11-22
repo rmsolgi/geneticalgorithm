@@ -371,7 +371,18 @@ successive iterations without improvement. If None it is ineffective
     
 **output**:  
   
-* *output_dict*: is a dictionary including the best set of variables found and the value of the given function associated to it. {'variable': , 'function': }
+* *output_dict*: is a dictionary including the best set of variables found and the value of the given function associated to it. Structure:
+```js
+output_dict = {
+            'variable': best_variable, // as 1D-array
+            'function': best_function_value, // a number
+            'last_generation': {
+                // values are sorted by scores
+                'variables':last_generation_variables, // 2D-array samples*dim
+                'scores': last_generation_function_values // 1D-array of scores
+                }
+            }
+```
 
 * *report*: is a record of the progress of the algorithm over iterations
 
@@ -667,9 +678,9 @@ model = ga(function=f, dimension=3,
 
 ########
 
-%time model.run(no_plot = False)
+%time model.run()
 # Wall time: 1min 52s
 
-%time model.run(no_plot = False, set_function= ga.set_function_multiprocess(f, n_jobs = 6))
+%time model.run(set_function= ga.set_function_multiprocess(f, n_jobs = 6))
 # Wall time: 31.7 s
 ```

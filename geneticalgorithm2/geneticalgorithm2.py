@@ -437,7 +437,14 @@ class geneticalgorithm2():
         
         
  
-        self.output_dict={'variable': self.best_variable, 'function': self.best_function}
+        self.output_dict = {
+            'variable': self.best_variable, 
+            'function': self.best_function,
+            'last_generation': {
+                'variables':pop[:, :-1],
+                'scores': pop[:, -1]
+                }
+            }
         
         show=' '*200
         sys.stdout.write('\r%s' % (show))
