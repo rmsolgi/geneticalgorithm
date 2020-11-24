@@ -1,7 +1,7 @@
 [![PyPI
 version](https://badge.fury.io/py/geneticalgorithm2.svg)](https://pypi.org/project/geneticalgorithm2/)
 
-**THIS IS THE SUPPORTED FORK OF NON-SUPPORTED PACKAGE** https://github.com/rmsolgi/geneticalgorithm
+**THIS IS THE SUPPORTED ADVANCED FORK OF NON-SUPPORTED PACKAGE** https://github.com/rmsolgi/geneticalgorithm
 
 
 # geneticalgorithm2
@@ -365,7 +365,8 @@ successive iterations without improvement. If None it is ineffective
         
 * @param **set_function**: 2D-array -> 1D-array function, which applyes to matrix of population (size (samples, dimention)) to estimate their values
         
-* @param **apply_function_to_parents** <boolean> - apply function to parents from previous generation (if it's needed)  
+* @param **apply_function_to_parents** <boolean> - apply function to parents from previous generation (if it's needed)
+* @param **start_generation** <dictionary> - a dictionary with structure `{'variables':2D-array of samples, 'scores': function values on samples}`. If 'scores' value is None the scores will be compute  
 
 **param**: a dictionary of parameters of the genetic algorithm (GA)
     
@@ -683,4 +684,60 @@ model = ga(function=f, dimension=3,
 
 %time model.run(set_function= ga.set_function_multiprocess(f, n_jobs = 6))
 # Wall time: 31.7 s
+```
+
+## How to initialize start population? How to continue optimization with new run
+
+For this there is `start_generation` parameter if `run()` method. It's the dictionary with structure like returned `model.output_dict['last_generation']`. Let's see example how can u to use it:
+
+```python
+import numpy as np
+from geneticalgorithm2 import geneticalgorithm2 as ga
+
+def f(X):
+    return np.sum(X)
+    
+dim = 6
+    
+varbound = np.array([[0,10]]*dim)
+
+
+algorithm_param = {'max_num_iteration': 500,
+                   'population_size':100,
+                   'mutation_probability':0.1,
+                   'elit_ratio': 0.01,
+                   'crossover_probability': 0.5,
+                   'parents_portion': 0.3,
+                   'crossover_type':'uniform',
+                   'max_iteration_without_improv':None}
+
+model = ga(function=f, 
+           dimension=dim, 
+           variable_type='real', 
+           variable_boundaries=varbound,
+           algorithm_parameters = algorithm_param)
+
+# start generation
+# as u see u can use any values been valid for ur function
+samples = np.random.uniform(0, 50, (300, dim)) # 300 is the new size of your generation
+
+
+
+model.run(no_plot = True, start_generation={'variables':samples, 'scores': None}) 
+# it's not necessary to evaluate scores before
+# but u can do it if u have evaluated scores and don't wanna repeat calcucations
+
+##
+## after first run
+## best value = 0.10426190111045064
+##
+
+# okay, let's continue optimization using saved last generation
+model.run(no_plot = True, start_generation=model.output_dict['last_generation']) 
+
+##
+## after second run
+## best value = 0.06128462776296528
+##
+
 ```

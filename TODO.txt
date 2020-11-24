@@ -1,6 +1,4 @@
 
-Add feature: start from population created by user
-
 New mutations
 
 New crossover

@@ -256,7 +256,7 @@ class geneticalgorithm2():
 
         
         ############################################################# 
-    def run(self, no_plot = False, set_function = None, apply_function_to_parents = False):
+    def run(self, no_plot = False, set_function = None, apply_function_to_parents = False, start_generation = {'variables':None, 'scores': None}):
         """
         @param no_plot <boolean> - do not plot results using matplotlib by default
         
@@ -264,6 +264,9 @@ class geneticalgorithm2():
         to estimate their values
         
         @param apply_function_to_parents <boolean> - apply function to parents from previous generation (if it's needed)
+                                                                                                         
+        @param start_generation <dictionary> - a dictionary with structure {'variables':2D-array of samples, 'scores': function values on samples}                                                                                                
+        if 'scores' value is None the scores will be compute
         """
         ############################################################# 
         # Initial Population
@@ -274,25 +277,45 @@ class geneticalgorithm2():
         if set_function == None:
             set_function = geneticalgorithm2.default_set_function(self.f)
         
-        pop = np.empty((self.pop_s, self.dim+1)) #np.array([np.zeros(self.dim+1)]*self.pop_s)
-        solo = np.empty(self.dim+1)
-        var = np.empty(self.dim)       
-        
-        for p in range(0, self.pop_s):
-         
-            for i in self.integers[0]:
-                var[i] = np.random.randint(self.var_bound[i][0],self.var_bound[i][1]+1)  
-                solo[i] = var[i]#.copy()
+        if start_generation['variables'] is None:
+                    
+            pop = np.empty((self.pop_s, self.dim+1)) #np.array([np.zeros(self.dim+1)]*self.pop_s)
+            solo = np.empty(self.dim+1)
+            var = np.empty(self.dim)       
             
-            for i in self.reals[0]:
-                var[i] = np.random.uniform(self.var_bound[i][0], self.var_bound[i][1]) #self.var_bound[i][0]+np.random.random()*(self.var_bound[i][1]-self.var_bound[i][0])    
-                solo[i] = var[i]#.copy()
-
-
-            obj = self.sim(var)  # simulation returns exception or func value           
-            solo[self.dim] = obj
-            pop[p] = solo.copy()
-
+            for p in range(0, self.pop_s):
+             
+                for i in self.integers[0]:
+                    var[i] = np.random.randint(self.var_bound[i][0],self.var_bound[i][1]+1)  
+                    solo[i] = var[i]#.copy()
+                
+                for i in self.reals[0]:
+                    var[i] = np.random.uniform(self.var_bound[i][0], self.var_bound[i][1]) #self.var_bound[i][0]+np.random.random()*(self.var_bound[i][1]-self.var_bound[i][0])    
+                    solo[i] = var[i]#.copy()
+    
+    
+                obj = self.sim(var)  # simulation returns exception or func value           
+                solo[self.dim] = obj
+                pop[p] = solo.copy()
+        else:
+            assert (start_generation['variables'].shape[1] == self.dim), f"incorrect dimention ({start_generation['variables'].shape[1]}) of population, should be {self.dim}"
+            
+            self.pop_s = start_generation['variables'].shape[0]
+            pop = np.empty((self.pop_s, self.dim+1))
+            pop[:,:-1] = start_generation['variables']
+            
+            if not (start_generation['scores'] is None):
+                assert (start_generation['scores'].size == start_generation['variables'].shape[0]), f"count of samples ({start_generation['variables'].shape[0]}) must be equal score length ({start_generation['scores'].size})"
+                
+                pop[:, -1] = start_generation['scores']
+            else:
+                pop[:, -1] = set_function(pop[:,:-1])
+            
+            obj = pop[-1, -1] # some evaluated value
+            var = pop[-1, :-1] # some variable
+            solo = pop[-1, :]
+        
+        
         #############################################################
 
         #############################################################
