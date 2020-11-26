@@ -81,7 +81,7 @@ convergence = model.report
 solution = model.ouput_dict
 ```
 
-**output_dict** is a dictionary including the best set of variables found and the value of the given function associated to it ({'variable': , 'function': }). 
+**output_dict** is a dictionary including the best set of variables found and the value of the given function associated to it (`{'variable': , 'function': , 'last_generation': }`). 
 **report** is a list including the convergence of the algorithm over iterations
 
 ## The simple example with integer variables
@@ -213,14 +213,16 @@ also has some parameters. The parameters of geneticalgorithm is defined as a dic
 
 ```python
 
-algorithm_param = {'max_num_iteration': None,\
-                   'population_size':100,\
-                   'mutation_probability':0.1,\
-                   'elit_ratio': 0.01,\
-                   'crossover_probability': 0.5,\
-                   'parents_portion': 0.3,\
-                   'crossover_type':'uniform',\
-                   'max_iteration_without_improv':None}
+algorithm_param = {
+                   'max_num_iteration': None,
+                   'population_size':100,
+                   'mutation_probability':0.1,
+                   'elit_ratio': 0.01,
+                   'crossover_probability': 0.5,
+                   'parents_portion': 0.3,
+                   'crossover_type':'uniform',
+                   'max_iteration_without_improv':None
+                   }
 
 ```
 The above dictionary refers to the default values that has been set already. 
@@ -253,13 +255,13 @@ def f(X):
     
 varbound=np.array([[0,10]]*3)
 
-algorithm_param = {'max_num_iteration': 3000,\
-                   'population_size':100,\
-                   'mutation_probability':0.1,\
-                   'elit_ratio': 0.01,\
-                   'crossover_probability': 0.5,\
-                   'parents_portion': 0.3,\
-                   'crossover_type':'uniform',\
+algorithm_param = {'max_num_iteration': 3000,
+                   'population_size':100,
+                   'mutation_probability':0.1,
+                   'elit_ratio': 0.01,
+                   'crossover_probability': 0.5,
+                   'parents_portion': 0.3,
+                   'crossover_type':'uniform',
                    'max_iteration_without_improv':None}
 
 model=ga(function=f,\
@@ -345,16 +347,16 @@ variable_boundaries has to be defined.
 output before function_timeout (unit is seconds) the algorithm raise error.
 For example, when there is an infinite loop in the given function. 
         
-@**param algorithm_parameters**:  
-* @ max_num_iteration <int/None> - stoping criteria of the genetic algorithm (GA)  
-* @ population_size <int>   
-* @ mutation_probability <float in \[0,1\]>  
-* @ elit_ration <float in \[0,1\]>  
-* @ crossover_probability <float in \[0,1\]>  
-* @ parents_portion <float in \[0,1\]>  
-* @ crossover_type <string> - Default is 'uniform'; 'one_point' or 'two_point' 
+@**param algorithm_parameters**. Dictionary with keys:  
+* @ **max_num_iteration** <int/None> - stoping criteria of the genetic algorithm (GA)  
+* @ **population_size** <int>   
+* @ **mutation_probability** <float in \[0,1\]>  
+* @ **elit_ration** <float in \[0,1\]>  
+* @ **crossover_probability** <float in \[0,1\]>  
+* @ **parents_portion** <float in \[0,1\]>  
+* @ **crossover_type** <string> - Default is 'uniform'; 'one_point' or 'two_point' 
 are other options
-* @ max_iteration_without_improv <int/None> - maximum number of 
+* @ **max_iteration_without_improv** <int/None> - maximum number of 
 successive iterations without improvement. If None it is ineffective
 
 
@@ -538,13 +540,13 @@ def f(X):
     
 varbound=np.array([[-0.5,0.5]]*2)
 
-algorithm_param = {'max_num_iteration': 1000,\
-                   'population_size':100,\
-                   'mutation_probability':0.1,\
-                   'elit_ratio': 0.01,\
-                   'crossover_probability': 0.5,\
-                   'parents_portion': 0.3,\
-                   'crossover_type':'uniform',\
+algorithm_param = {'max_num_iteration': 1000,
+                   'population_size':100,
+                   'mutation_probability':0.1,
+                   'elit_ratio': 0.01,
+                   'crossover_probability': 0.5,
+                   'parents_portion': 0.3,
+                   'crossover_type':'uniform',
                    'max_iteration_without_improv':None}
 
 model=ga(function=f,dimension=2,\
@@ -686,9 +688,9 @@ model = ga(function=f, dimension=3,
 # Wall time: 31.7 s
 ```
 
-## How to initialize start population? How to continue optimization with new run
+## How to initialize start population? How to continue optimization with new run?
 
-For this there is `start_generation` parameter if `run()` method. It's the dictionary with structure like returned `model.output_dict['last_generation']`. Let's see example how can u to use it:
+For this there is `start_generation` parameter in `run()` method. It's the dictionary with structure like returned `model.output_dict['last_generation']`. Let's see example how can u to use it:
 
 ```python
 import numpy as np
