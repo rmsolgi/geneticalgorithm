@@ -321,6 +321,9 @@ class geneticalgorithm2():
         #############################################################
         # Report
         self.report = []
+        self.report_min = []
+        self.report_average = []
+        
         self.test_obj = obj
         self.best_variable = var.copy()
         self.best_function = obj
@@ -349,6 +352,8 @@ class geneticalgorithm2():
             # Report
 
             self.report.append(pop[0, self.dim])
+            self.report_min.append(pop[-1, self.dim])
+            self.report_average.append(np.mean(pop[:, self.dim]))
     
             ##############################################################         
             # Normalizing objective function 
@@ -457,6 +462,8 @@ class geneticalgorithm2():
         # Report
 
         self.report.append(pop[0,self.dim])
+        self.report_min.append(pop[-1, self.dim])
+        self.report_average.append(np.mean(pop[:, self.dim]))
         
         
  
@@ -483,7 +490,7 @@ class geneticalgorithm2():
                              ' maximum number of iterations without improvement was met!')
 ##############################################################################         
 
-    def plot_results(self):
+    def plot_results(self, show_mean = False):
         """
         Simple plot of self.report (if not empty)
         """
@@ -491,11 +498,16 @@ class geneticalgorithm2():
             sys.stdout.write("No results to plot!\n")
             return
 
-        re=np.array(self.report)
-        plt.plot(re)
-        plt.xlabel('Iteration')
-        plt.ylabel('Objective function')
+        bests = np.array(self.report)
+        means = np.array(self.report_average)
+        
+        if show_mean: plt.plot(means, color = 'red', label = 'mean by generation', linewidth = 1)
+        plt.plot(bests, color = 'blue', label = 'best of generation')
+        
+        plt.xlabel('Generation')
+        plt.ylabel('Minimized function')
         plt.title('Genetic Algorithm')
+        plt.legend()
         plt.show()
 
 ##############################################################################         
@@ -528,6 +540,9 @@ class geneticalgorithm2():
 ###############################################################################  
     
     def mut(self,x):
+        """
+        just mutation
+        """
         
         for i in self.integers[0]:
             if np.random.random() < self.prob_mut:
@@ -544,6 +559,10 @@ class geneticalgorithm2():
 
 ###############################################################################
     def mutmidle(self, x, p1, p2):
+        """
+        mutation oriented on parents
+        """
+        
         for i in self.integers[0]:
 
             if np.random.random() < self.prob_mut:
@@ -619,6 +638,187 @@ class geneticalgorithm2():
         return func
             
 ###############################################################################
+
+
+
+
+
+class Crossover:
+    
+    def get_copies(x, y):
+        return x.copy(), y.copy()
+    
+    def one_point():
+        
+        def func(x, y):
+            ofs1, ofs2 = Crossover.get_copies(x, y)
+        
+            ran=np.random.randint(0, x.size)
             
+            ofs1[:ran] = y[:ran]
+            ofs2[:ran] = x[:ran]
+            
+            return ofs1, ofs2
+        return func
+    
+    def two_point():
+        
+        def func(x, y):
+            ofs1, ofs2 = Crossover.get_copies(x, y)
+        
+            ran1=np.random.randint(0, x.size)
+            ran2=np.random.randint(ran1, x.size)
+            
+            ofs1[ran1:ran2] = y[ran1:ran2]
+            ofs2[ran1:ran2] = x[ran1:ran2]
+              
+            
+            return ofs1, ofs2
+        return func
+    
+    def uniform():
+        
+        def func(x, y):
+            ofs1, ofs2 = Crossover.get_copies(x, y)
+        
+            ran = np.random.random(x.size) < 0.5
+            ofs1[ran] = y[ran]
+            ofs2[ran] = x[ran]
+              
+            return ofs1, ofs2
+        
+        return func
+    
+    def segment(prob = 0.6):
+        
+        def func(x, y):
+            
+            ofs1, ofs2 = Crossover.get_copies(x, y)
+            
+            p = np.random.random(x.size) < prob
+            
+            for i, val in enumerate(p):
+                if val:
+                    ofs1[i], ofs2[i] = ofs2[i], ofs1[i]
+            
+            return ofs1, ofs2
+        
+        return func
+    
+    def shuffle():
+        
+        def func(x, y):
+            
+            ofs1, ofs2 = Crossover.get_copies(x, y)
+            
+            index = np.random.choice(np.arange(0, x.size), replace = False)
+            
+            ran = np.random.randint(0, x.size)
+            
+            for i in range(ran):
+                ind = index[i]
+                ofs1[ind] = y[ind]
+                ofs2[ind] = x[ind]
+            
+            return ofs1, ofs2
+            
+        return func
+    
+    #
+    #
+    # ONLY FOR REAL VARIABLES
+    #
+    #
+    
+    def arithmetic(alpha = 0.3):
+        
+        assert (alpha <=0 or alpha >=1), f"alpha parameter should be in (0,1), but got {alpha}"
+        
+        a, b = 1-alpha, alpha
+        
+        def func(x, y):
+            return a*x + b*y, a*y + b*x
+        
+        return func
+    
+    
+    def mixed(alpha = 0.5):
+        
+        def func(x,y):
+            
+            a = np.empty(x.size)
+            b = np.empty(y.size)
+            
+            x_min = np.minimum(a, b)
+            x_max = np.maximum(a, b)
+            delta = alpha*(x_max-x_min)
+            
+            for i in range(x.size):
+                a[i] = np.random.uniform(x_min[i] - delta[i], x_max[i] + delta[i])
+                b[i] = np.random.uniform(x_min[i] - delta[i], x_max[i] + delta[i])
+            
+            return a, b
+        
+        return func
+        
+
+class Mutaions:
+    
+    def uniform_by_x():
+        
+        def func(x, left, right):
+            alp = min(x - left, right - x)
+            return np.random.uniform(x - alp, x + alp)
+        return func
+    
+    
+    def uniform_by_center():
+        
+        def func(x, left, right):
+            return np.random.uniform(left, right)
+        
+        return func
+    
+    def gauss_by_x(sd = 0.3):
+        """
+        gauss mutation with x as center and sd*length_of_zone as std
+        """
+        def func(x, left, right):
+            std = sd * (right - left)
+            return max(left, min(right, np.random.normal(loc = x, scale = std)))
+    
+    def gauss_by_center(sd = 0.3):
+        """
+        gauss mutation with (left+right)/2 as center and sd*length_of_zone as std
+        """
+        def func(x, left, right):
+            std = sd * (right - left)
+            return max(left, min(right, np.random.normal(loc = (left+right)*0.5, scale = std)))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             
             
