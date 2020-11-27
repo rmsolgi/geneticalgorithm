@@ -62,22 +62,26 @@ class geneticalgorithm2():
                 algorithm over iterations
 
     '''
+    
+    default_params = {
+        'max_num_iteration': None,
+        'population_size':100,
+        'mutation_probability':0.1,
+        'elit_ratio': 0.01,
+        'crossover_probability': 0.5,
+        'parents_portion': 0.3,
+        'crossover_type':'uniform',
+        'mutation_type': 'uniform_by_center',
+        'max_iteration_without_improv':None
+        }
+    
+    
     #############################################################
     def __init__(self, function, dimension, variable_type='bool', \
                  variable_boundaries=None,\
                  variable_type_mixed=None, \
                  function_timeout=10,\
-                 algorithm_parameters={'max_num_iteration': None,\
-                                       'population_size':100,\
-                                       'mutation_probability':0.1,\
-                                       'elit_ratio': 0.01,\
-                                       'crossover_probability': 0.5,\
-                                       'parents_portion': 0.3,\
-                                       'crossover_type':'uniform',\
-                                       'mutation_type': 'uniform_by_center',\
-                                       'max_iteration_without_improv':None}):
-
-
+                 algorithm_parameters = default_params):
         '''
         @param function <Callable> - the given objective function to be minimized
         NOTE: This implementation minimizes the given objective function. 
@@ -200,6 +204,8 @@ class geneticalgorithm2():
         # input algorithm's parameters
         
         self.param = algorithm_parameters
+        self.param.update({key:val for key, val in geneticalgorithm2.default_params.items() if key not in list((algorithm_parameters.keys()))})
+        
         
         self.pop_s = int(self.param['population_size'])
         
