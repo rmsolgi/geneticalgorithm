@@ -23,3 +23,4 @@ SOFTWARE.
 '''
 
 from .geneticalgorithm2 import geneticalgorithm2
+from .geneticalgorithm2 import Crossover, Mutations

@@ -74,6 +74,7 @@ class geneticalgorithm2():
                                        'crossover_probability': 0.5,\
                                        'parents_portion': 0.3,\
                                        'crossover_type':'uniform',\
+                                       'mutation_type': 'uniform_by_center',\
                                        'max_iteration_without_improv':None}):
 
 
@@ -116,7 +117,8 @@ class geneticalgorithm2():
             @ elit_ration <float in [0,1]>
             @ crossover_probability <float in [0,1]>
             @ parents_portion <float in [0,1]>
-            @ crossover_type <string> - Default is 'uniform'; 'one_point' or 'two_point' are other options
+            @ crossover_type <string/function> - Default is 'uniform'; 'one_point' or 'two_point' (not only) are other options
+            @ mutation_type <string/function> - Default is 'uniform_by_x'; see GitHub to check other options
             @ max_iteration_without_improv <int> - maximum number of successive iterations without improvement. If None it is ineffective
         
         for more details and examples of implementation please visit:
@@ -166,6 +168,8 @@ class geneticalgorithm2():
                 
 
             self.var_type = variable_type_mixed
+            
+        self.set_crossover_and_mutations(algorithm_parameters['crossover_type'], algorithm_parameters['mutation_type'])
         #############################################################
         # input variables' boundaries 
 
@@ -243,10 +247,6 @@ class geneticalgorithm2():
         else:
             self.iterate = int(self.param['max_num_iteration'])
         
-        self.c_type = self.param['crossover_type']
-        assert (self.c_type in ['uniform','one_point','two_point']),\
-        "\n crossover_type must 'uniform', 'one_point', or 'two_point' Enter string" 
-        
         
         self.stop_mniwi=False ## what
         if self.param['max_iteration_without_improv'] == None or self.param['max_iteration_without_improv'] < 1:
@@ -255,6 +255,41 @@ class geneticalgorithm2():
             self.mniwi = int(self.param['max_iteration_without_improv'])
 
         
+
+    def set_crossover_and_mutations(self, crossover, mutation):
+        
+        if type(crossover) == str:
+            if crossover == 'one_point':
+                self.crossover = Crossover.one_point()
+            elif crossover == 'two_point':
+                self.crossover = Crossover.two_point()
+            elif crossover == 'uniform':
+                self.crossover = Crossover.uniform()
+            elif crossover == 'segment':
+                self.crossover = Crossover.segment()
+            elif crossover == 'shuffle':
+                self.crossover = Crossover.shuffle()
+            else:
+                raise Exception(f"unknown type of crossover: {crossover}")
+        else:
+            self.crossover = crossover 
+        
+        if type(mutation) == str:
+            if mutation == 'uniform_by_x':
+                self.real_mutation = Mutations.uniform_by_x()
+            elif mutation == 'uniform_by_center':
+                self.real_mutation = Mutations.uniform_by_center()
+            elif mutation == 'gauss_by_center':
+                self.real_mutation = Mutations.gauss_by_center()
+            elif mutation == 'gauss_by_x':
+                self.real_mutation = Mutations.gauss_by_x()
+            else:
+                raise Exception(f"unknown type of mutation: {mutation}")
+        else:
+            self.real_mutation = mutation
+
+
+
         ############################################################# 
     def run(self, no_plot = False, set_function = None, apply_function_to_parents = False, start_generation = {'variables':None, 'scores': None}):
         """
@@ -415,7 +450,7 @@ class geneticalgorithm2():
                 pvar1 = ef_par[r1,:self.dim].copy()
                 pvar2 = ef_par[r2,:self.dim].copy()
                 
-                ch1, ch2 = self.cross(pvar1, pvar2, self.c_type)
+                ch1, ch2 = self.crossover(pvar1, pvar2)
                 
                 ch1 = self.mut(ch1)
                 ch2 = self.mutmidle(ch2, pvar1, pvar2)               
@@ -510,33 +545,8 @@ class geneticalgorithm2():
         plt.legend()
         plt.show()
 
-##############################################################################         
-    def cross(self, x, y, c_type):
-         
-        ofs1=x.copy()
-        ofs2=y.copy()
-        
 
-        if c_type=='one_point':
-            ran=np.random.randint(0, self.dim)
-            ofs1[:ran] = y[:ran]
-            ofs2[:ran] = x[:ran]
-  
-        elif c_type=='two_point':
-                
-            ran1=np.random.randint(0, self.dim)
-            ran2=np.random.randint(ran1, self.dim)
-            
-            ofs1[ran1:ran2] = y[ran1:ran2]
-            ofs2[ran1:ran2] = x[ran1:ran2]
-              
-        elif c_type=='uniform':
-            ran = np.random.random(self.dim) < 0.5
-            ofs1[ran] = y[ran]
-            ofs2[ran] = x[ran]
-                   
-        
-        return (ofs1, ofs2)
+
 ###############################################################################  
     
     def mut(self,x):
@@ -551,9 +561,8 @@ class geneticalgorithm2():
         
 
         for i in self.reals[0]:                
-            if np.random.random() < self.prob_mut:   
-               x[i]=np.random.uniform(self.var_bound[i][0], self.var_bound[i][1]) #self.var_bound[i][0]+np.random.random()*\
-                #(self.var_bound[i][1]-self.var_bound[i][0])    
+            if np.random.random() < self.prob_mut:
+                x[i] = self.real_mutation(x[i], self.var_bound[i][0], self.var_bound[i][1]) 
             
         return x
 
@@ -711,7 +720,7 @@ class Crossover:
             
             ofs1, ofs2 = Crossover.get_copies(x, y)
             
-            index = np.random.choice(np.arange(0, x.size), replace = False)
+            index = np.random.choice(np.arange(0, x.size), x.size, replace = False)
             
             ran = np.random.randint(0, x.size)
             
@@ -730,13 +739,11 @@ class Crossover:
     #
     #
     
-    def arithmetic(alpha = 0.3):
-        
-        assert (alpha <=0 or alpha >=1), f"alpha parameter should be in (0,1), but got {alpha}"
-        
-        a, b = 1-alpha, alpha
+    def arithmetic():
         
         def func(x, y):
+            b = np.random.random()
+            a = 1-b
             return a*x + b*y, a*y + b*x
         
         return func
@@ -762,7 +769,7 @@ class Crossover:
         return func
         
 
-class Mutaions:
+class Mutations:
     
     def uniform_by_x():
         
@@ -786,6 +793,8 @@ class Mutaions:
         def func(x, left, right):
             std = sd * (right - left)
             return max(left, min(right, np.random.normal(loc = x, scale = std)))
+        
+        return func
     
     def gauss_by_center(sd = 0.3):
         """
@@ -794,6 +803,8 @@ class Mutaions:
         def func(x, left, right):
             std = sd * (right - left)
             return max(left, min(right, np.random.normal(loc = (left+right)*0.5, scale = std)))
+        
+        return func
 
 
 
