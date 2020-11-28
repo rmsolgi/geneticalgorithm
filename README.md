@@ -3,7 +3,31 @@ version](https://badge.fury.io/py/geneticalgorithm2.svg)](https://pypi.org/proje
 
 **This is the supported advanced fork of non-supported package** [geneticalgorithm](https://github.com/rmsolgi/geneticalgorithm)
 
-
+- [About](#about)
+- [Installation](#installation)
+- [Working process](#working-process)
+  - [Methods and Properties of model:](#methods-and-properties-of-model)
+  - [Function parameters](#function-parameters)
+  - [Genetic algorithm's parameters](#genetic-algorithms-parameters)
+- [Examples](#examples)
+  - [A minimal example](#a-minimal-example)
+  - [The simple example with integer variables](#the-simple-example-with-integer-variables)
+  - [The simple example with Boolean variables](#the-simple-example-with-boolean-variables)
+  - [The simple example with mixed variables](#the-simple-example-with-mixed-variables)
+  - [Optimization problems with constraints](#optimization-problems-with-constraints)
+  - [Function timeout](#function-timeout)
+  - [Standard GA vs. Elitist GA](#standard-ga-vs-elitist-ga)
+  - [Hints on how to adjust genetic algorithm's parameters](#hints-on-how-to-adjust-genetic-algorithms-parameters)
+  - [Optimization test functions](#optimization-test-functions)
+  - [Rastrigin](#rastrigin)
+  - [Ackley](#ackley)
+  - [Weierstrass](#weierstrass)
+- [Popular questions](#popular-questions)
+  - [How to disable autoplot?](#how-to-disable-autoplot)
+  - [How to specify evaluated function for all population?](#how-to-specify-evaluated-function-for-all-population)
+  - [What about parallelism?](#what-about-parallelism)
+  - [How to initialize start population? How to continue optimization with new run?](#how-to-initialize-start-population-how-to-continue-optimization-with-new-run)
+- [License](#license)
 # About
 
 **geneticalgorithm2** is a Python library distributed on [PyPI](https://pypi.org) for implementing standard and elitist 
@@ -14,15 +38,15 @@ This package solves *continuous*, [*combinatorial*](https://en.wikipedia.org/wik
 with continuous, discrete, and mixed variables.
 It provides an easy implementation of genetic-algorithm (GA) in Python.   
     
-## Installation
+# Installation
 
-Use the package manager [pip](https://pip.pypa.io/en/stable/) to install geneticalgorithm in Python.
+Use the package manager [pip](https://pip.pypa.io/en/stable/) to install geneticalgorithm2 in Python.
 
 ```python
 pip install geneticalgorithm2
 ```
 
-## Working process
+# Working process
 
 Firstly, u should **import needed packages**:
 
@@ -55,7 +79,7 @@ Okay, also u should **create the bounds for each variable** (if exist) like here
 var_bound = np.array([[0,10]]*3)
 ```
 
-After that **create a `geneticalgorithm` object**:
+After that **create a `geneticalgorithm2` object**:
 ```python
 
 model = ga(function, dimension = 3, 
@@ -297,8 +321,8 @@ If this parameter's value is `None` the algorithm sets maximum number of iterati
 Assume we want to find a set of `X = (x1,x2,x3)` that minimizes function `f(X)=x1+x2+x3` where `X` can be any real number in \[0,10\].
 
 This is a trivial problem and we already know that the answer is `X=(0,0,0)` where `f(X)=0`.  
-We just use this simple example to see how to implement geneticalgorithm. First we import geneticalgorithm and [numpy](https://numpy.org). Next, we define 
-function `f` which we want to minimize and the boundaries of the decision variables. Then simply geneticalgorithm is called to solve the defined optimization problem as follows:
+We just use this simple example to see how to implement geneticalgorithm2. First we import geneticalgorithm2 and [numpy](https://numpy.org). Next, we define 
+function `f` which we want to minimize and the boundaries of the decision variables. Then simply geneticalgorithm2 is called to solve the defined optimization problem as follows:
 
 ```python
 import numpy as np
@@ -323,11 +347,11 @@ them have the same boundaries (For the case the boundaries are different see the
  
 
     
-**geneticalgorithm has some arguments**:   
+**geneticalgorithm2 has some arguments**:   
 1. Obviously the first argument is the function f we already defined (for more details about the argument and output see [Function](#1111-id)).  
 1. Our problem has three variables so we set dimension equal three.   
 1. Variables are real (continuous) so we use string 'real' to notify the type of 
-variables (geneticalgorithm accepts other types including Boolean, Integers and 
+variables (geneticalgorithm2 accepts other types including Boolean, Integers and 
 Mixed; see other examples).  
 1. Finally, we input varbound which includes the boundaries of the variables. 
 Note that the length of variable_boundaries must be equal to dimension.
@@ -335,10 +359,9 @@ Note that the length of variable_boundaries must be equal to dimension.
 If you run the code, you should see a progress bar that shows the progress of the 
 genetic algorithm (GA) and then the solution, objective function value and the convergence curve as follows:
 
+![](https://github.com/PasaOpasen/geneticalgorithm2/blob/master/genetic_algorithm_convergence.gif)
 
-![](https://github.com/rmsolgi/geneticalgorithm/blob/master/genetic_algorithm_convergence.gif)
-
-Also we can access to the best answer of the defined optimization problem found by geneticalgorithm as a dictionary and a report of the progress of the genetic algorithm. 
+Also we can access to the best answer of the defined optimization problem found by GA as a dictionary and a report of the progress of the genetic algorithm. 
 To do so we complete the code as follows:
 
 ```python
@@ -399,7 +422,7 @@ Note that when variable_type equal 'bool' there is no need for variable_boundari
 Considering the problem given in the the simple example above where we want to minimize `f(X)=x1+x2+x3`. 
 Now assume x1 is a real (continuous) variable in \[0.5,1.5\], `x2` is an integer variable in \[1,100\], and `x3` is a Boolean variable that can be either zero or one.
 We already know that the answer is `X=(0.5,1,0)` where `f(X)=1.5`
-We implement geneticalgorithm as the following:
+We implement geneticalgorithm2 as the following:
 
 ```python
 
@@ -453,7 +476,7 @@ Some hints about how to define a penalty function:
 
 ## Function timeout
 
-geneticalgorithm is designed such that if the given function does not provide
+geneticalgorithm2 is designed such that if the given function does not provide
 any output before timeout (the default value is 10 seconds), the algorithm
 would be terminated and raise the appropriate error. In such a case make sure the given function
 works correctly (i.e. there is no infinite loop in the given function). Also if the given function takes more than 10 seconds to complete the work
@@ -461,12 +484,7 @@ make sure to increase function_timeout in arguments.
 
 ## Standard GA vs. Elitist GA
 
-The convergence curve of an elitist genetic algorithm is always non-increasing. So,
-the best ever found solution is equal to the best solution of the last iteration. However,
-the convergence curve of a standard genetic algorithm is different. If elit_ratio is zero
-geneticalgroithm implements a standard GA. The output of geneticalgorithm for standard GA is the best
-ever found solution not the solution of the last iteration. The difference 
-between the convergence curve of standard GA and elitist GA is shown below:
+The convergence curve of an elitist genetic algorithm is always non-increasing. So, the best ever found solution is equal to the best solution of the last iteration. However, the convergence curve of a standard genetic algorithm is different. If `elit_ratio` is zero geneticalgroithm2 implements a standard GA. The output of geneticalgorithm2 for standard GA is the best ever found solution not the solution of the last iteration. The difference between the convergence curve of standard GA and elitist GA is shown below:
 
 ![](https://github.com/rmsolgi/geneticalgorithm/blob/master/genetic_algorithm_convergence_curve.gif)
 
@@ -509,7 +527,7 @@ When we study the convergence of a genetic algorithm we compare the objective fu
 
 ## Optimization test functions
 
-Implementation of geneticalgorithm for some benchmark problems:
+Implementation of geneticalgorithm2 for some benchmark problems:
 
 ## [Rastrigin](https://en.wikipedia.org/wiki/Rastrigin_function)
 

@@ -1,6 +1,3 @@
 
-New mutations
-
-New crossover
 
 New selection 

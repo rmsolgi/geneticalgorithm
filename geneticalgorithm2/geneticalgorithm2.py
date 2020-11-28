@@ -132,6 +132,12 @@ class geneticalgorithm2():
         self.__name__ = geneticalgorithm2
         self.report = []
 
+        # input algorithm's parameters
+        
+        self.param = algorithm_parameters
+        self.param.update({key:val for key, val in geneticalgorithm2.default_params.items() if key not in list((algorithm_parameters.keys()))})
+        
+
         #############################################################
         # input function
         assert (callable(function)), "function must be callable!"     
@@ -201,11 +207,7 @@ class geneticalgorithm2():
         self.funtimeout = float(function_timeout)
         
         ############################################################# 
-        # input algorithm's parameters
-        
-        self.param = algorithm_parameters
-        self.param.update({key:val for key, val in geneticalgorithm2.default_params.items() if key not in list((algorithm_parameters.keys()))})
-        
+
         
         self.pop_s = int(self.param['population_size'])
         
