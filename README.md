@@ -442,11 +442,11 @@ model.run()
 ```
 
 Note that for mixed variables we need to define boundaries also we need to make a numpy array of variable types as above (vartype). Obviously the order of variables in both arrays must match. Also notice that in such a case for Boolean variables we use string 'int' and boundary \[0,1\].  
-Notice that we use argument variable_type_mixed to input a numpy array of variable types for functions with mixed variables.
+Notice that we use argument `variable_type_mixed` to input a numpy array of variable types for functions with mixed variables.
 
 
 ## Optimization problems with constraints
-In all above examples, the optimization problem was unconstrained. Now consider that we want to minimize f(X)=x1+x2+x3 where X is a set of real variables in \[0,10\]. Also we have an extra constraint so that sum of x1 and x2 is equal or greater than 2. The minimum of f(X) is 2.
+In all above examples, the optimization problem was unconstrained. Now consider that we want to minimize `f(X)=x1+x2+x3` where `X` is a set of real variables in \[0,10\]. Also we have an extra constraint so that sum of `x1` and `x2` is equal or greater than 2. The minimum of `f(X)` is 2.
 In such a case, a trick is to define penalty function. Hence we use the code below:
 
 ```python
