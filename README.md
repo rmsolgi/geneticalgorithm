@@ -15,10 +15,11 @@ version](https://badge.fury.io/py/geneticalgorithm2.svg)](https://pypi.org/proje
   - [The simple example with Boolean variables](#the-simple-example-with-boolean-variables)
   - [The simple example with mixed variables](#the-simple-example-with-mixed-variables)
   - [Optimization problems with constraints](#optimization-problems-with-constraints)
+- [U should know it](#u-should-know-it)
   - [Function timeout](#function-timeout)
   - [Standard GA vs. Elitist GA](#standard-ga-vs-elitist-ga)
   - [Hints on how to adjust genetic algorithm's parameters](#hints-on-how-to-adjust-genetic-algorithms-parameters)
-  - [Optimization test functions](#optimization-test-functions)
+- [Optimization test functions](#optimization-test-functions)
   - [Rastrigin](#rastrigin)
   - [Ackley](#ackley)
   - [Weierstrass](#weierstrass)
@@ -473,6 +474,7 @@ Some hints about how to define a penalty function:
 3. How to define penalty function usually influences the convergence rate of an evolutionary algorithm. In my [book on metaheuristics and evolutionary algorithms](https://www.wiley.com/en-us/Meta+heuristic+and+Evolutionary+Algorithms+for+Engineering+Optimization-p-9781119386995) you can learn more about that. 
 4. Finally after you solved the problem test the solution to see if boundaries are met. If the solution does not meet constraints, it shows that a bigger penalty is required. However, in problems where optimum is exactly on the boundary of the feasible region (or very close to the constraints) which is common in some kinds of problems, a very strict and big penalty may prevent the genetic algorithm to approach the optimal region. In such a case designing an appropriate penalty function might be more challenging. Actually what we have to do is to design a penalty function that let the algorithm searches unfeasible domain while finally converge to a feasible solution. Hence you may need more sophisticated penalty functions. But in most cases the above formulation work fairly well.
 
+# U should know it
 
 ## Function timeout
 
@@ -525,7 +527,7 @@ depends but usually five or ten runs is prevalent. Notice that in some problems
 several possible set of variables produces the same objective function value. 
 When we study the convergence of a genetic algorithm we compare the objective function values not the decision variables.
 
-## Optimization test functions
+# Optimization test functions
 
 Implementation of geneticalgorithm2 for some benchmark problems:
 
