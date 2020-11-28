@@ -15,6 +15,7 @@ version](https://badge.fury.io/py/geneticalgorithm2.svg)](https://pypi.org/proje
   - [The simple example with Boolean variables](#the-simple-example-with-boolean-variables)
   - [The simple example with mixed variables](#the-simple-example-with-mixed-variables)
   - [Optimization problems with constraints](#optimization-problems-with-constraints)
+  - [Select fixed count of objects from set](#select-fixed-count-of-objects-from-set)
 - [U should know it](#u-should-know-it)
   - [Function timeout](#function-timeout)
   - [Standard GA vs. Elitist GA](#standard-ga-vs-elitist-ga)
@@ -473,6 +474,76 @@ Some hints about how to define a penalty function:
 2. Use a coefficient big enough and multiply that by the amount of violation. This helps the algorithm learn how to approach feasible domain.
 3. How to define penalty function usually influences the convergence rate of an evolutionary algorithm. In my [book on metaheuristics and evolutionary algorithms](https://www.wiley.com/en-us/Meta+heuristic+and+Evolutionary+Algorithms+for+Engineering+Optimization-p-9781119386995) you can learn more about that. 
 4. Finally after you solved the problem test the solution to see if boundaries are met. If the solution does not meet constraints, it shows that a bigger penalty is required. However, in problems where optimum is exactly on the boundary of the feasible region (or very close to the constraints) which is common in some kinds of problems, a very strict and big penalty may prevent the genetic algorithm to approach the optimal region. In such a case designing an appropriate penalty function might be more challenging. Actually what we have to do is to design a penalty function that let the algorithm searches unfeasible domain while finally converge to a feasible solution. Hence you may need more sophisticated penalty functions. But in most cases the above formulation work fairly well.
+
+## Select fixed count of objects from set
+
+For some task u need think a lot and create good specific crossover or mutation functions. For example, take a look at this problem:
+
+    From set like X = {x1, x2, x3, ..., xn} u should select only k objects which get the best function value
+
+U can do it using this code:
+```python
+import numpy as np
+from geneticalgorithm2 import geneticalgorithm2 as ga
+
+
+subset_size = 20 # how many objects we can choose
+
+objects_count = 100 # how many objects are in set
+
+my_set = np.random.random(objects_count)*10 - 5 # set values
+
+# minimized function
+def f(X):
+    return abs(np.mean(my_set[X==1]) - np.median(my_set[X==1]))
+
+# initialize start generation and params
+
+N = 1000 # size of population
+start_generation = np.zeros((N, objects_count))
+indexes = np.arange(0, objects_count, dtype = np.int8) # indexes of variables
+
+for i in range(N):
+    inds = np.random.choice(indexes, subset_size, replace = False)
+    start_generation[i, inds] = 1 
+
+
+def my_crossover(parent_a, parent_b):
+    a_indexes = set(indexes[parent_a == 1])
+    b_indexes = set(indexes[parent_b == 1])
+    
+    intersect = a_indexes.intersection(b_indexes) # elements in both parents
+    a_only = a_indexes - intersect # elements only in 'a' parent
+    b_only = b_indexes - intersect
+    
+    child_inds = np.array(list(a_only) + list(b_only), dtype = np.int8)
+    np.random.shuffle(child_inds) # mix
+    
+    childs = np.zeros((2, parent_a.size))
+    if intersect:
+        childs[:, np.array(list(intersect))] = 1
+    childs[0, child_inds[:int(child_inds.size/2)]] = 1
+    childs[1, child_inds[int(child_inds.size/2):]] = 1
+    
+    return childs[0,:], childs[1,:]
+    
+
+model = ga(function=f, 
+           dimension=objects_count, 
+           variable_type='bool',
+           algorithm_parameters={
+                       'max_num_iteration': 500,
+                       'mutation_probability': 0, # no mutation, just crossover
+                       'elit_ratio': 0.05,
+                       'crossover_probability': 0.5,
+                       'parents_portion': 0.3,
+                       'crossover_type': my_crossover,
+                       'max_iteration_without_improv': 20
+               }
+           )
+
+model.run(no_plot = False, start_generation={'variables': start_generation, 'scores': None})
+```
 
 # U should know it
 

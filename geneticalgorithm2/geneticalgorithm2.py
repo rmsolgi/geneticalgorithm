@@ -460,8 +460,9 @@ class geneticalgorithm2():
                 
                 ch1, ch2 = self.crossover(pvar1, pvar2)
                 
-                ch1 = self.mut(ch1)
-                ch2 = self.mutmidle(ch2, pvar1, pvar2)               
+                if self.prob_mut > 0:
+                    ch1 = self.mut(ch1)
+                    ch2 = self.mutmidle(ch2, pvar1, pvar2)               
                 
                 solo[: self.dim] = ch1.copy()                
                 #solo[self.dim] = self.sim(ch1)
