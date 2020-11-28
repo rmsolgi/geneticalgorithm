@@ -486,7 +486,7 @@ make sure to increase function_timeout in arguments.
 
 The convergence curve of an elitist genetic algorithm is always non-increasing. So, the best ever found solution is equal to the best solution of the last iteration. However, the convergence curve of a standard genetic algorithm is different. If `elit_ratio` is zero geneticalgroithm2 implements a standard GA. The output of geneticalgorithm2 for standard GA is the best ever found solution not the solution of the last iteration. The difference between the convergence curve of standard GA and elitist GA is shown below:
 
-![](https://github.com/rmsolgi/geneticalgorithm/blob/master/genetic_algorithm_convergence_curve.gif)
+![](https://github.com/PasaOpasen/geneticalgorithm2/blob/master/tests/standard_vs_elitist.png)
 
 ## Hints on how to adjust genetic algorithm's parameters
 
