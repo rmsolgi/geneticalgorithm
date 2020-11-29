@@ -28,6 +28,8 @@ SOFTWARE.
 
 import sys
 import time
+import random
+import math
 
 import numpy as np
 from joblib import Parallel, delayed
@@ -72,6 +74,7 @@ class geneticalgorithm2():
         'parents_portion': 0.3,
         'crossover_type':'uniform',
         'mutation_type': 'uniform_by_center',
+        'selection_type': 'roulette',
         'max_iteration_without_improv':None
         }
     
@@ -123,6 +126,7 @@ class geneticalgorithm2():
             @ parents_portion <float in [0,1]>
             @ crossover_type <string/function> - Default is 'uniform'; 'one_point' or 'two_point' (not only) are other options
             @ mutation_type <string/function> - Default is 'uniform_by_x'; see GitHub to check other options
+            @ selection_type <string/function> - Default is 'roulette'; see GitHub to check other options
             @ max_iteration_without_improv <int> - maximum number of successive iterations without improvement. If None it is ineffective
         
         for more details and examples of implementation please visit:
@@ -179,7 +183,7 @@ class geneticalgorithm2():
 
             self.var_type = variable_type_mixed
             
-        self.set_crossover_and_mutations(algorithm_parameters['crossover_type'], algorithm_parameters['mutation_type'])
+        self.set_crossover_and_mutations(algorithm_parameters['crossover_type'], algorithm_parameters['mutation_type'], algorithm_parameters['selection_type'])
         #############################################################
         # input variables' boundaries 
 
@@ -264,7 +268,7 @@ class geneticalgorithm2():
 
         
 
-    def set_crossover_and_mutations(self, crossover, mutation):
+    def set_crossover_and_mutations(self, crossover, mutation, selection):
         
         if type(crossover) == str:
             if crossover == 'one_point':
@@ -295,7 +299,26 @@ class geneticalgorithm2():
                 raise Exception(f"unknown type of mutation: {mutation}")
         else:
             self.real_mutation = mutation
-
+            
+        if type(selection) == str:
+            if selection == 'fully_random':
+                self.selection = Selection.fully_random()
+            elif selection == 'roulette':
+                self.selection = Selection.roulette()
+            elif selection == 'stochastic':
+                self.selection = Selection.stochastic()
+            elif selection == 'sigma_scaling':
+                self.selection = Selection.sigma_scaling()
+            elif selection == 'ranking':
+                self.selection = Selection.ranking()
+            elif selection == 'linear_ranking':
+                self.selection = Selection.linear_ranking()
+            elif selection == 'tournament':
+                self.selection = Selection.tournament()
+            else:
+                raise Exception(f"unknown type of selection: {selection}")                
+        else:
+            self.selection = selection
 
 
         ############################################################# 
@@ -398,50 +421,28 @@ class geneticalgorithm2():
             self.report_min.append(pop[-1, self.dim])
             self.report_average.append(np.mean(pop[:, self.dim]))
     
-            ##############################################################         
-            # Normalizing objective function 
-            
-            #normobj=  np.zeros(self.pop_s)
-            
-            minobj = pop[0, self.dim]
-            if minobj < 0:
-                normobj=pop[:,self.dim] - minobj #+abs(minobj)
-                
-            else:
-                normobj=pop[:,self.dim].copy()
-    
-            maxnorm = np.amax(normobj)
-            normobj = (maxnorm + 1) - normobj 
 
-            #############################################################        
-            # Calculate probability
-            
-            sum_normobj = np.sum(normobj)
-            prob = normobj/sum_normobj
-            cumprob = np.cumsum(prob)
   
             #############################################################        
             # Select parents
-            par = np.empty((self.par_s, self.dim+1))  #np.array([np.zeros(self.dim+1)]*self.par_s)
             
+            par = np.empty((self.par_s, self.dim+1))
+            
+            # elit parents
             for k in range(0, self.num_elit):
                 par[k]=pop[k].copy()
-            # it can be vectorized
-            for k in range(self.num_elit, self.par_s):
-                index = np.searchsorted(cumprob, np.random.random())
-                if index < cumprob.size:
-                    par[k] = pop[index].copy()
-                else:
-                    par[k] = pop[np.random.randint(0, index - 1)].copy()
                 
-            ef_par_list = np.full(self.par_s, False) #np.array([False]*self.par_s)
+            # non-elit parents indexes
+            #new_par_inds = np.int8(ff(pop[self.num_elit:, self.dim], self.par_s - self.num_elit) + self.num_elit)
+            new_par_inds = np.int8(self.selection(pop[:, self.dim], self.par_s - self.num_elit))
+            par[self.num_elit:self.par_s] = pop[new_par_inds].copy()
+            
+            
+            # select parents for crossover
             par_count = 0
-            while par_count == 0:
-                # it can be vectorized
-                for k in range(0, self.par_s):
-                    if np.random.random() <= self.prob_cross:
-                        ef_par_list[k] = True
-                        par_count += 1
+            while par_count == 0:                
+                ef_par_list = np.random.random(self.par_s) <= self.prob_cross
+                par_count = np.sum(ef_par_list)
                  
             ef_par = par[ef_par_list].copy()
     
@@ -657,6 +658,141 @@ class geneticalgorithm2():
             
 ###############################################################################
 
+
+class Selection:
+    
+    def __inverse_scores(scores):
+        """
+        inverse scores (min val goes to max)
+        """
+        minobj = scores[0]
+        normobj = scores - minobj if minobj < 0 else scores
+                
+        return (np.amax(normobj) + 1) - normobj 
+    
+    
+    def fully_random():
+        
+        def func(scores, parents_count):
+            indexes = np.arange(parents_count)
+            return np.random.choice(indexes, parents_count, replace = False)
+        
+        return func
+    
+    def __roulette(scores, parents_count):
+        
+        sum_normobj = np.sum(scores)
+        prob = scores/sum_normobj
+        cumprob = np.cumsum(prob)            
+            
+        parents_indexes = np.empty(parents_count)
+            
+        # it can be vectorized
+        for k in range(parents_count):
+            index = np.searchsorted(cumprob, np.random.random())
+            if index < cumprob.size:
+                parents_indexes[k] = index
+            else:
+                parents_indexes[k] = np.random.randint(0, index - 1)
+            
+        return parents_indexes
+
+    
+    def roulette():
+        
+        def func(scores, parents_count):
+
+            normobj = Selection.__inverse_scores(scores)
+
+            return Selection.__roulette(normobj, parents_count)
+        
+        return func
+    
+    def stochastic():
+        
+        def func(scores, parents_count):
+            f = Selection.__inverse_scores(scores)
+            
+            fN = 1.0/parents_count
+            k = 0
+            acc = 0.0
+            parents = []
+            r = random.random()*fN
+            
+            while len(parents) < parents_count:
+                
+                acc += f[k]
+                
+                while acc > r:
+                    parents.append(k)
+                    if len(parents) == parents_count: break
+                    r += fN
+                
+                k += 1
+            
+            return np.array(parents[:parents_count])
+        
+        return func
+    
+    def sigma_scaling(epsilon = 0.01, is_noisy = False):
+        
+        def func(scores, parents_count):
+            f = Selection.__inverse_scores(scores)
+            
+            sigma = np.std(f, ddof = 1) if is_noisy else np.std(f)
+            average = np.mean(f)
+            
+            if sigma == 0:
+                f = 1
+            else:
+                f = np.maximum(epsilon, 1 + (f - average)/(2*sigma))
+            
+            return Selection.__roulette(f, parents_count)
+        
+        return func
+    
+    def ranking():
+        
+        def func(scores, parents_count):
+            return Selection.__roulette(1 + np.arange(parents_count)[::-1], parents_count)
+        
+        return func
+    
+    def linear_ranking(selection_pressure = 1.5):
+        
+        assert (selection_pressure > 1 and selection_pressure < 2), f"selection_pressure should be in (1, 2), but got {selection_pressure}"
+        
+        def func(scores, parents_count):
+            tmp = parents_count*(parents_count-1)
+            alpha = (2*parents_count - selection_pressure*(parents_count + 1))/tmp
+            beta = 2*(selection_pressure - 1)/tmp
+            
+            
+            a = -2*alpha - beta
+            b = (2*alpha + beta)**2
+            c = 8*beta
+            d = 2*beta
+            
+            indexes = np.arange(parents_count)
+            
+            return np.array([indexes[-round((a + math.sqrt(b + c*random.random()))/d)] for _ in range(parents_count)])
+            
+        
+        return func
+    
+    def tournament(tau = 2):
+        
+        def func(scores, parents_count):
+            
+            indexes = np.arange(parents_count)
+            
+            return np.array([np.min(np.random.choice(indexes, tau, replace = False)) for _ in range(parents_count)])
+            
+        
+        return func
+    
+    
+    
 
 
 
