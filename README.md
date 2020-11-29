@@ -334,7 +334,7 @@ If this parameter's value is `None` the algorithm sets maximum number of iterati
         # some code
         return array_of_parents_indexes 
     ```
-
+![](https://github.com/PasaOpasen/geneticalgorithm2/blob/selection/tests/selections.png)
 
 # Examples
 
