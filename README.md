@@ -55,7 +55,7 @@ Firstly, u should **import needed packages**:
 ```python
 import numpy as np
 from geneticalgorithm2 import geneticalgorithm2 as ga
-from geneticalgorithm2 import Crossover, Mutations # classes for specific mutation and crossover behavior
+from geneticalgorithm2 import Crossover, Mutations, Selection # classes for specific mutation and crossover behavior
 ```
 Next step: **define minimized function** like
 
@@ -97,6 +97,7 @@ model = ga(function, dimension = 3,
                                        'parents_portion': 0.3,
                                        'crossover_type':'uniform',
                                        'mutation_type': 'uniform_by_center',
+                                       'selection_type': 'roulette',
                                        'max_iteration_without_improv':None}
             )
 
@@ -180,6 +181,7 @@ For example, when there is an infinite loop in the given function.
     * @ **crossover_type** <string/function> - Default is `uniform`.
 are other options
     * @ **mutation_type** <string/function> - Default is `uniform_by_center`
+    * @ **selection_type** <string/function> - Default is `roulette`
     * @ **max_iteration_without_improv** <int/None> - maximum number of 
 successive iterations without improvement. If None it is ineffective
 
@@ -199,6 +201,7 @@ algorithm_param = {
                    'parents_portion': 0.3,
                    'crossover_type':'uniform',
                    'mutation_type': 'uniform_by_center',
+                   'selection_type': 'roulette',
                    'max_iteration_without_improv':None
                    }
 
@@ -241,6 +244,7 @@ algorithm_param = {'max_num_iteration': 3000,
                    'parents_portion': 0.3,
                    'crossover_type':'uniform',
                    'mutation_type': 'uniform_by_center',
+                   'selection_type': 'roulette',
                    'max_iteration_without_improv':None}
 
 model=ga(function=f,
@@ -266,6 +270,7 @@ algorithm_param = {'max_num_iteration': 150,
                    'parents_portion': 0.3,
                    'crossover_type':'uniform',
                    'mutation_type': 'uniform_by_center',
+                   'selection_type': 'roulette',
                    'max_iteration_without_improv':None}
 ```
 
@@ -285,7 +290,7 @@ If this parameter's value is `None` the algorithm sets maximum number of iterati
 
 * @ **parents_portion**: the portion of population filled by the members of the previous generation (aka parents); default is 0.3 (i.e. 30 percent of population)
 
-* @ **max_iteration_without_improv**: if the algorithms does not improve the objective function over the number of successive iterations determined by this parameter, then GA stops and report the best found solution before the *max_num_iterations* to be met. The default value is `None`. 
+* @ **max_iteration_without_improv**: if the algorithms does not improve the objective function over the number of successive iterations determined by this parameter, then GA stops and report the best found solution before the `max_num_iterations` to be met. The default value is `None`. 
 
 * @ **crossover_type**: there are several options including `one_point`, `two_point`, `uniform`, `segment`, `shuffle` crossover functions; default is `uniform` crossover. U also can use crossover functions from `Crossover` class:
     * `Crossover.one_point()`
@@ -314,7 +319,21 @@ If this parameter's value is `None` the algorithm sets maximum number of iterati
         # some code
         return new_value 
     ```
+* @ **selection_type**: there are several options (only for real) including `fully_random`, `roulette`, `stochastic`, `sigma_scaling`, `ranking`, `linear_ranking`, `tournament`; default is `roulette`. U also can use crossover functions from `Selection` class:
+    * `Selection.fully_random()`
+    * `Selection.roulette()`
+    * `Selection.stochastic()`
+    * `Selection.sigma_scaling(epsilon = 0.05)`
+    * `Selection.ranking()`
+    * `Selection.linear_ranking(selection_pressure = 1.5)`
+    * `Selection.tournament(tau = 2)`
 
+    Write your selection function using syntax:
+    ```python
+    def my_mutation(sorted_scores, parents_count):
+        # some code
+        return array_of_parents_indexes 
+    ```
 
 
 # Examples
@@ -343,7 +362,7 @@ model.run()
 
 Notice that we define the function f so that its output is the 
 objective function we want to minimize where the input is the set of X (decision variables).
-The boundaries for variables must be defined as a numpy array and for each 
+The boundaries for variables must be defined as a `numpy array` and for each 
 variable we need a separate boundary. Here I have three variables and all of 
 them have the same boundaries (For the case the boundaries are different see the example with mixed variables). 
  
@@ -355,7 +374,7 @@ them have the same boundaries (For the case the boundaries are different see the
 1. Variables are real (continuous) so we use string 'real' to notify the type of 
 variables (geneticalgorithm2 accepts other types including Boolean, Integers and 
 Mixed; see other examples).  
-1. Finally, we input varbound which includes the boundaries of the variables. 
+1. Finally, we input `varbound` which includes the boundaries of the variables. 
 Note that the length of variable_boundaries must be equal to dimension.
   
 If you run the code, you should see a progress bar that shows the progress of the 
@@ -442,8 +461,8 @@ model.run()
 
 ```
 
-Note that for mixed variables we need to define boundaries also we need to make a numpy array of variable types as above (vartype). Obviously the order of variables in both arrays must match. Also notice that in such a case for Boolean variables we use string 'int' and boundary \[0,1\].  
-Notice that we use argument `variable_type_mixed` to input a numpy array of variable types for functions with mixed variables.
+Note that for mixed variables we need to define boundaries also we need to make a `numpy array` of variable types as above (`vartype`). Obviously the order of variables in both arrays must match. Also notice that in such a case for Boolean variables we use string 'int' and boundary \[0,1\].  
+Notice that we use argument `variable_type_mixed` to input a `numpy array` of variable types for functions with mixed variables.
 
 
 ## Optimization problems with constraints
@@ -470,7 +489,7 @@ model.run()
 As seen above we add a penalty to the objective function whenever the constraint is not met.  
 
 Some hints about how to define a penalty function:  
-1. Usually you may use a constant greater than the maximum possible value of the objective function if the maximum is known or if we have a guess of that. Here the highest possible value of our function is 300 (i.e. if all variables were 10, f(X)=300). So I chose a constant of 500. So, if a trial solution is not in the feasible region even though its objective function may be small, the penalized objective function (fitness function) is worse than any feasible solution.
+1. Usually you may use a constant greater than the maximum possible value of the objective function if the maximum is known or if we have a guess of that. Here the highest possible value of our function is 300 (i.e. if all variables were 10, `f(X)=300`). So I chose a constant of 500. So, if a trial solution is not in the feasible region even though its objective function may be small, the penalized objective function (fitness function) is worse than any feasible solution.
 2. Use a coefficient big enough and multiply that by the amount of violation. This helps the algorithm learn how to approach feasible domain.
 3. How to define penalty function usually influences the convergence rate of an evolutionary algorithm. In my [book on metaheuristics and evolutionary algorithms](https://www.wiley.com/en-us/Meta+heuristic+and+Evolutionary+Algorithms+for+Engineering+Optimization-p-9781119386995) you can learn more about that. 
 4. Finally after you solved the problem test the solution to see if boundaries are met. If the solution does not meet constraints, it shows that a bigger penalty is required. However, in problems where optimum is exactly on the boundary of the feasible region (or very close to the constraints) which is common in some kinds of problems, a very strict and big penalty may prevent the genetic algorithm to approach the optimal region. In such a case designing an appropriate penalty function might be more challenging. Actually what we have to do is to design a penalty function that let the algorithm searches unfeasible domain while finally converge to a feasible solution. Hence you may need more sophisticated penalty functions. But in most cases the above formulation work fairly well.
@@ -567,11 +586,11 @@ In general the performance of a genetic algorithm or any evolutionary algorithm
 depends on its parameters. Parameter setting of an evolutionary algorithm is important. Usually these parameters are adjusted based on experience and by conducting a sensitivity analysis.
 It is impossible to provide a general guideline to parameter setting but the suggestions provided below may help:  
 
-* **Number of iterations**: Select a max_num_iterations sufficienlty large; otherwise the reported solution may not be satisfactory. On the other hand 
+* **Number of iterations**: Select a `max_num_iterations` sufficiently large; otherwise the reported solution may not be satisfactory. On the other hand 
 selecting a very large number of iterations increases the run time significantly. So this is actually a compromise between
 the accuracy you want and the time and computational cost you spend. 
 
-* **Population size**: Given a constant number of functional evaluations (max_num_iterations times population_size) I would 
+* **Population size**: Given a constant number of functional evaluations (`max_num_iterations` times population_size) I would 
 select smaller population size and greater iterations. However, a very small choice of 
 population size is also deteriorative. For most problems I would select a population size of 100 unless the dimension of the problem is very large that needs a bigger population size.
 
@@ -593,7 +612,7 @@ If this parameter is too small then the algorithm may stop while it trapped in a
 So make sure you select a sufficiently large criteria to provide enough time for the algorithm to progress and to avoid immature convergence. 
 
 Finally to make sure that the parameter setting is fine, we usually should run the 
-algorithm for several times and if connvergence curves of all runs converged to the same objective function value we may accept that solution as the optimum. The number of runs
+algorithm for several times and if convergence curves of all runs converged to the same objective function value we may accept that solution as the optimum. The number of runs
 depends but usually five or ten runs is prevalent. Notice that in some problems
 several possible set of variables produces the same objective function value. 
 When we study the convergence of a genetic algorithm we compare the objective function values not the decision variables.
@@ -699,6 +718,7 @@ algorithm_param = {'max_num_iteration': 1000,
                    'parents_portion': 0.3,
                    'crossover_type':'uniform',
                    'mutation_type': 'uniform_by_center',
+                   'selection_type': 'roulette',
                    'max_iteration_without_improv':None}
 
 model=ga(function=f,dimension=2,\
@@ -744,7 +764,7 @@ plt.show()
 
 U can do it using `set_function` parameter into `run()` method.
 
-This function should get numpy 2D-array (samples x dimention) and return 1D-array with results.
+This function should get `numpy 2D-array` (samples x dimension) and return `1D-array` with results.
 
 By default it uses `set_function = geneticalgorithm2.default_set_function(function)`, where
 
@@ -754,7 +774,7 @@ By default it uses `set_function = geneticalgorithm2.default_set_function(functi
             return np.array([function_for_set(matrix[i,:]) for i in range(matrix.shape[0])])
         return func
 ```
-U may want to use it for creating some specific or fast-vectorised evaluations like here:
+U may want to use it for creating some specific or fast-vectorized evaluations like here:
 
 ```python
 
@@ -771,7 +791,7 @@ model.run(set_function = vectorised)
 
 ## What about parallelism?
 
-By using `set_function` u can demermine your own behavior for parallelism or u can use `geneticalgorithm2.set_function_multiprocess(f, n_jobs = -1)` for using just parallelism (recommented for heavy functions and big populations, not recommented for fast functions and small populations).
+By using `set_function` u can determine your own behavior for parallelism or u can use `geneticalgorithm2.set_function_multiprocess(f, n_jobs = -1)` for using just parallelism (recommended for heavy functions and big populations, not recommended for fast functions and small populations).
 
 For example:
 
@@ -799,6 +819,7 @@ algorithm_param = {'max_num_iteration': 50,
                    'parents_portion': 0.3,
                    'crossover_type':'uniform',
                    'mutation_type': 'uniform_by_center',
+                   'selection_type': 'roulette',
                    'max_iteration_without_improv':None}   
     
 varbound = np.array([[-10,10]]*3)
@@ -841,6 +862,7 @@ algorithm_param = {'max_num_iteration': 500,
                    'parents_portion': 0.3,
                    'crossover_type':'uniform',
                    'mutation_type': 'uniform_by_center',
+                   'selection_type': 'roulette',
                    'max_iteration_without_improv':None}
 
 model = ga(function=f, 
