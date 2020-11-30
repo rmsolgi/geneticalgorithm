@@ -1,5 +1,6 @@
 [![PyPI
 version](https://badge.fury.io/py/geneticalgorithm2.svg)](https://pypi.org/project/geneticalgorithm2/)
+[![Gitter](https://badges.gitter.im/geneticalgorithm2/community.svg)](https://gitter.im/geneticalgorithm2/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 **This is the supported advanced fork of non-supported package** [geneticalgorithm](https://github.com/rmsolgi/geneticalgorithm)
 
