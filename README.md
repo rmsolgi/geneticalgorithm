@@ -119,14 +119,14 @@ Your best solution is computed!
 ## Methods and Properties of model:
 
 **run()**: implements the genetic algorithm (GA) with parameters:
-* @param **no_plot** <boolean> - do not plot results using matplotlib by default
+* param **no_plot** <boolean> - do not plot results using matplotlib by default
         
-* @param **set_function**: 2D-array -> 1D-array function, which applyes to matrix of population (size (samples, dimention)) to estimate their values
+* param **set_function**: 2D-array -> 1D-array function, which applyes to matrix of population (size (samples, dimention)) to estimate their values
         
-* @param **apply_function_to_parents** <boolean> - apply function to parents from previous generation (if it's needed, it can be needed at working with games agents)
-* @param **start_generation** <dictionary> - a dictionary with structure `{'variables':2D-array of samples, 'scores': function values on samples}`. If `'scores'` value is `None` the scores will be compute  
+* param **apply_function_to_parents** <boolean> - apply function to parents from previous generation (if it's needed, it can be needed at working with games agents)
+* param **start_generation** <dictionary> - a dictionary with structure `{'variables':2D-array of samples, 'scores': function values on samples}`. If `'scores'` value is `None` the scores will be compute  
 
-**param**: a dictionary of parameters of the genetic algorithm (GA)
+**param**: a dictionary of real parameters of the genetic algorithm (GA)
     
 **output**:  
   
@@ -148,30 +148,30 @@ output_dict = {
 
 ## Function parameters
 
-* @**param function** <Callable> - the given objective function to be minimized  
+* param **function** <Callable> - the given objective function to be minimized  
 NOTE: This implementation minimizes the given objective function. (For maximization multiply function by a negative sign: the absolute value of the output would be the actual objective function)
         
-* @**param dimension** <integer> - the number of decision variables
+* param **dimension** <integer> - the number of decision variables
         
-* @**param variable_type** <string> - 'bool' if all variables are Boolean; 'int' if all variables are integer; and 'real' if all variables are real value or continuous (for mixed type see *@param variable_type_mixed*). 
+* param **variable_type** <string> - 'bool' if all variables are Boolean; 'int' if all variables are integer; and 'real' if all variables are real value or continuous (for mixed type see *@param variable_type_mixed*). 
         
-* @**param variable_boundaries** <numpy array/None> - Default None; leave it None if variable_type is 'bool'; otherwise provide an array of tuples of length two as 
+* param **variable_boundaries** <numpy array/None> - Default None; leave it None if variable_type is 'bool'; otherwise provide an array of tuples of length two as 
 boundaries for each variable; the length of the array must be equal dimension. 
 For example, np.array(\[0,100\],\[0,200\]) determines lower boundary 0 and upper boundary 100 
 for first and upper boundary 200 for second variable where dimension is 2.
         
-* @**param variable_type_mixed** <numpy array/None> - Default None; leave it None if all variables have the same type; otherwise this can be used to specify the type of each variable separately. For example if the first 
+* param **variable_type_mixed** <numpy array/None> - Default None; leave it None if all variables have the same type; otherwise this can be used to specify the type of each variable separately. For example if the first 
 variable is integer but the second one is real the input is: 
 np.array(\['int'\],\['real'\]). NOTE: it does not accept 'bool'. If variable
 type is Boolean use 'int' and provide a boundary as \[0,1\] 
 in variable_boundaries. Also if variable_type_mixed is applied, 
 variable_boundaries has to be defined.
         
-* @**param function_timeout** <float> - if the given function does not provide 
+* param **function_timeout** <float> - if the given function does not provide 
 output before function_timeout (unit is seconds) the algorithm raise error.
 For example, when there is an infinite loop in the given function. 
         
-* @**param algorithm_parameters**. Dictionary with keys:  
+* param **algorithm_parameters**. Dictionary with keys:  
     * @ **max_num_iteration** <int/None> - stoping criteria of the genetic algorithm (GA)  
     * @ **population_size** <int>   
     * @ **mutation_probability** <float in \[0,1\]>  
@@ -277,22 +277,22 @@ algorithm_param = {'max_num_iteration': 150,
 
 **Parameters in dictionary**:
 
-* @ **max_num_iteration**: The termination criterion of GA. 
+* **max_num_iteration**: The termination criterion of GA. 
 If this parameter's value is `None` the algorithm sets maximum number of iterations automatically as a function of the dimension, boundaries, and population size. The user may enter any number of iterations that they want. It is highly recommended that the user themselves determines the **max_num_iterations** and not to use `None`. Notice that **max_num_iteration** has been changed to 3000 (it was already `None`). 
 
-* @ **population_size**: determines the number of trial solutions in each iteration. The default value is 100.
+* **population_size**: determines the number of trial solutions in each iteration. The default value is 100.
 
-* @ **mutation_probability**: determines the chance of each gene in each individual solution to be replaced by a random value. The default is 0.1 (i.e. 10 percent). 
+* **mutation_probability**: determines the chance of each gene in each individual solution to be replaced by a random value. The default is 0.1 (i.e. 10 percent). 
 
-* @ **elit_ration**: determines the number of elites in the population. The default value is 0.01 (i.e. 1 percent). For example when population size is 100 and **elit_ratio** is 0.01 then there is one elite in the population. If this parameter is set to be zero then `geneticalgorithm2` implements a standard genetic algorithm instead of elitist GA. 
+* **elit_ration**: determines the number of elites in the population. The default value is 0.01 (i.e. 1 percent). For example when population size is 100 and **elit_ratio** is 0.01 then there is one elite in the population. If this parameter is set to be zero then `geneticalgorithm2` implements a standard genetic algorithm instead of elitist GA. 
 
-* @ **crossover_probability**: determines the chance of an existed solution to pass its genome (aka characteristics) to new trial solutions (aka offspring); the default value is 0.5 (i.e. 50 percent)
+* **crossover_probability**: determines the chance of an existed solution to pass its genome (aka characteristics) to new trial solutions (aka offspring); the default value is 0.5 (i.e. 50 percent)
 
-* @ **parents_portion**: the portion of population filled by the members of the previous generation (aka parents); default is 0.3 (i.e. 30 percent of population)
+* **parents_portion**: the portion of population filled by the members of the previous generation (aka parents); default is 0.3 (i.e. 30 percent of population)
 
-* @ **max_iteration_without_improv**: if the algorithms does not improve the objective function over the number of successive iterations determined by this parameter, then GA stops and report the best found solution before the `max_num_iterations` to be met. The default value is `None`. 
+* **max_iteration_without_improv**: if the algorithms does not improve the objective function over the number of successive iterations determined by this parameter, then GA stops and report the best found solution before the `max_num_iterations` to be met. The default value is `None`. 
 
-* @ **crossover_type**: there are several options including `one_point`, `two_point`, `uniform`, `segment`, `shuffle` crossover functions; default is `uniform` crossover. U also can use crossover functions from `Crossover` class:
+* **crossover_type**: there are several options including `one_point`, `two_point`, `uniform`, `segment`, `shuffle` crossover functions; default is `uniform` crossover. U also can use crossover functions from `Crossover` class:
     * `Crossover.one_point()`
     * `Crossover.two_point()`
     * `Crossover.uniform()`
@@ -307,7 +307,7 @@ If this parameter's value is `None` the algorithm sets maximum number of iterati
         # some code
         return child_1, child_2
     ```
-* @ **mutation_type**: there are several options (only for real) including `uniform_by_x`, `uniform_by_center`, `gauss_by_x`, `gauss_by_center`; default is `uniform_by_center`. U also can use crossover functions from `Mutations` class:
+* **mutation_type**: there are several options (only for real) including `uniform_by_x`, `uniform_by_center`, `gauss_by_x`, `gauss_by_center`; default is `uniform_by_center`. U also can use crossover functions from `Mutations` class:
     * `Mutations.gauss_by_center(sd = 0.2)`
     * `Mutations.gauss_by_x(sd = 0.1)`
     * `Mutations.uniform_by_center()`
@@ -319,7 +319,7 @@ If this parameter's value is `None` the algorithm sets maximum number of iterati
         # some code
         return new_value 
     ```
-* @ **selection_type**: there are several options (only for real) including `fully_random`, `roulette`, `stochastic`, `sigma_scaling`, `ranking`, `linear_ranking`, `tournament`; default is `roulette`. U also can use crossover functions from `Selection` class:
+* **selection_type**: there are several options (only for real) including `fully_random`, `roulette`, `stochastic`, `sigma_scaling`, `ranking`, `linear_ranking`, `tournament`; default is `roulette`. U also can use crossover functions from `Selection` class:
     * `Selection.fully_random()`
     * `Selection.roulette()`
     * `Selection.stochastic()`
@@ -419,7 +419,7 @@ So, as it is seen the only difference is that for variable_type we use string 'i
 ## The simple example with Boolean variables
 
 Considering the problem given in the simple example above.
-Now assume all variables are Boolean instead of real or integer. So X can be either zero or one. Also instead of three let's have 30 variables.
+Now assume all variables are Boolean instead of real or integer. So `X` can be either zero or one. Also instead of three let's have 30 variables.
 In this case the code is as the following:
 
 ```python
@@ -441,7 +441,7 @@ Note that when variable_type equal 'bool' there is no need for variable_boundari
 ## The simple example with mixed variables
 
 Considering the problem given in the the simple example above where we want to minimize `f(X)=x1+x2+x3`. 
-Now assume x1 is a real (continuous) variable in \[0.5,1.5\], `x2` is an integer variable in \[1,100\], and `x3` is a Boolean variable that can be either zero or one.
+Now assume `x1` is a real (continuous) variable in \[0.5,1.5\], `x2` is an integer variable in \[1,100\], and `x3` is a Boolean variable that can be either zero or one.
 We already know that the answer is `X=(0.5,1,0)` where `f(X)=1.5`
 We implement geneticalgorithm2 as the following:
 
