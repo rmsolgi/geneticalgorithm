@@ -2,7 +2,7 @@
 version](https://badge.fury.io/py/geneticalgorithm2.svg)](https://pypi.org/project/geneticalgorithm2/)
 [![Gitter](https://badges.gitter.im/geneticalgorithm2/community.svg)](https://gitter.im/geneticalgorithm2/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
-**This is the supported advanced fork of non-supported package** [geneticalgorithm](https://github.com/rmsolgi/geneticalgorithm)
+**This is the supported advanced fork of non-supported package** [geneticalgorithm](https://github.com/rmsolgi/geneticalgorithm) of *Ryan (Mohammad) Solgi*
 
 - [About](#about)
 - [Installation](#installation)
@@ -109,6 +109,7 @@ model = ga(function, dimension = 3,
 ```python
 model.run(
     no_plot = False, 
+    disable_progress_bar = False,
     set_function = None, 
     apply_function_to_parents = False, 
     start_generation = {'variables':None, 'scores': None}
@@ -121,6 +122,8 @@ Your best solution is computed!
 
 **run()**: implements the genetic algorithm (GA) with parameters:
 * param **no_plot** <boolean> - do not plot results using matplotlib by default
+
+* param **disable_progress_bar** <boolean> - do not show progress bar (also it can be faster by 10-20 seconds)
         
 * param **set_function**: 2D-array -> 1D-array function, which applyes to matrix of population (size (samples, dimention)) to estimate their values
         
@@ -173,18 +176,18 @@ output before function_timeout (unit is seconds) the algorithm raise error.
 For example, when there is an infinite loop in the given function. 
         
 * param **algorithm_parameters**. Dictionary with keys:  
-    * @ **max_num_iteration** <int/None> - stoping criteria of the genetic algorithm (GA)  
-    * @ **population_size** <int>   
-    * @ **mutation_probability** <float in \[0,1\]>  
-    * @ **elit_ration** <float in \[0,1\]>  
-    * @ **crossover_probability** <float in \[0,1\]>  
-    * @ **parents_portion** <float in \[0,1\]>  
-    * @ **crossover_type** <string/function> - Default is `uniform`.
+    * @ **max_num_iteration** (int/None) - stoping criteria of the genetic algorithm (GA)  
+    * @ **population_size** (int > 0)   
+    * @ **mutation_probability** (float in \[0,1\])  
+    * @ **elit_ration** (float in \[0,1\]) - part of elit objects in population; if > 0, there always will be 1 elit object at least  
+    * @ **crossover_probability** (float in \[0,1\]) 
+    * @ **parents_portion** (float in \[0,1\]) - part of parents from previous population to save in next population (including `elit_ration`)  
+    * @ **crossover_type** (string/function) - Default is `uniform`.
 are other options
-    * @ **mutation_type** <string/function> - Default is `uniform_by_center`
-    * @ **selection_type** <string/function> - Default is `roulette`
-    * @ **max_iteration_without_improv** <int/None> - maximum number of 
-successive iterations without improvement. If None it is ineffective
+    * @ **mutation_type** (string/function) - Default is `uniform_by_center`
+    * @ **selection_type** (string/function) - Default is `roulette`
+    * @ **max_iteration_without_improv** (int/None) - maximum number of 
+successive iterations without improvement. If `None` it is ineffective
 
 
 ## Genetic algorithm's parameters
