@@ -238,8 +238,8 @@ class geneticalgorithm2():
         "elit_ratio must be in range [0,1]"                
         
         trl = self.pop_s*self.param['elit_ratio']
-        if trl<1 and self.param['elit_ratio']>0:
-            self.num_elit=1
+        if trl < 1 and self.param['elit_ratio'] > 0:
+            self.num_elit = 1
         else:
             self.num_elit = int(trl)
             
@@ -322,10 +322,12 @@ class geneticalgorithm2():
 
 
         ############################################################# 
-    def run(self, no_plot = False, set_function = None, apply_function_to_parents = False, start_generation = {'variables':None, 'scores': None}):
+    def run(self, no_plot = False, disable_progress_bar = False, set_function = None, apply_function_to_parents = False, start_generation = {'variables':None, 'scores': None}):
         """
         @param no_plot <boolean> - do not plot results using matplotlib by default
         
+        @param disable_progress_bar <boolean> - do not show progress bar
+                
         @param set_function : 2D-array -> 1D-array function, which applyes to matrix of population (size (samples, dimention))
         to estimate their values
         
@@ -334,6 +336,9 @@ class geneticalgorithm2():
         @param start_generation <dictionary> - a dictionary with structure {'variables':2D-array of samples, 'scores': function values on samples}                                                                                                
         if 'scores' value is None the scores will be compute
         """
+        
+        show_progress = (lambda t, t2, s: self.progress(t, t2, status = s)) if  not disable_progress_bar else (lambda t, t2, s: None)
+                
         ############################################################# 
         # Initial Population
         
@@ -394,13 +399,13 @@ class geneticalgorithm2():
         self.best_variable = var.copy()
         self.best_function = obj
         ##############################################################   
-                        
+        
         t=1
         counter = 0
         while t <= self.iterate:
             
             
-            self.progress(t, self.iterate, status = f"GA is running...{t} gen from {self.iterate}")
+            show_progress(t, self.iterate, f"GA is running...{t} gen from {self.iterate}")
             #############################################################
             #Sort
             pop = pop[pop[:,self.dim].argsort()]
@@ -411,7 +416,7 @@ class geneticalgorithm2():
                 self.best_function=pop[0, self.dim]#.copy()
                 self.best_variable=pop[0,:self.dim].copy()
                 
-                self.progress(t, self.iterate, status = f"GA is running...{t} gen from {self.iterate}...best value = {self.best_function}")
+                show_progress(t, self.iterate, f"GA is running...{t} gen from {self.iterate}...best value = {self.best_function}")
             else:
                 counter += 1
             #############################################################
@@ -488,7 +493,7 @@ class geneticalgorithm2():
                 pop = pop[pop[:,self.dim].argsort()]
                 if pop[0,self.dim] >= self.best_function:
                     t = self.iterate # to stop loop
-                    self.progress(t, self.iterate,status="GA is running...")
+                    show_progress(t, self.iterate, "GA is running...")
                     time.sleep(0.7) #time.sleep(2)
                     t+=1
                     self.stop_mniwi=True
