@@ -29,7 +29,7 @@ SOFTWARE.
 import sys
 import time
 import random
-import math
+
 
 import numpy as np
 from joblib import Parallel, delayed
@@ -39,6 +39,13 @@ from func_timeout import func_timeout, FunctionTimedOut
 import matplotlib.pyplot as plt
 
 ###############################################################################
+
+from .crossovers import Crossover
+from .mutations import Mutations
+from .selections import Selection
+from .initializer import Population_initializer
+
+
 ###############################################################################
 ###############################################################################
 
@@ -322,7 +329,13 @@ class geneticalgorithm2():
 
 
         ############################################################# 
-    def run(self, no_plot = False, disable_progress_bar = False, set_function = None, apply_function_to_parents = False, start_generation = {'variables':None, 'scores': None}, studEA = False):
+    def run(self, no_plot = False, \
+            disable_progress_bar = False, \
+            set_function = None, \
+            apply_function_to_parents = False, \
+            start_generation = {'variables':None, 'scores': None}, \
+            studEA = False, \
+            population_initializer = Population_initializer(select_best_of = 1, local_optimization_step = 'never', local_optimizer = None)):
         """
         @param no_plot <boolean> - do not plot results using matplotlib by default
         
@@ -337,6 +350,9 @@ class geneticalgorithm2():
         if 'scores' value is None the scores will be compute
 
         @param studEA <boolean> - using stud EA strategy (crossover with best object always)
+
+        @param population_initializer (tuple(int, func)) - object for actions at population initialization step to create better start population. See doc
+
         """
         
         show_progress = (lambda t, t2, s: self.progress(t, t2, status = s)) if not disable_progress_bar else (lambda t, t2, s: None)
@@ -352,26 +368,27 @@ class geneticalgorithm2():
         if set_function == None:
             set_function = geneticalgorithm2.default_set_function(self.f)
         
+        pop_coef, initializer_func = population_initializer
+        
+        
         if start_generation['variables'] is None:
                     
-            pop = np.empty((self.pop_s, self.dim+1)) #np.array([np.zeros(self.dim+1)]*self.pop_s)
+            pop = np.empty((self.pop_s*pop_coef, self.dim+1)) #np.array([np.zeros(self.dim+1)]*self.pop_s)
             solo = np.empty(self.dim+1)
             var = np.empty(self.dim)       
             
-            for p in range(0, self.pop_s):
-             
-                for i in self.integers[0]:
-                    var[i] = np.random.randint(self.var_bound[i][0],self.var_bound[i][1]+1)  
-                    solo[i] = var[i]#.copy()
-                
-                for i in self.reals[0]:
-                    var[i] = np.random.uniform(self.var_bound[i][0], self.var_bound[i][1]) #self.var_bound[i][0]+np.random.random()*(self.var_bound[i][1]-self.var_bound[i][0])    
-                    solo[i] = var[i]#.copy()
-    
-    
+            for i in self.integers[0]:
+                pop[:, i] = np.random.randint(self.var_bound[i][0],self.var_bound[i][1]+1, self.pop_s*pop_coef) 
+            
+            for i in self.reals[0]:
+                pop[:, i] = np.random.uniform(self.var_bound[i][0], self.var_bound[i][1], self.pop_s*pop_coef)
+            
+            for p in range(0, self.pop_s*pop_coef):    
+                var = pop[p, :-1]
+                solo = pop[p, :]
                 obj = self.sim(var)  # simulation returns exception or func value           
                 solo[self.dim] = obj
-                pop[p] = solo.copy()
+                
         else:
             assert (start_generation['variables'].shape[1] == self.dim), f"incorrect dimention ({start_generation['variables'].shape[1]}) of population, should be {self.dim}"
             
@@ -390,6 +407,13 @@ class geneticalgorithm2():
             var = pop[-1, :-1] # some variable
             solo = pop[-1, :]
         
+        
+        # Initialization by select bests and local_descent
+        
+        population, scores = initializer_func(pop[:, :-1], pop[:,-1])
+        
+        pop = np.hstack([population, scores[:, np.newaxis]])
+        self.pop_s = pop.shape[0]
         
         #############################################################
 
@@ -663,306 +687,6 @@ class geneticalgorithm2():
         return func
             
 ###############################################################################
-
-
-class Selection:
-    
-    def __inverse_scores(scores):
-        """
-        inverse scores (min val goes to max)
-        """
-        minobj = scores[0]
-        normobj = scores - minobj if minobj < 0 else scores
-                
-        return (np.amax(normobj) + 1) - normobj 
-    
-    
-    def fully_random():
-        
-        def func(scores, parents_count):
-            indexes = np.arange(parents_count)
-            return np.random.choice(indexes, parents_count, replace = False)
-        
-        return func
-    
-    def __roulette(scores, parents_count):
-        
-        sum_normobj = np.sum(scores)
-        prob = scores/sum_normobj
-        cumprob = np.cumsum(prob)            
-            
-        parents_indexes = np.empty(parents_count)
-            
-        # it can be vectorized
-        for k in range(parents_count):
-            index = np.searchsorted(cumprob, np.random.random())
-            if index < cumprob.size:
-                parents_indexes[k] = index
-            else:
-                parents_indexes[k] = np.random.randint(0, index - 1)
-            
-        return parents_indexes
-
-    
-    def roulette():
-        
-        def func(scores, parents_count):
-
-            normobj = Selection.__inverse_scores(scores)
-
-            return Selection.__roulette(normobj, parents_count)
-        
-        return func
-    
-    def stochastic():
-        
-        def func(scores, parents_count):
-            f = Selection.__inverse_scores(scores)
-            
-            fN = 1.0/parents_count
-            k = 0
-            acc = 0.0
-            parents = []
-            r = random.random()*fN
-            
-            while len(parents) < parents_count:
-                
-                acc += f[k]
-                
-                while acc > r:
-                    parents.append(k)
-                    if len(parents) == parents_count: break
-                    r += fN
-                
-                k += 1
-            
-            return np.array(parents[:parents_count])
-        
-        return func
-    
-    def sigma_scaling(epsilon = 0.01, is_noisy = False):
-        
-        def func(scores, parents_count):
-            f = Selection.__inverse_scores(scores)
-            
-            sigma = np.std(f, ddof = 1) if is_noisy else np.std(f)
-            average = np.mean(f)
-            
-            if sigma == 0:
-                f = 1
-            else:
-                f = np.maximum(epsilon, 1 + (f - average)/(2*sigma))
-            
-            return Selection.__roulette(f, parents_count)
-        
-        return func
-    
-    def ranking():
-        
-        def func(scores, parents_count):
-            return Selection.__roulette(1 + np.arange(parents_count)[::-1], parents_count)
-        
-        return func
-    
-    def linear_ranking(selection_pressure = 1.5):
-        
-        assert (selection_pressure > 1 and selection_pressure < 2), f"selection_pressure should be in (1, 2), but got {selection_pressure}"
-        
-        def func(scores, parents_count):
-            tmp = parents_count*(parents_count-1)
-            alpha = (2*parents_count - selection_pressure*(parents_count + 1))/tmp
-            beta = 2*(selection_pressure - 1)/tmp
-            
-            
-            a = -2*alpha - beta
-            b = (2*alpha + beta)**2
-            c = 8*beta
-            d = 2*beta
-            
-            indexes = np.arange(parents_count)
-            
-            return np.array([indexes[-round((a + math.sqrt(b + c*random.random()))/d)] for _ in range(parents_count)])
-            
-        
-        return func
-    
-    def tournament(tau = 2):
-        
-        def func(scores, parents_count):
-            
-            indexes = np.arange(parents_count)
-            
-            return np.array([np.min(np.random.choice(indexes, tau, replace = False)) for _ in range(parents_count)])
-            
-        
-        return func
-    
-    
-    
-
-
-
-
-class Crossover:
-    
-    def get_copies(x, y):
-        return x.copy(), y.copy()
-    
-    def one_point():
-        
-        def func(x, y):
-            ofs1, ofs2 = Crossover.get_copies(x, y)
-        
-            ran=np.random.randint(0, x.size)
-            
-            ofs1[:ran] = y[:ran]
-            ofs2[:ran] = x[:ran]
-            
-            return ofs1, ofs2
-        return func
-    
-    def two_point():
-        
-        def func(x, y):
-            ofs1, ofs2 = Crossover.get_copies(x, y)
-        
-            ran1=np.random.randint(0, x.size)
-            ran2=np.random.randint(ran1, x.size)
-            
-            ofs1[ran1:ran2] = y[ran1:ran2]
-            ofs2[ran1:ran2] = x[ran1:ran2]
-              
-            
-            return ofs1, ofs2
-        return func
-    
-    def uniform():
-        
-        def func(x, y):
-            ofs1, ofs2 = Crossover.get_copies(x, y)
-        
-            ran = np.random.random(x.size) < 0.5
-            ofs1[ran] = y[ran]
-            ofs2[ran] = x[ran]
-              
-            return ofs1, ofs2
-        
-        return func
-    
-    def segment(prob = 0.6):
-        
-        def func(x, y):
-            
-            ofs1, ofs2 = Crossover.get_copies(x, y)
-            
-            p = np.random.random(x.size) < prob
-            
-            for i, val in enumerate(p):
-                if val:
-                    ofs1[i], ofs2[i] = ofs2[i], ofs1[i]
-            
-            return ofs1, ofs2
-        
-        return func
-    
-    def shuffle():
-        
-        def func(x, y):
-            
-            ofs1, ofs2 = Crossover.get_copies(x, y)
-            
-            index = np.random.choice(np.arange(0, x.size), x.size, replace = False)
-            
-            ran = np.random.randint(0, x.size)
-            
-            for i in range(ran):
-                ind = index[i]
-                ofs1[ind] = y[ind]
-                ofs2[ind] = x[ind]
-            
-            return ofs1, ofs2
-            
-        return func
-    
-    #
-    #
-    # ONLY FOR REAL VARIABLES
-    #
-    #
-    
-    def arithmetic():
-        
-        def func(x, y):
-            b = np.random.random()
-            a = 1-b
-            return a*x + b*y, a*y + b*x
-        
-        return func
-    
-    
-    def mixed(alpha = 0.5):
-        
-        def func(x,y):
-            
-            a = np.empty(x.size)
-            b = np.empty(y.size)
-            
-            x_min = np.minimum(a, b)
-            x_max = np.maximum(a, b)
-            delta = alpha*(x_max-x_min)
-            
-            for i in range(x.size):
-                a[i] = np.random.uniform(x_min[i] - delta[i], x_max[i] + delta[i])
-                b[i] = np.random.uniform(x_min[i] - delta[i], x_max[i] + delta[i])
-            
-            return a, b
-        
-        return func
-        
-
-class Mutations:
-    
-    def uniform_by_x():
-        
-        def func(x, left, right):
-            alp = min(x - left, right - x)
-            return np.random.uniform(x - alp, x + alp)
-        return func
-    
-    
-    def uniform_by_center():
-        
-        def func(x, left, right):
-            return np.random.uniform(left, right)
-        
-        return func
-    
-    def gauss_by_x(sd = 0.3):
-        """
-        gauss mutation with x as center and sd*length_of_zone as std
-        """
-        def func(x, left, right):
-            std = sd * (right - left)
-            return max(left, min(right, np.random.normal(loc = x, scale = std)))
-        
-        return func
-    
-    def gauss_by_center(sd = 0.3):
-        """
-        gauss mutation with (left+right)/2 as center and sd*length_of_zone as std
-        """
-        def func(x, left, right):
-            std = sd * (right - left)
-            return max(left, min(right, np.random.normal(loc = (left+right)*0.5, scale = std)))
-        
-        return func
-
-
-
-
-
-
-
 
 
 
