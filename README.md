@@ -21,6 +21,9 @@ version](https://badge.fury.io/py/geneticalgorithm2.svg)](https://pypi.org/proje
   - [Function timeout](#function-timeout)
   - [Standard GA vs. Elitist GA](#standard-ga-vs-elitist-ga)
   - [Standard crossover vs. stud EA crossover](#standard-crossover-vs-stud-ea-crossover)
+  - [Creating better start population](#creating-better-start-population)
+    - [Select best N of kN](#select-best-n-of-kn)
+    - [Do local optimization](#do-local-optimization)
   - [Hints on how to adjust genetic algorithm's parameters](#hints-on-how-to-adjust-genetic-algorithms-parameters)
 - [Optimization test functions](#optimization-test-functions)
   - [Rastrigin](#rastrigin)
@@ -56,8 +59,12 @@ Firstly, u should **import needed packages**:
 
 ```python
 import numpy as np
+
 from geneticalgorithm2 import geneticalgorithm2 as ga
+
 from geneticalgorithm2 import Crossover, Mutations, Selection # classes for specific mutation and crossover behavior
+
+from geneticalgorithm2 import Population_initializer # for creating better start population
 ```
 Next step: **define minimized function** like
 
@@ -114,7 +121,8 @@ model.run(
     set_function = None, 
     apply_function_to_parents = False, 
     start_generation = {'variables':None, 'scores': None},
-    studEA = False
+    studEA = False,
+    population_initializer = Population_initializer(select_best_of = 1, local_optimization_step = 'never', local_optimizer = None)
     )
 ```
 
@@ -131,9 +139,11 @@ Your best solution is computed!
         
 * param **apply_function_to_parents** <boolean> - apply function to parents from previous generation (if it's needed, it can be needed at working with games agents)
 
-* param **start_generation** <dictionary> - a dictionary with structure `{'variables':2D-array of samples, 'scores': function values on samples}`. If `'scores'` value is `None` the scores will be compute  
+* param **start_generation** <dictionary> - a dictionary with structure `{'variables':2D-array of samples, 'scores': function values on samples}`. If `'scores'` value is `None` the scores will be compute. [See this](#how-to-initialize-start-population-how-to-continue-optimization-with-new-run)  
 
-* param **studEA** <boolean> - using stud EA strategy (crossover with best object always). Default is false
+* param **studEA** <boolean> - using stud EA strategy (crossover with best object always). Default is false. [Take a look](#standard-crossover-vs-stud-ea-crossover)
+
+* param **population_initializer** (`tuple(int, func)`) - object for actions at population initialization step to create better start population. [Take a look](#creating-better-start-population)
 
 It would be more logical to use params like `studEA` as an algorithm param, but `run()`-way can be more comfortable for real using.
 
@@ -295,7 +305,7 @@ If this parameter's value is `None` the algorithm sets maximum number of iterati
 
 * **mutation_probability**: determines the chance of each gene in each individual solution to be replaced by a random value. The default is 0.1 (i.e. 10 percent). 
 
-* **elit_ration**: determines the number of elites in the population. The default value is 0.01 (i.e. 1 percent). For example when population size is 100 and **elit_ratio** is 0.01 then there is one elite in the population. If this parameter is set to be zero then `geneticalgorithm2` implements a standard genetic algorithm instead of elitist GA. 
+* **elit_ration**: determines the number of elites in the population. The default value is 0.01 (i.e. 1 percent). For example when population size is 100 and **elit_ratio** is 0.01 then there is one elite in the population. If this parameter is set to be zero then `geneticalgorithm2` implements a standard genetic algorithm instead of elitist GA. [See example](#standard-ga-vs-elitist-ga)
 
 * **crossover_probability**: determines the chance of an existed solution to pass its genome (aka characteristics) to new trial solutions (aka offspring); the default value is 0.5 (i.e. 50 percent)
 
@@ -596,6 +606,89 @@ The convergence curve of an elitist genetic algorithm is always non-increasing. 
 [Stud EA](https://link.springer.com/chapter/10.1007%2FBFb0056910) is the idea of using crossover always with best object. So one of two parents is always the best object of population. It can help us in a lot of tasks!
 
 ![](https://github.com/PasaOpasen/geneticalgorithm2/blob/master/tests/studEA.png)
+
+## Creating better start population
+
+There is `Population_initializer(select_best_of = 4, local_optimization_step = 'never', local_optimizer = None)` object for creating better start population. It has next arguments:
+
+* `select_best_of` (int) -- select 1/`select_best_of` best part of start population. For example, for `select_best_of` = 4 and `population_size` = N will be selected N best objects from 5N generated objects (if `start_generation` = None dictionary). If `start_generation` is not None dictionary, it will be selected best size(`start_generation`)/N  objects
+
+* `local_optimization_step` (str) -- when should we do local optimization? Available values:
+    
+    * `'never'` -- don't do local optimization
+    * `'before_select'` -- before selection best N objects (example: do local optimization for 5N objects and select N best results)
+    * `'after_select'` -- do local optimization on best selected N objects
+
+* `local_optimizer` (function) -- local optimization function like:
+    ```python
+    def loc_opt(object_as_array, current_score):
+        # some code
+        return better_object_as_array, better_score
+    ```
+
+### Select best N of kN
+
+This little option can help u especially with multimodal tasks. 
+
+![](https://github.com/PasaOpasen/geneticalgorithm2/blob/master/tests/init_best_of.png)
+
+### Do local optimization
+
+We can apply some local optimization on start generation before starting GA search. It can be some gradient descent or hill climbing and so on. Also we can apply it before selection best objects (on entire population) or after (on best part of population) and so forth.
+
+In next example I'm using my [DiscreteHillClimbing](https://github.com/PasaOpasen/DiscreteHillClimbing) algorithm for local optimization my discrete task:
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+
+from DiscreteHillClimbing import Hill_Climbing_descent
+
+from geneticalgorithm2 import geneticalgorithm2 as ga
+from geneticalgorithm2 import Population_initializer
+
+
+def f(arr):
+    arr2 = arr/25
+    return -np.sum(arr2*np.sin(np.sqrt(np.abs(arr2))))**5 + np.sum(np.abs(arr2))**2
+
+iterations = 100    
+    
+varbound = np.array([[-100, 100]]*15)
+
+available_values = [np.arange(-100, 101)]*15
+
+
+my_local_optimizer = lambda arr, score: Hill_Climbing_descent(function = f, available_predictors_values=available_values, max_function_evals=50, start_solution=arr )
+
+
+model = ga(function=f, dimension=varbound.shape[0], 
+           variable_type='int', 
+           variable_boundaries = varbound,
+           algorithm_parameters={
+               'max_num_iteration': iterations,
+               'population_size': 400
+               })
+
+
+for time in ('before_select', 'after_select', 'never'):
+    model.run(no_plot = True,
+                  population_initializer = Population_initializer(
+                      select_best_of = 3,
+                      local_optimization_step = time,
+                      local_optimizer = my_local_optimizer
+                      )
+                  )
+
+    plt.plot(model.report, label = f"local optimization time = '{time}'")
+
+
+plt.xlabel('Generation')
+plt.ylabel('Minimized function (40 simulations average)')
+plt.title('Selection best N object before running GA')
+plt.legend()
+```
+![](https://github.com/PasaOpasen/geneticalgorithm2/blob/master/tests/init_local_opt.png)
 
 ## Hints on how to adjust genetic algorithm's parameters
 
