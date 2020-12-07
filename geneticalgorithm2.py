@@ -38,6 +38,11 @@ from func_timeout import func_timeout, FunctionTimedOut
 
 import matplotlib.pyplot as plt
 
+
+from .mutations import Mutations
+from .crossovers import Crossover
+from .selections import Selection
+
 ###############################################################################
 ###############################################################################
 ###############################################################################
@@ -238,8 +243,8 @@ class geneticalgorithm2():
         "elit_ratio must be in range [0,1]"                
         
         trl = self.pop_s*self.param['elit_ratio']
-        if trl < 1 and self.param['elit_ratio'] > 0:
-            self.num_elit = 1
+        if trl<1 and self.param['elit_ratio']>0:
+            self.num_elit=1
         else:
             self.num_elit = int(trl)
             
@@ -322,12 +327,10 @@ class geneticalgorithm2():
 
 
         ############################################################# 
-    def run(self, no_plot = False, disable_progress_bar = False, set_function = None, apply_function_to_parents = False, start_generation = {'variables':None, 'scores': None}, studEA = False):
+    def run(self, no_plot = False, set_function = None, apply_function_to_parents = False, start_generation = {'variables':None, 'scores': None}):
         """
         @param no_plot <boolean> - do not plot results using matplotlib by default
         
-        @param disable_progress_bar <boolean> - do not show progress bar
-                
         @param set_function : 2D-array -> 1D-array function, which applyes to matrix of population (size (samples, dimention))
         to estimate their values
         
@@ -335,14 +338,7 @@ class geneticalgorithm2():
                                                                                                          
         @param start_generation <dictionary> - a dictionary with structure {'variables':2D-array of samples, 'scores': function values on samples}                                                                                                
         if 'scores' value is None the scores will be compute
-
-        @param studEA <boolean> - using stud EA strategy (crossover with best object always)
         """
-        
-        show_progress = (lambda t, t2, s: self.progress(t, t2, status = s)) if not disable_progress_bar else (lambda t, t2, s: None)
-        
-        get_parents_inds = (lambda par_count: (0, random.randrange(1, par_count))) if studEA else (lambda par_count: tuple(np.random.randint(0, par_count, 2)))
-            
         ############################################################# 
         # Initial Population
         
@@ -403,13 +399,13 @@ class geneticalgorithm2():
         self.best_variable = var.copy()
         self.best_function = obj
         ##############################################################   
-        
+                        
         t=1
         counter = 0
         while t <= self.iterate:
             
             
-            show_progress(t, self.iterate, f"GA is running...{t} gen from {self.iterate}")
+            self.progress(t, self.iterate, status = f"GA is running...{t} gen from {self.iterate}")
             #############################################################
             #Sort
             pop = pop[pop[:,self.dim].argsort()]
@@ -420,7 +416,7 @@ class geneticalgorithm2():
                 self.best_function=pop[0, self.dim]#.copy()
                 self.best_variable=pop[0,:self.dim].copy()
                 
-                show_progress(t, self.iterate, f"GA is running...{t} gen from {self.iterate}...best value = {self.best_function}")
+                self.progress(t, self.iterate, status = f"GA is running...{t} gen from {self.iterate}...best value = {self.best_function}")
             else:
                 counter += 1
             #############################################################
@@ -437,9 +433,9 @@ class geneticalgorithm2():
             
             par = np.empty((self.par_s, self.dim+1))
             
-            # elit parents
+            # elit parents       
             par[:self.num_elit, :] = pop[:self.num_elit, :].copy()
-                
+            
             # non-elit parents indexes
             #new_par_inds = np.int8(ff(pop[self.num_elit:, self.dim], self.par_s - self.num_elit) + self.num_elit)
             new_par_inds = np.int8(self.selection(pop[:, self.dim], self.par_s - self.num_elit))
@@ -458,10 +454,12 @@ class geneticalgorithm2():
             #New generation
             pop = np.empty((self.pop_s, self.dim+1))  #np.array([np.zeros(self.dim+1)]*self.pop_s)
             
-            pop[:self.par_s, :] = par[:self.par_s, :].copy()
+            pop[:self.par_s, :] = par[:self.par_s].copy()
+
                 
             for k in range(self.par_s, self.pop_s, 2):
-                r1, r2 = get_parents_inds(par_count)
+                r1, r2 = tuple(np.random.randint(0, par_count, 2))
+
                 pvar1 = ef_par[r1,:self.dim].copy()
                 pvar2 = ef_par[r2,:self.dim].copy()
                 
@@ -494,7 +492,7 @@ class geneticalgorithm2():
                 pop = pop[pop[:,self.dim].argsort()]
                 if pop[0,self.dim] >= self.best_function:
                     t = self.iterate # to stop loop
-                    show_progress(t, self.iterate, "GA is running...")
+                    self.progress(t, self.iterate,status="GA is running...")
                     time.sleep(0.7) #time.sleep(2)
                     t+=1
                     self.stop_mniwi=True
@@ -663,314 +661,6 @@ class geneticalgorithm2():
         return func
             
 ###############################################################################
-
-
-class Selection:
-    
-    def __inverse_scores(scores):
-        """
-        inverse scores (min val goes to max)
-        """
-        minobj = scores[0]
-        normobj = scores - minobj if minobj < 0 else scores
-                
-        return (np.amax(normobj) + 1) - normobj 
-    
-    
-    def fully_random():
-        
-        def func(scores, parents_count):
-            indexes = np.arange(parents_count)
-            return np.random.choice(indexes, parents_count, replace = False)
-        
-        return func
-    
-    def __roulette(scores, parents_count):
-        
-        sum_normobj = np.sum(scores)
-        prob = scores/sum_normobj
-        cumprob = np.cumsum(prob)            
-            
-        parents_indexes = np.empty(parents_count)
-            
-        # it can be vectorized
-        for k in range(parents_count):
-            index = np.searchsorted(cumprob, np.random.random())
-            if index < cumprob.size:
-                parents_indexes[k] = index
-            else:
-                parents_indexes[k] = np.random.randint(0, index - 1)
-            
-        return parents_indexes
-
-    
-    def roulette():
-        
-        def func(scores, parents_count):
-
-            normobj = Selection.__inverse_scores(scores)
-
-            return Selection.__roulette(normobj, parents_count)
-        
-        return func
-    
-    def stochastic():
-        
-        def func(scores, parents_count):
-            f = Selection.__inverse_scores(scores)
-            
-            fN = 1.0/parents_count
-            k = 0
-            acc = 0.0
-            parents = []
-            r = random.random()*fN
-            
-            while len(parents) < parents_count:
-                
-                acc += f[k]
-                
-                while acc > r:
-                    parents.append(k)
-                    if len(parents) == parents_count: break
-                    r += fN
-                
-                k += 1
-            
-            return np.array(parents[:parents_count])
-        
-        return func
-    
-    def sigma_scaling(epsilon = 0.01, is_noisy = False):
-        
-        def func(scores, parents_count):
-            f = Selection.__inverse_scores(scores)
-            
-            sigma = np.std(f, ddof = 1) if is_noisy else np.std(f)
-            average = np.mean(f)
-            
-            if sigma == 0:
-                f = 1
-            else:
-                f = np.maximum(epsilon, 1 + (f - average)/(2*sigma))
-            
-            return Selection.__roulette(f, parents_count)
-        
-        return func
-    
-    def ranking():
-        
-        def func(scores, parents_count):
-            return Selection.__roulette(1 + np.arange(parents_count)[::-1], parents_count)
-        
-        return func
-    
-    def linear_ranking(selection_pressure = 1.5):
-        
-        assert (selection_pressure > 1 and selection_pressure < 2), f"selection_pressure should be in (1, 2), but got {selection_pressure}"
-        
-        def func(scores, parents_count):
-            tmp = parents_count*(parents_count-1)
-            alpha = (2*parents_count - selection_pressure*(parents_count + 1))/tmp
-            beta = 2*(selection_pressure - 1)/tmp
-            
-            
-            a = -2*alpha - beta
-            b = (2*alpha + beta)**2
-            c = 8*beta
-            d = 2*beta
-            
-            indexes = np.arange(parents_count)
-            
-            return np.array([indexes[-round((a + math.sqrt(b + c*random.random()))/d)] for _ in range(parents_count)])
-            
-        
-        return func
-    
-    def tournament(tau = 2):
-        
-        def func(scores, parents_count):
-            
-            indexes = np.arange(parents_count)
-            
-            return np.array([np.min(np.random.choice(indexes, tau, replace = False)) for _ in range(parents_count)])
-            
-        
-        return func
-    
-    
-    
-
-
-
-
-class Crossover:
-    
-    def get_copies(x, y):
-        return x.copy(), y.copy()
-    
-    def one_point():
-        
-        def func(x, y):
-            ofs1, ofs2 = Crossover.get_copies(x, y)
-        
-            ran=np.random.randint(0, x.size)
-            
-            ofs1[:ran] = y[:ran]
-            ofs2[:ran] = x[:ran]
-            
-            return ofs1, ofs2
-        return func
-    
-    def two_point():
-        
-        def func(x, y):
-            ofs1, ofs2 = Crossover.get_copies(x, y)
-        
-            ran1=np.random.randint(0, x.size)
-            ran2=np.random.randint(ran1, x.size)
-            
-            ofs1[ran1:ran2] = y[ran1:ran2]
-            ofs2[ran1:ran2] = x[ran1:ran2]
-              
-            
-            return ofs1, ofs2
-        return func
-    
-    def uniform():
-        
-        def func(x, y):
-            ofs1, ofs2 = Crossover.get_copies(x, y)
-        
-            ran = np.random.random(x.size) < 0.5
-            ofs1[ran] = y[ran]
-            ofs2[ran] = x[ran]
-              
-            return ofs1, ofs2
-        
-        return func
-    
-    def segment(prob = 0.6):
-        
-        def func(x, y):
-            
-            ofs1, ofs2 = Crossover.get_copies(x, y)
-            
-            p = np.random.random(x.size) < prob
-            
-            for i, val in enumerate(p):
-                if val:
-                    ofs1[i], ofs2[i] = ofs2[i], ofs1[i]
-            
-            return ofs1, ofs2
-        
-        return func
-    
-    def shuffle():
-        
-        def func(x, y):
-            
-            ofs1, ofs2 = Crossover.get_copies(x, y)
-            
-            index = np.random.choice(np.arange(0, x.size), x.size, replace = False)
-            
-            ran = np.random.randint(0, x.size)
-            
-            for i in range(ran):
-                ind = index[i]
-                ofs1[ind] = y[ind]
-                ofs2[ind] = x[ind]
-            
-            return ofs1, ofs2
-            
-        return func
-    
-    #
-    #
-    # ONLY FOR REAL VARIABLES
-    #
-    #
-    
-    def arithmetic():
-        
-        def func(x, y):
-            b = np.random.random()
-            a = 1-b
-            return a*x + b*y, a*y + b*x
-        
-        return func
-    
-    
-    def mixed(alpha = 0.5):
-        
-        def func(x,y):
-            
-            a = np.empty(x.size)
-            b = np.empty(y.size)
-            
-            x_min = np.minimum(a, b)
-            x_max = np.maximum(a, b)
-            delta = alpha*(x_max-x_min)
-            
-            for i in range(x.size):
-                a[i] = np.random.uniform(x_min[i] - delta[i], x_max[i] + delta[i])
-                b[i] = np.random.uniform(x_min[i] - delta[i], x_max[i] + delta[i])
-            
-            return a, b
-        
-        return func
-        
-
-class Mutations:
-    
-    def uniform_by_x():
-        
-        def func(x, left, right):
-            alp = min(x - left, right - x)
-            return np.random.uniform(x - alp, x + alp)
-        return func
-    
-    
-    def uniform_by_center():
-        
-        def func(x, left, right):
-            return np.random.uniform(left, right)
-        
-        return func
-    
-    def gauss_by_x(sd = 0.3):
-        """
-        gauss mutation with x as center and sd*length_of_zone as std
-        """
-        def func(x, left, right):
-            std = sd * (right - left)
-            return max(left, min(right, np.random.normal(loc = x, scale = std)))
-        
-        return func
-    
-    def gauss_by_center(sd = 0.3):
-        """
-        gauss mutation with (left+right)/2 as center and sd*length_of_zone as std
-        """
-        def func(x, left, right):
-            std = sd * (right - left)
-            return max(left, min(right, np.random.normal(loc = (left+right)*0.5, scale = std)))
-        
-        return func
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

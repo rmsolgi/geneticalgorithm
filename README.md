@@ -20,6 +20,7 @@ version](https://badge.fury.io/py/geneticalgorithm2.svg)](https://pypi.org/proje
 - [U should know it](#u-should-know-it)
   - [Function timeout](#function-timeout)
   - [Standard GA vs. Elitist GA](#standard-ga-vs-elitist-ga)
+  - [Standard crossover vs. stud EA crossover](#standard-crossover-vs-stud-ea-crossover)
   - [Hints on how to adjust genetic algorithm's parameters](#hints-on-how-to-adjust-genetic-algorithms-parameters)
 - [Optimization test functions](#optimization-test-functions)
   - [Rastrigin](#rastrigin)
@@ -112,7 +113,8 @@ model.run(
     disable_progress_bar = False,
     set_function = None, 
     apply_function_to_parents = False, 
-    start_generation = {'variables':None, 'scores': None}
+    start_generation = {'variables':None, 'scores': None},
+    studEA = False
     )
 ```
 
@@ -128,7 +130,12 @@ Your best solution is computed!
 * param **set_function**: 2D-array -> 1D-array function, which applyes to matrix of population (size (samples, dimention)) to estimate their values
         
 * param **apply_function_to_parents** <boolean> - apply function to parents from previous generation (if it's needed, it can be needed at working with games agents)
+
 * param **start_generation** <dictionary> - a dictionary with structure `{'variables':2D-array of samples, 'scores': function values on samples}`. If `'scores'` value is `None` the scores will be compute  
+
+* param **studEA** <boolean> - using stud EA strategy (crossover with best object always). Default is false
+
+It would be more logical to use params like `studEA` as an algorithm param, but `run()`-way can be more comfortable for real using.
 
 **param**: a dictionary of real parameters of the genetic algorithm (GA)
     
@@ -583,6 +590,12 @@ make sure to increase function_timeout in arguments.
 The convergence curve of an elitist genetic algorithm is always non-increasing. So, the best ever found solution is equal to the best solution of the last iteration. However, the convergence curve of a standard genetic algorithm is different. If `elit_ratio` is zero geneticalgroithm2 implements a standard GA. The output of geneticalgorithm2 for standard GA is the best ever found solution not the solution of the last iteration. The difference between the convergence curve of standard GA and elitist GA is shown below:
 
 ![](https://github.com/PasaOpasen/geneticalgorithm2/blob/master/tests/standard_vs_elitist.png)
+
+## Standard crossover vs. stud EA crossover
+
+[Stud EA](https://link.springer.com/chapter/10.1007%2FBFb0056910) is the idea of using crossover always with best object. So one of two parents is always the best object of population. It can help us in a lot of tasks!
+
+![](https://github.com/PasaOpasen/geneticalgorithm2/blob/master/tests/studEA.png)
 
 ## Hints on how to adjust genetic algorithm's parameters
 
