@@ -26,3 +26,4 @@ from .geneticalgorithm2 import geneticalgorithm2
 from .mutations import Mutations
 from .crossovers import Crossover
 from .selections import Selection
+from .initializer import Population_initializer
