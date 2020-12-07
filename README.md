@@ -688,6 +688,7 @@ plt.ylabel('Minimized function (40 simulations average)')
 plt.title('Selection best N object before running GA')
 plt.legend()
 ```
+
 ![](https://github.com/PasaOpasen/geneticalgorithm2/blob/master/tests/init_local_opt.png)
 
 ## Hints on how to adjust genetic algorithm's parameters

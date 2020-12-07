@@ -60,3 +60,7 @@ plt.xlabel('Generation')
 plt.ylabel('Minimized function (40 simulations average)')
 plt.title('Selection best N object before running GA')
 plt.legend()
+
+plt.savefig("init_local_opt.png", dpi = 300)
+plt.show()
+
