@@ -21,7 +21,9 @@ def f(X):
     
 varbound = np.array([[0,10]]*dim)
 
-ratios = [0.001, 0.03, 0.05, 0.1]
+start_gen = np.random.uniform(0, 10, (100, dim))
+
+ratios = [0, 0.02, 0.05, 0.1]
 
 for elit in ratios:
 
@@ -32,7 +34,7 @@ for elit in ratios:
                    'elit_ratio': elit
                    })
     
-    model.run(no_plot = True)
+    model.run(no_plot = True, start_generation={'variables':start_gen, 'scores': None})
     
     plt.plot(model.report, label = f"elit_ratio = {elit}")
     
