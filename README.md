@@ -324,25 +324,25 @@ If this parameter's value is `None` the algorithm sets maximum number of iterati
     * `Crossover.mixed()` only for real variables
     * `Crossover.arithmetic()` only for real variables
     
-    Write your own crossover function using syntax:
+    If u want, write your own crossover function using syntax:
     ```python
     def my_crossover(parent_a, parent_b):
         # some code
         return child_1, child_2
     ```
-* **mutation_type**: there are several options (only for real) including `uniform_by_x`, `uniform_by_center`, `gauss_by_x`, `gauss_by_center`; default is `uniform_by_center`. U also can use crossover functions from `Mutations` class:
+* **mutation_type**: there are several options (only for real) including `uniform_by_x`, `uniform_by_center`, `gauss_by_x`, `gauss_by_center`; default is `uniform_by_center`. U also can use mutation functions from `Mutations` class:
     * `Mutations.gauss_by_center(sd = 0.2)`
     * `Mutations.gauss_by_x(sd = 0.1)`
     * `Mutations.uniform_by_center()`
     * `Mutations.uniform_by_x()`
 
-    Write your mutation function using syntax:
+    (If u want) write your mutation function using syntax:
     ```python
     def my_mutation(current_value, left_border, right_border):
         # some code
         return new_value 
     ```
-* **selection_type**: there are several options (only for real) including `fully_random`, `roulette`, `stochastic`, `sigma_scaling`, `ranking`, `linear_ranking`, `tournament`; default is `roulette`. U also can use crossover functions from `Selection` class:
+* **selection_type**: there are several options (only for real) including `fully_random`, `roulette`, `stochastic`, `sigma_scaling`, `ranking`, `linear_ranking`, `tournament`; default is `roulette`. U also can use selection functions from `Selection` class:
     * `Selection.fully_random()`
     * `Selection.roulette()`
     * `Selection.stochastic()`
@@ -351,7 +351,7 @@ If this parameter's value is `None` the algorithm sets maximum number of iterati
     * `Selection.linear_ranking(selection_pressure = 1.5)`
     * `Selection.tournament(tau = 2)`
 
-    Write your selection function using syntax:
+    If u want, write your selection function using syntax:
     ```python
     def my_mutation(sorted_scores, parents_count):
         # some code
