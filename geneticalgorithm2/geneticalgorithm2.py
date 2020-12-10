@@ -255,7 +255,7 @@ class geneticalgorithm2():
         
         if self.param['max_num_iteration'] == None:
             self.iterate = 0
-            for i in range (0,self.dim):
+            for i in range (0, self.dim):
                 if self.var_type[i]=='int':
                     self.iterate += (self.var_bound[i][1]-self.var_bound[i][0])*self.dim*(100/self.pop_s)
                 else:
@@ -263,6 +263,10 @@ class geneticalgorithm2():
             self.iterate = int(self.iterate)
             if (self.iterate*self.pop_s)>10000000:
                 self.iterate=10000000/self.pop_s
+            
+            if self.iterate > 8000:
+                self.iterate = 8000
+
         else:
             self.iterate = int(self.param['max_num_iteration'])
         
@@ -335,7 +339,8 @@ class geneticalgorithm2():
             apply_function_to_parents = False, \
             start_generation = {'variables':None, 'scores': None}, \
             studEA = False, \
-            population_initializer = Population_initializer(select_best_of = 1, local_optimization_step = 'never', local_optimizer = None)):
+            population_initializer = Population_initializer(select_best_of = 1, local_optimization_step = 'never', local_optimizer = None), \
+            seed = None):
         """
         @param no_plot <boolean> - do not plot results using matplotlib by default
         
@@ -353,8 +358,13 @@ class geneticalgorithm2():
 
         @param population_initializer (tuple(int, func)) - object for actions at population initialization step to create better start population. See doc
 
+        @ param seed - random seed (None is doesn't matter)
         """
         
+        if not (seed is None):
+            random.seed(seed)
+            np.random.seed(seed)
+
         show_progress = (lambda t, t2, s: self.progress(t, t2, status = s)) if not disable_progress_bar else (lambda t, t2, s: None)
         
         get_parents_inds = (lambda par_count: (0, random.randrange(1, par_count))) if studEA else (lambda par_count: tuple(np.random.randint(0, par_count, 2)))

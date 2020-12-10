@@ -124,7 +124,8 @@ model.run(
     apply_function_to_parents = False, 
     start_generation = {'variables':None, 'scores': None},
     studEA = False,
-    population_initializer = Population_initializer(select_best_of = 1, local_optimization_step = 'never', local_optimizer = None)
+    population_initializer = Population_initializer(select_best_of = 1, local_optimization_step = 'never', local_optimizer = None),
+    seed = None
     )
 ```
 
@@ -146,6 +147,8 @@ Your best solution is computed!
 * param **studEA** <boolean> - using stud EA strategy (crossover with best object always). Default is false. [Take a look](#standard-crossover-vs-stud-ea-crossover)
 
 * param **population_initializer** (`tuple(int, func)`) - object for actions at population initialization step to create better start population. [Take a look](#creating-better-start-population)
+
+* param **seed** - random seed (None is doesn't matter)
 
 It would be more logical to use params like `studEA` as an algorithm param, but `run()`-way can be more comfortable for real using.
 
