@@ -438,7 +438,7 @@ class geneticalgorithm2():
         self.best_function = obj
         ##############################################################   
         
-        t=1
+        t = 1
         counter = 0
         while t <= self.iterate:
             
@@ -449,9 +449,9 @@ class geneticalgorithm2():
             pop = pop[pop[:,self.dim].argsort()]
 
                 
-            if pop[0,self.dim] < self.best_function:
+            if pop[0,self.dim] < self.best_function: # if there is progress
                 counter = 0
-                self.best_function=pop[0, self.dim]#.copy()
+                self.best_function=pop[0, self.dim]
                 self.best_variable=pop[0,:self.dim].copy()
                 
                 show_progress(t, self.iterate, f"GA is running...{t} gen from {self.iterate}...best value = {self.best_function}")
@@ -482,7 +482,7 @@ class geneticalgorithm2():
             
             # select parents for crossover
             par_count = 0
-            while par_count == 0:                
+            while par_count < 2:                
                 ef_par_list = np.random.random(self.par_s) <= self.prob_cross
                 par_count = np.sum(ef_par_list)
                  
@@ -495,7 +495,7 @@ class geneticalgorithm2():
             pop[:self.par_s, :] = par[:self.par_s, :].copy()
                 
             for k in range(self.par_s, self.pop_s, 2):
-                r1, r2 = get_parents_inds(self.par_s)
+                r1, r2 = get_parents_inds(par_count)
                 pvar1 = ef_par[r1,:self.dim].copy()
                 pvar2 = ef_par[r2,:self.dim].copy()
                 
@@ -528,8 +528,8 @@ class geneticalgorithm2():
                 pop = pop[pop[:,self.dim].argsort()]
                 if pop[0,self.dim] >= self.best_function:
                     t = self.iterate # to stop loop
-                    show_progress(t, self.iterate, "GA is running...")
-                    time.sleep(0.7) #time.sleep(2)
+                    show_progress(t, self.iterate, "GA is running... STOP!")
+                    #time.sleep(0.7) #time.sleep(2)
                     t+=1
                     self.stop_mniwi=True
         
