@@ -495,7 +495,7 @@ class geneticalgorithm2():
             pop[:self.par_s, :] = par[:self.par_s, :].copy()
                 
             for k in range(self.par_s, self.pop_s, 2):
-                r1, r2 = get_parents_inds(par_count)
+                r1, r2 = get_parents_inds(self.par_s)
                 pvar1 = ef_par[r1,:self.dim].copy()
                 pvar2 = ef_par[r2,:self.dim].copy()
                 
