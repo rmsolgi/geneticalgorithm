@@ -47,6 +47,13 @@ from .initializer import Population_initializer
 
 
 ###############################################################################
+
+def can_be_prob(value):
+    return value >=0 and value <=1
+
+def is_numpy(arg):
+    return type(arg) == np.ndarray
+
 ###############################################################################
 
 class geneticalgorithm2():
@@ -141,7 +148,6 @@ class geneticalgorithm2():
   
         '''
         self.__name__ = geneticalgorithm2
-        self.report = []
 
         # input algorithm's parameters
         
@@ -157,13 +163,12 @@ class geneticalgorithm2():
         #############################################################
         #dimension
         
-        self.dim=int(dimension)
+        self.dim = int(dimension)
         
         #############################################################
         # input variable type
         
-        assert(variable_type in ['bool', 'int', 'real']), \
-               f"\n variable_type must be 'bool', 'int', or 'real', got {variable_type}"
+        assert(variable_type in ['bool', 'int', 'real']),  f"\n variable_type must be 'bool', 'int', or 'real', got {variable_type}"
        #############################################################
         # input variables' type (MIXED)     
 
@@ -174,20 +179,13 @@ class geneticalgorithm2():
             else:
                 self.var_type = np.array([['int']]*self.dim)            
 
- 
         else:
-            assert (type(variable_type_mixed).__module__ == 'numpy'),\
-            "\n variable_type must be numpy array"  
-            assert (len(variable_type_mixed) == self.dim), \
-            "\n variable_type must have a length equal dimension."       
+            assert (is_numpy(variable_type_mixed)), "\n variable_type must be numpy array"  
+            assert (len(variable_type_mixed) == self.dim),  "\n variable_type must have a length equal dimension."       
 
             for i in variable_type_mixed:
-                assert (i == 'real' or i == 'int'),\
-                "\n variable_type_mixed is either 'int' or 'real' "+\
-                "ex:['int','real','real']"+\
-                "\n for 'boolean' use 'int' and specify boundary as [0,1]"
+                assert (i == 'real' or i == 'int'), "\n variable_type_mixed is either 'int' or 'real' "+"ex:['int','real','real']"+"\n for 'boolean' use 'int' and specify boundary as [0,1]"
                 
-
             self.var_type = variable_type_mixed
             
         self.set_crossover_and_mutations(algorithm_parameters['crossover_type'], algorithm_parameters['mutation_type'], algorithm_parameters['selection_type'])
@@ -197,18 +195,15 @@ class geneticalgorithm2():
             
         if variable_type != 'bool' or type(variable_type_mixed).__module__=='numpy':
                        
-            assert (type(variable_boundaries).__module__=='numpy'),\
-            "\n variable_boundaries must be numpy array"
+            assert (type(variable_boundaries).__module__=='numpy'),  "\n variable_boundaries must be numpy array"
         
             assert (len(variable_boundaries)==self.dim),\
             "\n variable_boundaries must have a length equal dimension"        
         
         
             for i in variable_boundaries:
-                assert (len(i) == 2), \
-                "\n boundary for each variable must be a tuple of length two." 
-                assert(i[0]<=i[1]),\
-                "\n lower_boundaries must be smaller than upper_boundaries [lower,upper]"
+                assert (len(i) == 2),  "\n boundary for each variable must be a tuple of length two." 
+                assert(i[0]<=i[1]), "\n lower_boundaries must be smaller than upper_boundaries [lower,upper]"
             self.var_bound = variable_boundaries
         else:
             self.var_bound = np.array([[0,1]]*self.dim)
@@ -222,9 +217,7 @@ class geneticalgorithm2():
         
         self.pop_s = int(self.param['population_size'])
         
-        assert (self.param['parents_portion']<=1\
-                and self.param['parents_portion']>=0),\
-        "parents_portion must be in range [0,1]" 
+        assert ( can_be_prob( elf.param['parents_portion'] ) ), "parents_portion must be in range [0,1]" 
         
         self.par_s = int(self.param['parents_portion']*self.pop_s)
         trl= self.pop_s - self.par_s
@@ -233,16 +226,13 @@ class geneticalgorithm2():
                
         self.prob_mut = self.param['mutation_probability']
         
-        assert (self.prob_mut<=1 and self.prob_mut>=0), \
-        "mutation_probability must be in range [0,1]"
+        assert (can_be_prob( self.prob_mut)), "mutation_probability must be in range [0,1]"
         
         
         self.prob_cross=self.param['crossover_probability']
-        assert (self.prob_cross<=1 and self.prob_cross>=0), \
-        "mutation_probability must be in range [0,1]"
+        assert (can_be_prob( self.prob_cross)),  "mutation_probability must be in range [0,1]"
         
-        assert (self.param['elit_ratio']<=1 and self.param['elit_ratio']>=0),\
-        "elit_ratio must be in range [0,1]"                
+        assert ( can_be_prob( self.param['elit_ratio']) ),  "elit_ratio must be in range [0,1]"                
         
         trl = self.pop_s*self.param['elit_ratio']
         if trl < 1 and self.param['elit_ratio'] > 0:
@@ -250,8 +240,7 @@ class geneticalgorithm2():
         else:
             self.num_elit = int(trl)
             
-        assert(self.par_s>=self.num_elit), \
-        "\n number of parents must be greater than number of elits"
+        assert(self.par_s>=self.num_elit), "\n number of parents must be greater than number of elits"
         
         if self.param['max_num_iteration'] == None:
             self.iterate = 0
