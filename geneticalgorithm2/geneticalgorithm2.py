@@ -38,6 +38,8 @@ from func_timeout import func_timeout, FunctionTimedOut
 
 import matplotlib.pyplot as plt
 
+from OppOpPopInit import init_population, SampleInitializers, OppositionOperators
+
 ###############################################################################
 
 from .crossovers import Crossover
@@ -56,7 +58,7 @@ def is_numpy(arg):
 
 ###############################################################################
 
-class geneticalgorithm2():
+class geneticalgorithm2:
     
     '''  Genetic Algorithm (Elitist version) for Python
     
@@ -329,12 +331,17 @@ class geneticalgorithm2():
 
 
         ############################################################# 
+    
     def run(self, no_plot = False, \
             disable_progress_bar = False, \
             set_function = None, \
             apply_function_to_parents = False, \
             start_generation = {'variables':None, 'scores': None}, \
             studEA = False, \
+            init_creator = None,
+            init_oppositors = None,
+            duplicates_oppositor = None,
+            revolution_oppositor = None,
             population_initializer = Population_initializer(select_best_of = 1, local_optimization_step = 'never', local_optimizer = None), \
             seed = None):
         """
@@ -373,6 +380,22 @@ class geneticalgorithm2():
         
         pop_coef, initializer_func = population_initializer
         
+        # population creator by random or with oppositions
+        if init_creator is None:
+            self.creator = SampleInitializers.Combined(
+                minimums = self.var_bound[:, 0],
+                maximums= self.var_bound[:, 1],
+                list_of_indexes = [self.indexes_int, self.indexes_float],
+                list_of_initializers_creators = [
+                    SampleInitializers.RandomInteger,
+                    SampleInitializers.Uniform
+                ] )
+        else:
+            self.creator = init_creator
+        self.init_oppositors = init_oppositors
+        self.dup_oppositor = duplicates_oppositor
+        self.revolution_oppositor = revolution_oppositor
+
         
         if start_generation['variables'] is None:
                     
@@ -380,16 +403,18 @@ class geneticalgorithm2():
             solo = np.empty(self.dim+1)
             var = np.empty(self.dim)       
             
-            for i in self.indexes_int:
-                pop[:, i] = np.random.randint(self.var_bound[i][0],self.var_bound[i][1]+1, self.pop_s*pop_coef) 
+            pop[:, :-1] = init_population(total_count = self.pop_s*pop_coef, creator = self.creator, oppositors = self.init_oppositors) 
+
+            #for i in self.indexes_int:
+            #    pop[:, i] = np.random.randint(self.var_bound[i][0],self.var_bound[i][1]+1, self.pop_s*pop_coef) 
             
-            for i in self.indexes_float:
-                pop[:, i] = np.random.uniform(self.var_bound[i][0], self.var_bound[i][1], self.pop_s*pop_coef)
+            #for i in self.indexes_float:
+            #    pop[:, i] = np.random.uniform(self.var_bound[i][0], self.var_bound[i][1], self.pop_s*pop_coef)
             
             for p in range(0, self.pop_s*pop_coef):    
                 var = pop[p, :-1]
                 solo = pop[p, :]
-                obj = self.sim(var)  # simulation returns exception or func value           
+                obj = self.sim(var)  # simulation returns exception or func value -- check the time of evaluating           
                 solo[self.dim] = obj
                 
         else:
