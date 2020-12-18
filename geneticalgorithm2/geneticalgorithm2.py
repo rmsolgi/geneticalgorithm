@@ -332,17 +332,20 @@ class geneticalgorithm2:
 
         ############################################################# 
     
-    def run(self, no_plot = False, \
-            disable_progress_bar = False, \
-            set_function = None, \
-            apply_function_to_parents = False, \
-            start_generation = {'variables':None, 'scores': None}, \
-            studEA = False, \
+    def run(self, no_plot = False, 
+            disable_progress_bar = False, 
+            set_function = None, 
+            apply_function_to_parents = False, 
+            start_generation = {'variables':None, 'scores': None}, 
+            studEA = False, 
             init_creator = None,
             init_oppositors = None,
             duplicates_oppositor = None,
+            remove_duplicates_generation_step = None,
             revolution_oppositor = None,
-            population_initializer = Population_initializer(select_best_of = 1, local_optimization_step = 'never', local_optimizer = None), \
+            revolution_after_stagnation_step = None,
+            revolution_part = 0.3,
+            population_initializer = Population_initializer(select_best_of = 1, local_optimization_step = 'never', local_optimizer = None), 
             seed = None):
         """
         @param no_plot <boolean> - do not plot results using matplotlib by default
@@ -364,6 +367,13 @@ class geneticalgorithm2:
         @ param seed - random seed (None is doesn't matter)
         """
         
+        current_gen_number = lambda number: (number is None) or (type(number) == int and number > 0)
+
+        assert current_gen_number(revolution_after_stagnation_step), "must be None or int and >0"
+        assert current_gen_number(remove_duplicates_generation_step), "must be None or int and >0"
+        assert can_be_prob(revolution_part), f"revolution_part must be in [0,1], not {revolution_part}"
+
+
         if not (seed is None):
             random.seed(seed)
             np.random.seed(seed)
@@ -396,6 +406,71 @@ class geneticalgorithm2:
         self.dup_oppositor = duplicates_oppositor
         self.revolution_oppositor = revolution_oppositor
 
+        # event for removing duplicates
+        if remove_duplicates_generation_step is None:
+            def remover(pop_wide, gen):
+                return pop_wide
+        else:
+            
+            def without_dup(pop_wide): # returns population without dups
+                _, index_of_dups = np.unique(pop_wide[:, :-1], axis=0, return_index=True) 
+                return np.delete( pop, index_of_dups, axis = 0), index_of_dups.size
+            
+            if self.dup_oppositor is None: # is there is no dup_oppositor, use random creator
+                def remover(pop_wide, gen):
+                    if gen % remove_duplicates_generation_step != 0:
+                        return pop_wide
+
+                    pp, count_to_create = without_dup(pop) # pop without dups
+                    pp2 = np.empty(count_to_create, self.dim+1) 
+                    pp2[:,:-1] = SampleInitializers.CreateSamples(self.creator, count_to_create) # new pop elements
+                    pp2[:, -1] = set_function(pp2[:,:-1]) # new elements values
+
+                    return np.vstack((pp, pp2)) # new pop
+            else: # using oppositors
+                def remover(pop_wide, gen):
+                    if gen % remove_duplicates_generation_step != 0:
+                        return pop_wide
+
+                    pp, count_to_create = without_dup(pop) # pop without dups
+
+                    if count_to_create > pp.shape[0]:
+                        raise Exception(f"Too many duplicates at generation {gen}, cannot oppose")
+
+                    pp2 = np.empty(count_to_create, self.dim+1) 
+                    # oppose count_to_create worse elements
+                    pp2[:,:-1] = OppositionOperators.Reflect(pp[-count_to_create:,:], self.dup_oppositor)# new pop elements
+                    pp2[:, -1] = set_function(pp2[:,:-1]) # new elements values
+
+                    return np.vstack((pp, pp2)) # new pop
+
+        # event for revolution
+        if revolution_after_stagnation_step is None:
+            def revolution(pop_wide, stagnation_count):
+                return pop_wide
+        else:
+            if revolution_oppositor is None:
+                raise Exception(f"How can I make revolution each {revolution_after_stagnation_step} stagnation steps if revolution_oppositor is None (not defined)?")
+            
+            def revolution(pop_wide, stagnation_count):
+                if stagnation_count < revolution_after_stagnation_step:
+                    return pop_wide
+                part = int(pop_wide.shape[0]*revolution_part)
+                pp2 = np.empty(part, self.dim+1) 
+                
+                pp2[:,:-1] = OppositionOperators.Reflect(pop_wide[-part, :-1], self.revolution_oppositor)
+                pp2[:, -1] = set_function(pp2[:,:-1])
+
+                combined = np.vstack((pop_wide, pp2))
+                args = np.argsort(combined[:, -1])
+
+                return combined[args[:pop_wide.shape[0]],:]
+
+
+
+
+
+        # initialization of pop
         
         if start_generation['variables'] is None:
                     
@@ -537,8 +612,10 @@ class geneticalgorithm2:
             else:
                 pop[self.par_s:,-1] = set_function(pop[self.par_s:,:-1])
             
-            
-            
+            # remove duplicates
+            pop = remover(pop, t)
+            # revolution
+            pop = revolution(pop, counter)          
             
         #############################################################       
             t += 1
