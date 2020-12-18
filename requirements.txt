@@ -1,4 +1,7 @@
-joblib==0.15.1
-func_timeout==4.3.5
-numpy==1.18.4
 matplotlib==3.2.1
+joblib==0.15.1
+numpy==1.18.4
+func_timeout==4.3.5
+DiscreteHillClimbing==1.0.2
+OppOpPopInit==1.0.2
+OptimizationTestFunctions==1.0.0

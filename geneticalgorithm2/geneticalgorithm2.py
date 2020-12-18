@@ -38,6 +38,8 @@ from func_timeout import func_timeout, FunctionTimedOut
 
 import matplotlib.pyplot as plt
 
+from OppOpPopInit import init_population, SampleInitializers, OppositionOperators
+
 ###############################################################################
 
 from .crossovers import Crossover
@@ -56,7 +58,7 @@ def is_numpy(arg):
 
 ###############################################################################
 
-class geneticalgorithm2():
+class geneticalgorithm2:
     
     '''  Genetic Algorithm (Elitist version) for Python
     
@@ -329,13 +331,21 @@ class geneticalgorithm2():
 
 
         ############################################################# 
-    def run(self, no_plot = False, \
-            disable_progress_bar = False, \
-            set_function = None, \
-            apply_function_to_parents = False, \
-            start_generation = {'variables':None, 'scores': None}, \
-            studEA = False, \
-            population_initializer = Population_initializer(select_best_of = 1, local_optimization_step = 'never', local_optimizer = None), \
+    
+    def run(self, no_plot = False, 
+            disable_progress_bar = False, 
+            set_function = None, 
+            apply_function_to_parents = False, 
+            start_generation = {'variables':None, 'scores': None}, 
+            studEA = False, 
+            init_creator = None,
+            init_oppositors = None,
+            duplicates_oppositor = None,
+            remove_duplicates_generation_step = None,
+            revolution_oppositor = None,
+            revolution_after_stagnation_step = None,
+            revolution_part = 0.3,
+            population_initializer = Population_initializer(select_best_of = 1, local_optimization_step = 'never', local_optimizer = None), 
             seed = None):
         """
         @param no_plot <boolean> - do not plot results using matplotlib by default
@@ -352,11 +362,26 @@ class geneticalgorithm2():
 
         @param studEA <boolean> - using stud EA strategy (crossover with best object always)
 
+        @param init_creator: None/function, the function creates population samples. By default -- random uniform for real variables and random uniform for int
+        @param init_oppositors: None/function list, the list of oppositors creates oppositions for base population. No by default
+        @param duplicates_oppositor: None/function, oppositor for applying after duplicates removing. By default -- using just random initializer from creator
+        @param remove_duplicates_generation_step: None/int, step for removing duplicates (have a sense with discrete tasks). No by default
+        @param revolution_oppositor = None/function, oppositor for revolution time. No by default
+        @param revolution_after_stagnation_step = None/int, create revolution after this generations of stagnation. No by default
+        @param revolution_part: float, the part of generation to being oppose. By default is 0.3
+
         @param population_initializer (tuple(int, func)) - object for actions at population initialization step to create better start population. See doc
 
         @ param seed - random seed (None is doesn't matter)
         """
         
+        current_gen_number = lambda number: (number is None) or (type(number) == int and number > 0)
+
+        assert current_gen_number(revolution_after_stagnation_step), "must be None or int and >0"
+        assert current_gen_number(remove_duplicates_generation_step), "must be None or int and >0"
+        assert can_be_prob(revolution_part), f"revolution_part must be in [0,1], not {revolution_part}"
+
+
         if not (seed is None):
             random.seed(seed)
             np.random.seed(seed)
@@ -373,6 +398,97 @@ class geneticalgorithm2():
         
         pop_coef, initializer_func = population_initializer
         
+        # population creator by random or with oppositions
+        if init_creator is None:
+            self.creator = SampleInitializers.Combined(
+                minimums = self.var_bound[:, 0],
+                maximums= self.var_bound[:, 1],
+                list_of_indexes = [self.indexes_int, self.indexes_float],
+                list_of_initializers_creators = [
+                    SampleInitializers.RandomInteger,
+                    SampleInitializers.Uniform
+                ] )
+        else:
+            self.creator = init_creator
+        self.init_oppositors = init_oppositors
+        self.dup_oppositor = duplicates_oppositor
+        self.revolution_oppositor = revolution_oppositor
+
+        # event for removing duplicates
+        if remove_duplicates_generation_step is None:
+            def remover(pop_wide, gen):
+                return pop_wide
+        else:
+            
+            def without_dup(pop_wide): # returns population without dups
+                _, index_of_dups = np.unique(pop_wide[:, :-1], axis=0, return_index=True) 
+                return pop_wide[index_of_dups,:], pop_wide.shape[0] - index_of_dups.size
+            
+            if self.dup_oppositor is None: # is there is no dup_oppositor, use random creator
+                def remover(pop_wide, gen):
+                    if gen % remove_duplicates_generation_step != 0:
+                        return pop_wide
+
+                    pp, count_to_create = without_dup(pop) # pop without dups
+                    pp2 = np.empty((count_to_create, self.dim+1)) 
+                    pp2[:,:-1] = SampleInitializers.CreateSamples(self.creator, count_to_create) # new pop elements
+                    pp2[:, -1] = set_function(pp2[:,:-1]) # new elements values
+                    
+                    show_progress(t, self.iterate, f"GA is running...{t} gen from {self.iterate}. Kill dups!")
+                    
+                    new_pop = np.vstack((pp, pp2))
+
+                    return new_pop[np.argsort(new_pop[:,-1]),:] # new pop
+            else: # using oppositors
+                def remover(pop_wide, gen):
+                    if gen % remove_duplicates_generation_step != 0:
+                        return pop_wide
+
+                    pp, count_to_create = without_dup(pop) # pop without dups
+
+                    if count_to_create > pp.shape[0]:
+                        raise Exception(f"Too many duplicates at generation {gen}, cannot oppose")
+
+                    pp2 = np.empty((count_to_create, self.dim+1)) 
+                    # oppose count_to_create worse elements
+                    pp2[:,:-1] = OppositionOperators.Reflect(pp[-count_to_create:,:-1], self.dup_oppositor)# new pop elements
+                    pp2[:, -1] = set_function(pp2[:,:-1]) # new elements values
+
+                    show_progress(t, self.iterate, f"GA is running...{t} gen from {self.iterate}. Kill dups!")
+                    
+                    new_pop = np.vstack((pp, pp2))
+                    
+                    return new_pop[np.argsort(new_pop[:,-1]),:] # new pop
+
+        # event for revolution
+        if revolution_after_stagnation_step is None:
+            def revolution(pop_wide, stagnation_count):
+                return pop_wide
+        else:
+            if revolution_oppositor is None:
+                raise Exception(f"How can I make revolution each {revolution_after_stagnation_step} stagnation steps if revolution_oppositor is None (not defined)?")
+            
+            def revolution(pop_wide, stagnation_count):
+                if stagnation_count < revolution_after_stagnation_step:
+                    return pop_wide
+                part = int(pop_wide.shape[0]*revolution_part)
+                pp2 = np.empty((part, self.dim+1)) 
+                
+                pp2[:,:-1] = OppositionOperators.Reflect(pop_wide[-part:, :-1], self.revolution_oppositor)
+                pp2[:, -1] = set_function(pp2[:,:-1])
+
+                combined = np.vstack((pop_wide, pp2))
+                args = np.argsort(combined[:, -1])
+                
+                show_progress(t, self.iterate, f"GA is running...{t} gen from {self.iterate}. Revolution!")
+
+                return combined[args[:pop_wide.shape[0]],:]
+
+
+
+
+
+        # initialization of pop
         
         if start_generation['variables'] is None:
                     
@@ -380,16 +496,18 @@ class geneticalgorithm2():
             solo = np.empty(self.dim+1)
             var = np.empty(self.dim)       
             
-            for i in self.indexes_int:
-                pop[:, i] = np.random.randint(self.var_bound[i][0],self.var_bound[i][1]+1, self.pop_s*pop_coef) 
+            pop[:, :-1] = init_population(total_count = self.pop_s*pop_coef, creator = self.creator, oppositors = self.init_oppositors) 
+
+            #for i in self.indexes_int:
+            #    pop[:, i] = np.random.randint(self.var_bound[i][0],self.var_bound[i][1]+1, self.pop_s*pop_coef) 
             
-            for i in self.indexes_float:
-                pop[:, i] = np.random.uniform(self.var_bound[i][0], self.var_bound[i][1], self.pop_s*pop_coef)
+            #for i in self.indexes_float:
+            #    pop[:, i] = np.random.uniform(self.var_bound[i][0], self.var_bound[i][1], self.pop_s*pop_coef)
             
             for p in range(0, self.pop_s*pop_coef):    
                 var = pop[p, :-1]
                 solo = pop[p, :]
-                obj = self.sim(var)  # simulation returns exception or func value           
+                obj = self.sim(var)  # simulation returns exception or func value -- check the time of evaluating           
                 solo[self.dim] = obj
                 
         else:
@@ -512,8 +630,10 @@ class geneticalgorithm2():
             else:
                 pop[self.par_s:,-1] = set_function(pop[self.par_s:,:-1])
             
-            
-            
+            # remove duplicates
+            pop = remover(pop, t)
+            # revolution
+            pop = revolution(pop, counter)          
             
         #############################################################       
             t += 1
