@@ -476,7 +476,6 @@ We already know that the answer is `X=(0.5,1,0)` where `f(X)=1.5`
 We implement geneticalgorithm2 as the following:
 
 ```python
-
 import numpy as np
 from geneticalgorithm2 import geneticalgorithm2 as ga
 
@@ -484,11 +483,10 @@ def f(X):
     return np.sum(X)
     
 varbound = np.array([[0.5,1.5],[1,100],[0,1]])
-vartype = np.array([['real'],['int'],['int']])
+vartype = np.array(['real','int','int'])
 model = ga(function=f, dimension=3, variable_type_mixed=vartype, variable_boundaries=varbound)
 
 model.run()
-
 ```
 
 Note that for mixed variables we need to define boundaries also we need to make a `numpy array` of variable types as above (`vartype`). Obviously the order of variables in both arrays must match. Also notice that in such a case for Boolean variables we use string 'int' and boundary \[0,1\].  

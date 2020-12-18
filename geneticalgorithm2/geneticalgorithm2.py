@@ -165,9 +165,13 @@ class geneticalgorithm2():
         
         self.dim = int(dimension)
         
+        indexes = np.arange(self.dim)
+        self.indexes_int = np.array([])
+        self.indexes_float = np.array([])
+
         #############################################################
         # input variable type
-        
+
         assert(variable_type in ['bool', 'int', 'real']),  f"\n variable_type must be 'bool', 'int', or 'real', got {variable_type}"
        #############################################################
         # input variables' type (MIXED)     
@@ -175,30 +179,33 @@ class geneticalgorithm2():
         if variable_type_mixed is None:
             
             if variable_type == 'real': 
-                self.var_type = np.array([['real']]*self.dim)
+                #self.var_type = np.array([['real']]*self.dim)
+                self.indexes_float = indexes
             else:
-                self.var_type = np.array([['int']]*self.dim)            
+                #self.var_type = np.array([['int']]*self.dim)
+                self.indexes_int = indexes
 
         else:
             assert (is_numpy(variable_type_mixed)), "\n variable_type must be numpy array"  
             assert (len(variable_type_mixed) == self.dim),  "\n variable_type must have a length equal dimension."       
 
             for i in variable_type_mixed:
-                assert (i == 'real' or i == 'int'), "\n variable_type_mixed is either 'int' or 'real' "+"ex:['int','real','real']"+"\n for 'boolean' use 'int' and specify boundary as [0,1]"
+                assert (i in ('real','int')), "\n variable_type_mixed is either 'int' or 'real' "+"ex:['int','real','real']"+"\n for 'boolean' use 'int' and specify boundary as [0,1]"
                 
-            self.var_type = variable_type_mixed
+            #self.var_type = variable_type_mixed
+            self.indexes_int = indexes[variable_type_mixed == 'int']
+            self.indexes_float = indexes[variable_type_mixed == 'real']
             
         self.set_crossover_and_mutations(algorithm_parameters['crossover_type'], algorithm_parameters['mutation_type'], algorithm_parameters['selection_type'])
         #############################################################
         # input variables' boundaries 
 
             
-        if variable_type != 'bool' or type(variable_type_mixed).__module__=='numpy':
+        if variable_type != 'bool' or is_numpy(variable_type_mixed):
                        
-            assert (type(variable_boundaries).__module__=='numpy'),  "\n variable_boundaries must be numpy array"
+            assert (is_numpy(variable_boundaries)),  "\n variable_boundaries must be numpy array"
         
-            assert (len(variable_boundaries)==self.dim),\
-            "\n variable_boundaries must have a length equal dimension"        
+            assert (len(variable_boundaries)==self.dim), "\n variable_boundaries must have a length equal dimension"        
         
         
             for i in variable_boundaries:
@@ -217,12 +224,12 @@ class geneticalgorithm2():
         
         self.pop_s = int(self.param['population_size'])
         
-        assert ( can_be_prob( elf.param['parents_portion'] ) ), "parents_portion must be in range [0,1]" 
+        assert ( can_be_prob( self.param['parents_portion'] ) ), "parents_portion must be in range [0,1]" 
         
         self.par_s = int(self.param['parents_portion']*self.pop_s)
         trl= self.pop_s - self.par_s
         if trl % 2 != 0:
-            self.par_s+=1
+            self.par_s += 1
                
         self.prob_mut = self.param['mutation_probability']
         
@@ -245,7 +252,7 @@ class geneticalgorithm2():
         if self.param['max_num_iteration'] == None:
             self.iterate = 0
             for i in range (0, self.dim):
-                if self.var_type[i]=='int':
+                if i in self.indexes_int:
                     self.iterate += (self.var_bound[i][1]-self.var_bound[i][0])*self.dim*(100/self.pop_s)
                 else:
                     self.iterate += (self.var_bound[i][1]-self.var_bound[i][0])*50*(100/self.pop_s)
@@ -260,9 +267,9 @@ class geneticalgorithm2():
             self.iterate = int(self.param['max_num_iteration'])
         
         
-        self.stop_mniwi=False ## what
+        self.stop_mniwi = False ## what
         if self.param['max_iteration_without_improv'] == None or self.param['max_iteration_without_improv'] < 1:
-            self.mniwi = self.iterate+1
+            self.mniwi = self.iterate + 1
         else: 
             self.mniwi = int(self.param['max_iteration_without_improv'])
 
@@ -361,9 +368,6 @@ class geneticalgorithm2():
         ############################################################# 
         # Initial Population
         
-        self.integers = np.where(self.var_type == 'int')
-        self.reals = np.where(self.var_type == 'real')
-        
         if set_function == None:
             set_function = geneticalgorithm2.default_set_function(self.f)
         
@@ -376,10 +380,10 @@ class geneticalgorithm2():
             solo = np.empty(self.dim+1)
             var = np.empty(self.dim)       
             
-            for i in self.integers[0]:
+            for i in self.indexes_int:
                 pop[:, i] = np.random.randint(self.var_bound[i][0],self.var_bound[i][1]+1, self.pop_s*pop_coef) 
             
-            for i in self.reals[0]:
+            for i in self.indexes_float:
                 pop[:, i] = np.random.uniform(self.var_bound[i][0], self.var_bound[i][1], self.pop_s*pop_coef)
             
             for p in range(0, self.pop_s*pop_coef):    
@@ -592,15 +596,16 @@ class geneticalgorithm2():
         """
         just mutation
         """
-        
-        for i in self.integers[0]:
-            if np.random.random() < self.prob_mut:
-                x[i]=np.random.randint(self.var_bound[i][0], self.var_bound[i][1]+1) 
+        random_values = np.random.random(x.size)
+
+        for i in self.indexes_int:
+            if random_values[i] < self.prob_mut:
+                x[i] = np.random.randint(self.var_bound[i][0], self.var_bound[i][1]+1) 
                     
         
 
-        for i in self.reals[0]:                
-            if np.random.random() < self.prob_mut:
+        for i in self.indexes_float:                
+            if random_values[i] < self.prob_mut:
                 x[i] = self.real_mutation(x[i], self.var_bound[i][0], self.var_bound[i][1]) 
             
         return x
@@ -611,19 +616,20 @@ class geneticalgorithm2():
         mutation oriented on parents
         """
         
-        for i in self.integers[0]:
+        random_values = np.random.random(x.size)
 
-            if np.random.random() < self.prob_mut:
-                if p1[i]<p2[i]:
-                    x[i]=np.random.randint(p1[i],p2[i])
-                elif p1[i]>p2[i]:
-                    x[i]=np.random.randint(p2[i],p1[i])
+        for i in self.indexes_int:
+
+            if random_values[i] < self.prob_mut:
+                if p1[i] < p2[i]:
+                    x[i] = np.random.randint(p1[i],p2[i])
+                elif p1[i] > p2[i]:
+                    x[i] = np.random.randint(p2[i],p1[i])
                 else:
-                    x[i]=np.random.randint(self.var_bound[i][0], self.var_bound[i][1]+1)
+                    x[i] = np.random.randint(self.var_bound[i][0], self.var_bound[i][1]+1)
                         
-        for i in self.reals[0]:                
-            ran=np.random.random()
-            if ran < self.prob_mut:   
+        for i in self.indexes_float:                
+            if random_values[i] < self.prob_mut:   
                 if p1[i] != p2[i]:
                     x[i]=np.random.uniform(p1[i], p2[i]) 
                 else:
@@ -675,7 +681,7 @@ class geneticalgorithm2():
         def func(matrix):
             return np.array([function_for_set(matrix[i,:]) for i in range(matrix.shape[0])])
         return func
-    
+    @staticmethod
     def set_function_multiprocess(function_for_set, n_jobs = -1):
         """
         like function_for_set but uses joblib with n_jobs (-1 goes to count of available processors)
