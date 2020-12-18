@@ -362,6 +362,14 @@ class geneticalgorithm2:
 
         @param studEA <boolean> - using stud EA strategy (crossover with best object always)
 
+        @param init_creator: None/function, the function creates population samples. By default -- random uniform for real variables and random uniform for int
+        @param init_oppositors: None/function list, the list of oppositors creates oppositions for base population. No by default
+        @param duplicates_oppositor: None/function, oppositor for applying after duplicates removing. By default -- using just random initializer from creator
+        @param remove_duplicates_generation_step: None/int, step for removing duplicates (have a sense with discrete tasks). No by default
+        @param revolution_oppositor = None/function, oppositor for revolution time. No by default
+        @param revolution_after_stagnation_step = None/int, create revolution after this generations of stagnation. No by default
+        @param revolution_part: float, the part of generation to being oppose. By default is 0.3
+
         @param population_initializer (tuple(int, func)) - object for actions at population initialization step to create better start population. See doc
 
         @ param seed - random seed (None is doesn't matter)
@@ -414,7 +422,7 @@ class geneticalgorithm2:
             
             def without_dup(pop_wide): # returns population without dups
                 _, index_of_dups = np.unique(pop_wide[:, :-1], axis=0, return_index=True) 
-                return np.delete( pop, index_of_dups, axis = 0), index_of_dups.size
+                return pop_wide[index_of_dups,:], pop_wide.shape[0] - index_of_dups.size
             
             if self.dup_oppositor is None: # is there is no dup_oppositor, use random creator
                 def remover(pop_wide, gen):
@@ -422,11 +430,15 @@ class geneticalgorithm2:
                         return pop_wide
 
                     pp, count_to_create = without_dup(pop) # pop without dups
-                    pp2 = np.empty(count_to_create, self.dim+1) 
+                    pp2 = np.empty((count_to_create, self.dim+1)) 
                     pp2[:,:-1] = SampleInitializers.CreateSamples(self.creator, count_to_create) # new pop elements
                     pp2[:, -1] = set_function(pp2[:,:-1]) # new elements values
+                    
+                    show_progress(t, self.iterate, f"GA is running...{t} gen from {self.iterate}. Kill dups!")
+                    
+                    new_pop = np.vstack((pp, pp2))
 
-                    return np.vstack((pp, pp2)) # new pop
+                    return new_pop[np.argsort(new_pop[:,-1]),:] # new pop
             else: # using oppositors
                 def remover(pop_wide, gen):
                     if gen % remove_duplicates_generation_step != 0:
@@ -437,12 +449,16 @@ class geneticalgorithm2:
                     if count_to_create > pp.shape[0]:
                         raise Exception(f"Too many duplicates at generation {gen}, cannot oppose")
 
-                    pp2 = np.empty(count_to_create, self.dim+1) 
+                    pp2 = np.empty((count_to_create, self.dim+1)) 
                     # oppose count_to_create worse elements
-                    pp2[:,:-1] = OppositionOperators.Reflect(pp[-count_to_create:,:], self.dup_oppositor)# new pop elements
+                    pp2[:,:-1] = OppositionOperators.Reflect(pp[-count_to_create:,:-1], self.dup_oppositor)# new pop elements
                     pp2[:, -1] = set_function(pp2[:,:-1]) # new elements values
 
-                    return np.vstack((pp, pp2)) # new pop
+                    show_progress(t, self.iterate, f"GA is running...{t} gen from {self.iterate}. Kill dups!")
+                    
+                    new_pop = np.vstack((pp, pp2))
+                    
+                    return new_pop[np.argsort(new_pop[:,-1]),:] # new pop
 
         # event for revolution
         if revolution_after_stagnation_step is None:
@@ -456,13 +472,15 @@ class geneticalgorithm2:
                 if stagnation_count < revolution_after_stagnation_step:
                     return pop_wide
                 part = int(pop_wide.shape[0]*revolution_part)
-                pp2 = np.empty(part, self.dim+1) 
+                pp2 = np.empty((part, self.dim+1)) 
                 
-                pp2[:,:-1] = OppositionOperators.Reflect(pop_wide[-part, :-1], self.revolution_oppositor)
+                pp2[:,:-1] = OppositionOperators.Reflect(pop_wide[-part:, :-1], self.revolution_oppositor)
                 pp2[:, -1] = set_function(pp2[:,:-1])
 
                 combined = np.vstack((pop_wide, pp2))
                 args = np.argsort(combined[:, -1])
+                
+                show_progress(t, self.iterate, f"GA is running...{t} gen from {self.iterate}. Revolution!")
 
                 return combined[args[:pop_wide.shape[0]],:]
 

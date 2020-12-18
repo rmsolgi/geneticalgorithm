@@ -23,13 +23,16 @@ version](https://badge.fury.io/py/geneticalgorithm2.svg)](https://pypi.org/proje
   - [The simple example with mixed variables](#the-simple-example-with-mixed-variables)
   - [Optimization problems with constraints](#optimization-problems-with-constraints)
   - [Select fixed count of objects from set](#select-fixed-count-of-objects-from-set)
-- [U should know it](#u-should-know-it)
+- [U should know these features](#u-should-know-these-features)
   - [Function timeout](#function-timeout)
   - [Standard GA vs. Elitist GA](#standard-ga-vs-elitist-ga)
   - [Standard crossover vs. stud EA crossover](#standard-crossover-vs-stud-ea-crossover)
   - [Creating better start population](#creating-better-start-population)
     - [Select best N of kN](#select-best-n-of-kn)
     - [Do local optimization](#do-local-optimization)
+    - [Optimization with oppositions](#optimization-with-oppositions)
+  - [Revolutions](#revolutions)
+  - [Duplicates removing](#duplicates-removing)
   - [Hints on how to adjust genetic algorithm's parameters](#hints-on-how-to-adjust-genetic-algorithms-parameters)
 - [Optimization test functions](#optimization-test-functions)
   - [Rastrigin](#rastrigin)
@@ -128,6 +131,13 @@ model.run(
     apply_function_to_parents = False, 
     start_generation = {'variables':None, 'scores': None},
     studEA = False,
+    init_creator = None,
+    init_oppositors = None,
+    duplicates_oppositor = None,
+    remove_duplicates_generation_step = None,
+    revolution_oppositor = None,
+    revolution_after_stagnation_step = None,
+    revolution_part = 0.3,
     population_initializer = Population_initializer(select_best_of = 1, local_optimization_step = 'never', local_optimizer = None),
     seed = None
     )
@@ -149,6 +159,14 @@ Your best solution is computed!
 * param **start_generation** <dictionary> - a dictionary with structure `{'variables':2D-array of samples, 'scores': function values on samples}`. If `'scores'` value is `None` the scores will be compute. [See this](#how-to-initialize-start-population-how-to-continue-optimization-with-new-run)  
 
 * param **studEA** <boolean> - using stud EA strategy (crossover with best object always). Default is false. [Take a look](#standard-crossover-vs-stud-ea-crossover)
+
+* param **init_creator**: None/function, the function creates population samples. By default -- random uniform for real variables and random uniform for int. [Example](#optimization-with-oppositions)
+* param **init_oppositors**: `None/function` list, the list of oppositors creates oppositions for base population. No by default. [Example](#optimization-with-oppositions)
+* param **duplicates_oppositor**: `None/function`, oppositor for applying after duplicates removing. By default -- using just random initializer from creator. [Example](#duplicates-removing)
+* param **remove_duplicates_generation_step**: `None/int`, step for removing duplicates (have a sense with discrete tasks). No by default. [Example](#duplicates-removing)
+* param **revolution_oppositor** =` None/function`, oppositor for revolution time. No by default. [Example](#revolutions)
+* param **revolution_after_stagnation_step** = `None/int`, create revolution after this generations of stagnation. No by default. [Example](#revolutions)
+* param **revolution_part**: `float`, the part of generation to being oppose. By default is 0.3. [Example](#revolutions)
 
 * param **population_initializer** (`tuple(int, func)`) - object for actions at population initialization step to create better start population. [Take a look](#creating-better-start-population)
 
@@ -364,7 +382,7 @@ If this parameter's value is `None` the algorithm sets maximum number of iterati
         # some code
         return array_of_parents_indexes 
     ```
-![](https://github.com/PasaOpasen/geneticalgorithm2/blob/selection/tests/selections.png)
+![](tests/selections.png)
 
 # Examples
 
@@ -592,7 +610,7 @@ model = ga(function=f,
 model.run(no_plot = False, start_generation={'variables': start_generation, 'scores': None})
 ```
 
-# U should know it
+# U should know these features
 
 ## Function timeout
 
@@ -606,13 +624,13 @@ make sure to increase function_timeout in arguments.
 
 The convergence curve of an elitist genetic algorithm is always non-increasing. So, the best ever found solution is equal to the best solution of the last iteration. However, the convergence curve of a standard genetic algorithm is different. If `elit_ratio` is zero geneticalgroithm2 implements a standard GA. The output of geneticalgorithm2 for standard GA is the best ever found solution not the solution of the last iteration. The difference between the convergence curve of standard GA and elitist GA is shown below:
 
-![](https://github.com/PasaOpasen/geneticalgorithm2/blob/master/tests/standard_vs_elitist.png)
+![](tests/standard_vs_elitist.png)
 
 ## Standard crossover vs. stud EA crossover
 
 [Stud EA](https://link.springer.com/chapter/10.1007%2FBFb0056910) is the idea of using crossover always with best object. So one of two parents is always the best object of population. It can help us in a lot of tasks!
 
-![](https://github.com/PasaOpasen/geneticalgorithm2/blob/master/tests/studEA.png)
+![](tests/studEA.png)
 
 ## Creating better start population
 
@@ -637,7 +655,7 @@ There is `Population_initializer(select_best_of = 4, local_optimization_step = '
 
 This little option can help u especially with multimodal tasks. 
 
-![](https://github.com/PasaOpasen/geneticalgorithm2/blob/master/tests/init_best_of.png)
+![](tests/init_best_of.png)
 
 ### Do local optimization
 
@@ -696,7 +714,26 @@ plt.title('Selection best N object before running GA')
 plt.legend()
 ```
 
-![](https://github.com/PasaOpasen/geneticalgorithm2/blob/master/tests/init_local_opt.png)
+![](tests/init_local_opt.png)
+
+### Optimization with oppositions
+
+Also u can create start population with [oppositions](https://github.com/PasaOpasen/opp-op-pop-init). See [example of code](tests/best_of_N_with_opp.py)
+
+![](tests/init_best_of_opp.png)
+
+## Revolutions
+
+U can create [revolutions in your population](https://github.com/PasaOpasen/opp-op-pop-init) after some stagnation steps. It really can help u for some tasks. See [example](tests/revolution.py)
+
+![](tests/revolution.png)
+
+
+## Duplicates removing
+
+If u remove duplicates each `k` generations, u can speed up the optimization process ([example](tests/remove_dups.py))
+
+![](tests/remove_dups.png)
 
 ## Hints on how to adjust genetic algorithm's parameters
 

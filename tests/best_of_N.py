@@ -50,7 +50,7 @@ for best_of in (1, 3, 5):
 
 plt.xlabel('Generation')
 plt.ylabel('Minimized function (40 simulations average)')
-plt.title('Selection best N object before running GA')
+plt.title('Selection best N objects before running GA')
 plt.legend()
 
 
