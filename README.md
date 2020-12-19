@@ -78,8 +78,8 @@ from geneticalgorithm2 import Population_initializer # for creating better start
 Next step: **define minimized function** like
 
 ```python
-def function(X):
-    return np.sum(X**2) + X
+def function(X): # X as numpy array
+    return np.sum(X**2) + X.mean() + X.min() + X[0]*X[2] # some float result
 ```
 
 If u want to find maximum, use this idea:
@@ -96,12 +96,11 @@ tagret_result = -global_min
 
 Okay, also u should **create the bounds for each variable** (if exist) like here:
 ```python
-var_bound = np.array([[0,10]]*3)
+var_bound = np.array([[0,10]]*3) # 2D numpy array
 ```
 
 After that **create a `geneticalgorithm2` object**:
 ```python
-
 model = ga(function, dimension = 3, 
                 variable_type='real', 
                  variable_boundaries = var_bound,
