@@ -4,6 +4,7 @@ https://realpython.com/pypi-publish-python-package/
 
 cd "C:\Users\qtckp\OneDrive\Рабочий стол\PersianG2P"
 
+python setup.py develop
 python setup.py sdist
 python setup.py bdist_wheel
 
