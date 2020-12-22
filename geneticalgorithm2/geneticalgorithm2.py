@@ -790,7 +790,15 @@ class geneticalgorithm2:
 
         sys.stdout.write('\r%s %s%s %s' % (bar, percents, '%', status))
         sys.stdout.flush()     
-        
+
+
+
+
+
+##############################################################################
+#
+# Set functions
+#
 ###############################################################################
     @staticmethod
     def default_set_function(function_for_set):

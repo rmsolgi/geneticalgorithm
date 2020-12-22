@@ -1,2 +1,6 @@
 
-stop criterions
+stop criterions: min std, max function evaluations
+
+add dual strategy using some oppositor and some decreasing function like temperature function
+
+add cache ?
