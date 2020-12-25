@@ -33,6 +33,7 @@ version](https://badge.fury.io/py/geneticalgorithm2.svg)](https://pypi.org/proje
     - [Optimization with oppositions](#optimization-with-oppositions)
   - [Revolutions](#revolutions)
   - [Duplicates removing](#duplicates-removing)
+  - [Cache](#cache)
   - [Hints on how to adjust genetic algorithm's parameters](#hints-on-how-to-adjust-genetic-algorithms-parameters)
 - [Optimization test functions](#optimization-test-functions)
   - [Rastrigin](#rastrigin)
@@ -733,6 +734,28 @@ U can create [revolutions in your population](https://github.com/PasaOpasen/opp-
 If u remove duplicates each `k` generations, u can speed up the optimization process ([example](tests/remove_dups.py))
 
 ![](tests/remove_dups.png)
+
+## Cache
+
+It can be useful for run-speed to use cache with *some discrete tasks*. For this u can import `np_lru_cache` decorator and use it like here:
+
+```python
+import np_lru_cache
+
+@np_lru_cache(maxsize = some_size)
+def minimized_func(arr):
+    # code
+    return result
+
+#
+# run
+#    algorithm
+#
+
+
+# don't forget to clear cache
+minimized_func.cache_clear()
+```
 
 ## Hints on how to adjust genetic algorithm's parameters
 

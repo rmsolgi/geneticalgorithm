@@ -27,3 +27,4 @@ from .mutations import Mutations
 from .crossovers import Crossover
 from .selections import Selection
 from .initializer import Population_initializer
+from .cache import np_lru_cache
