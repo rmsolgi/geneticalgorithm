@@ -47,8 +47,8 @@ if __name__ == '__main__':
     def with_c(arr):
         return f(arr)
 
-    %time for _ in range(50): [no_c(arr) for arr in ar[np.random.rand(ar.shape[0]).argsort()]]
-    %time for _ in range(50): [with_c(arr) for arr in ar[np.random.rand(ar.shape[0]).argsort()]]
+    #%time for _ in range(50): [no_c(arr) for arr in ar[np.random.rand(ar.shape[0]).argsort()]]
+    #%time for _ in range(50): [with_c(arr) for arr in ar[np.random.rand(ar.shape[0]).argsort()]]
 
 
 

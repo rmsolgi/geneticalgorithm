@@ -614,7 +614,7 @@ class geneticalgorithm2:
                 
                 if self.prob_mut > 0:
                     ch1 = self.mut(ch1)
-                    ch2 = self.mutmidle(ch2, pvar1, pvar2)               
+                    ch2 = self.mut_middle(ch2, pvar1, pvar2)               
                 
                 solo[: self.dim] = ch1.copy()                
                 #solo[self.dim] = self.sim(ch1)
@@ -731,7 +731,7 @@ class geneticalgorithm2:
         return x
 
 ###############################################################################
-    def mutmidle(self, x, p1, p2):
+    def mut_middle(self, x, p1, p2):
         """
         mutation oriented on parents
         """
