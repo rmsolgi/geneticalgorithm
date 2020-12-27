@@ -16,7 +16,7 @@ version](https://badge.fury.io/py/geneticalgorithm2.svg)](https://pypi.org/proje
   - [Methods and Properties of model:](#methods-and-properties-of-model)
   - [Function parameters](#function-parameters)
   - [Genetic algorithm's parameters](#genetic-algorithms-parameters)
-- [Examples](#examples)
+- [Examples for begginer](#examples-for-begginer)
   - [A minimal example](#a-minimal-example)
   - [The simple example with integer variables](#the-simple-example-with-integer-variables)
   - [The simple example with Boolean variables](#the-simple-example-with-boolean-variables)
@@ -35,16 +35,16 @@ version](https://badge.fury.io/py/geneticalgorithm2.svg)](https://pypi.org/proje
   - [Duplicates removing](#duplicates-removing)
   - [Cache](#cache)
   - [Hints on how to adjust genetic algorithm's parameters](#hints-on-how-to-adjust-genetic-algorithms-parameters)
-- [Optimization test functions](#optimization-test-functions)
-  - [Rastrigin](#rastrigin)
-  - [Ackley](#ackley)
-  - [Weierstrass](#weierstrass)
+- [Examples pretty collection](#examples-pretty-collection)
+  - [Optimization test functions](#optimization-test-functions)
+    - [Rastrigin](#rastrigin)
+    - [Ackley](#ackley)
+    - [Weierstrass](#weierstrass)
 - [Popular questions](#popular-questions)
   - [How to disable autoplot?](#how-to-disable-autoplot)
   - [How to specify evaluated function for all population?](#how-to-specify-evaluated-function-for-all-population)
   - [What about parallelism?](#what-about-parallelism)
   - [How to initialize start population? How to continue optimization with new run?](#how-to-initialize-start-population-how-to-continue-optimization-with-new-run)
-- [License](#license)
 # About
 
 **geneticalgorithm2** is a Python library distributed on [PyPI](https://pypi.org) for implementing standard and elitist 
@@ -384,7 +384,7 @@ If this parameter's value is `None` the algorithm sets maximum number of iterati
     ```
 ![](tests/selections.png)
 
-# Examples
+# Examples for begginer
 
 ## A minimal example 
 Assume we want to find a set of `X = (x1,x2,x3)` that minimizes function `f(X)=x1+x2+x3` where `X` can be any real number in \[0,10\].
@@ -794,11 +794,13 @@ depends but usually five or ten runs is prevalent. Notice that in some problems
 several possible set of variables produces the same objective function value. 
 When we study the convergence of a genetic algorithm we compare the objective function values not the decision variables.
 
-# Optimization test functions
+# Examples pretty collection
+
+## Optimization test functions
 
 Implementation of geneticalgorithm2 for some benchmark problems:
 
-## [Rastrigin](https://en.wikipedia.org/wiki/Rastrigin_function)
+### [Rastrigin](https://en.wikipedia.org/wiki/Rastrigin_function)
 
 ![](https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Rastrigin_function.png/600px-Rastrigin_function.png)
 
@@ -824,7 +826,7 @@ model.run()
 ![](https://github.com/rmsolgi/geneticalgorithm/blob/master/genetic_algorithm_Rastrigin.gif)
 
 
-## [Ackley](https://en.wikipedia.org/wiki/Ackley_function)
+### [Ackley](https://en.wikipedia.org/wiki/Ackley_function)
 ![](https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Ackley%27s_function.pdf/page1-600px-Ackley%27s_function.pdf.jpg)
 
 ```python
@@ -855,7 +857,7 @@ model.run()
 
 ![](https://github.com/rmsolgi/geneticalgorithm/blob/master/genetic_algorithm_Ackley.gif)
 
-## [Weierstrass](http://infinity77.net/global_optimization/test_functions_nd_W.html)
+### [Weierstrass](http://infinity77.net/global_optimization/test_functions_nd_W.html)
 ![](http://infinity77.net/global_optimization/_images/Weierstrass.png)
 
 
@@ -1073,24 +1075,3 @@ model.run(no_plot = True, start_generation=model.output_dict['last_generation'])
 
 ```
 
-# License
-
-Copyright 2020 **Ryan (Mohammad) Solgi**, **Demetry Pascal**
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of 
-this software and associated documentation files (the "Software"), to deal in 
-the Software without restriction, including without limitation the rights to use, 
-copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the 
-Software, and to permit persons to whom the Software is furnished to do so, 
-subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
-THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
-SOFTWARE.
