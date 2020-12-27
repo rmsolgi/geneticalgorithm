@@ -40,6 +40,7 @@ version](https://badge.fury.io/py/geneticalgorithm2.svg)](https://pypi.org/proje
     - [Rastrigin](#rastrigin)
     - [Ackley](#ackley)
     - [Weierstrass](#weierstrass)
+  - [Using GA in reinforcement learning with Keras](#using-ga-in-reinforcement-learning-with-keras)
 - [Popular questions](#popular-questions)
   - [How to disable autoplot?](#how-to-disable-autoplot)
   - [How to specify evaluated function for all population?](#how-to-specify-evaluated-function-for-all-population)
@@ -913,7 +914,9 @@ model.run()
 ```
 ![](https://github.com/rmsolgi/geneticalgorithm/blob/master/genetic_algorithm_Weierstrass.gif)
 
+## Using GA in reinforcement learning with Keras 
 
+See [example of using GA optimization with keras neural networks](https://www.kaggle.com/demetrypascal/opengym-tasks-using-keras-and-geneticalgorithm2) for solving OpenGym tasks.
 
 # Popular questions
 

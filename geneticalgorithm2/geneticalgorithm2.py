@@ -690,7 +690,7 @@ class geneticalgorithm2:
         if self.stop_mniwi==True:
             sys.stdout.write('\nWarning: GA is terminated due to the maximum number of iterations without improvement was met!')
         elif stop_by_val(self.best_function):
-            sys.stdout.write('\nWarning: GA is terminated because of reaching stop_when_reached (current val {self.best_function} <= {stop_when_reached})!')
+            sys.stdout.write(f'\nWarning: GA is terminated because of reaching stop_when_reached (current val {self.best_function} <= {stop_when_reached})!')
 
 ##############################################################################         
 
