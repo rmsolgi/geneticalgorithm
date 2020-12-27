@@ -15,7 +15,10 @@ Use the package manager [pip](https://pip.pypa.io/en/stable/) to install genetic
 ```python
 pip install geneticalgorithm
 ```
+## version 1.0.2 updates
+@param convergence_curve <True/False> - Plot the convergence curve or not. Default is True.
 
+@param progress_bar <True/False> - Show progress bar or not. Default is True.
 
 ## A simple example 
 Assume we want to find a set of X=(x1,x2,x3) that minimizes function f(X)=x1+x2+x3 where X can be any real number in \[0,10\].  
