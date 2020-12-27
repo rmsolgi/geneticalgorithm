@@ -346,6 +346,7 @@ class geneticalgorithm2:
             revolution_after_stagnation_step = None,
             revolution_part = 0.3,
             population_initializer = Population_initializer(select_best_of = 1, local_optimization_step = 'never', local_optimizer = None), 
+            stop_when_reached = None,
             seed = None):
         """
         @param no_plot <boolean> - do not plot results using matplotlib by default
@@ -372,7 +373,9 @@ class geneticalgorithm2:
 
         @param population_initializer (tuple(int, func)) - object for actions at population initialization step to create better start population. See doc
 
-        @ param seed - random seed (None is doesn't matter)
+        @param stop_when_reached (None/float) - stop searching after reaching this value (it can be potential minimum or something else)
+
+        @param seed - random seed (None is doesn't matter)
         """
         
         current_gen_number = lambda number: (number is None) or (type(number) == int and number > 0)
@@ -380,7 +383,7 @@ class geneticalgorithm2:
         assert current_gen_number(revolution_after_stagnation_step), "must be None or int and >0"
         assert current_gen_number(remove_duplicates_generation_step), "must be None or int and >0"
         assert can_be_prob(revolution_part), f"revolution_part must be in [0,1], not {revolution_part}"
-
+        assert (stop_when_reached is None or type(stop_when_reached) in (int, float))
 
         if not (seed is None):
             random.seed(seed)
@@ -389,7 +392,8 @@ class geneticalgorithm2:
         show_progress = (lambda t, t2, s: self.progress(t, t2, status = s)) if not disable_progress_bar else (lambda t, t2, s: None)
         
         get_parents_inds = (lambda par_count: (0, random.randrange(1, par_count))) if studEA else (lambda par_count: tuple(np.random.randint(0, par_count, 2)))
-            
+        
+        stop_by_val = (lambda best_f: False) if stop_when_reached is None else (lambda best_f: best_f <= stop_when_reached)
         ############################################################# 
         # Initial Population
         
@@ -637,14 +641,14 @@ class geneticalgorithm2:
             
         #############################################################       
             t += 1
-            if counter > self.mniwi:
+            if counter > self.mniwi or stop_by_val(self.best_function):
                 pop = pop[pop[:,self.dim].argsort()]
                 if pop[0,self.dim] >= self.best_function:
                     t = self.iterate # to stop loop
                     show_progress(t, self.iterate, "GA is running... STOP!")
                     #time.sleep(0.7) #time.sleep(2)
                     t+=1
-                    self.stop_mniwi=True
+                    self.stop_mniwi = counter > self.mniwi 
         
         
         
@@ -684,8 +688,10 @@ class geneticalgorithm2:
             self.plot_results()
 
         if self.stop_mniwi==True:
-            sys.stdout.write('\nWarning: GA is terminated due to the'+\
-                             ' maximum number of iterations without improvement was met!')
+            sys.stdout.write('\nWarning: GA is terminated due to the maximum number of iterations without improvement was met!')
+        elif stop_by_val(self.best_function):
+            sys.stdout.write('\nWarning: GA is terminated because of reaching stop_when_reached (current val {self.best_function} <= {stop_when_reached})!')
+
 ##############################################################################         
 
     def plot_results(self, show_mean = False):

@@ -139,6 +139,7 @@ model.run(
     revolution_after_stagnation_step = None,
     revolution_part = 0.3,
     population_initializer = Population_initializer(select_best_of = 1, local_optimization_step = 'never', local_optimizer = None),
+    stop_when_reached = None,
     seed = None
     )
 ```
@@ -169,6 +170,8 @@ Your best solution is computed!
 * param **revolution_part**: `float`, the part of generation to being oppose. By default is 0.3. [Example](#revolutions)
 
 * param **population_initializer** (`tuple(int, func)`) - object for actions at population initialization step to create better start population. [Take a look](#creating-better-start-population)
+
+* param **stop_when_reached** (`None`/`float`) - stop searching after reaching this value (it can be potential minimum or something else)
 
 * param **seed** - random seed (None is doesn't matter)
 
