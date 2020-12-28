@@ -37,6 +37,7 @@ from joblib import Parallel, delayed
 from func_timeout import func_timeout, FunctionTimedOut
 
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
 
 from OppOpPopInit import init_population, SampleInitializers, OppositionOperators
 
@@ -694,24 +695,31 @@ class geneticalgorithm2:
 
 ##############################################################################         
 
-    def plot_results(self, show_mean = False):
+    def plot_results(self, show_mean = False, title = 'Genetic Algorithm', save_as = None, main_color = 'blue'):
         """
         Simple plot of self.report (if not empty)
         """
         if len(self.report) == 0:
             sys.stdout.write("No results to plot!\n")
             return
-
+        
+        ax = plt.axes()
+        ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+        
         bests = np.array(self.report)
         means = np.array(self.report_average)
         
         if show_mean: plt.plot(means, color = 'red', label = 'mean by generation', linewidth = 1)
-        plt.plot(bests, color = 'blue', label = 'best of generation')
+        plt.plot(bests, color = main_color, label = 'best of generation', linewidth = 2)
         
         plt.xlabel('Generation')
         plt.ylabel('Minimized function')
-        plt.title('Genetic Algorithm')
+        plt.title(title)
         plt.legend()
+        
+        if not (save_as is None):
+            plt.savefig(save_as, dpi = 200)
+
         plt.show()
 
 

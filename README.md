@@ -37,8 +37,24 @@ version](https://badge.fury.io/py/geneticalgorithm2.svg)](https://pypi.org/proje
   - [Hints on how to adjust genetic algorithm's parameters](#hints-on-how-to-adjust-genetic-algorithms-parameters)
 - [Examples pretty collection](#examples-pretty-collection)
   - [Optimization test functions](#optimization-test-functions)
-    - [Rastrigin](#rastrigin)
+    - [Sphere](#sphere)
     - [Ackley](#ackley)
+    - [AckleyTest](#ackleytest)
+    - [Rosenbrock](#rosenbrock)
+    - [Fletcher](#fletcher)
+    - [Griewank](#griewank)
+    - [Penalty2](#penalty2)
+    - [Quartic](#quartic)
+    - [Rastrigin](#rastrigin)
+    - [SchwefelDouble](#schwefeldouble)
+    - [SchwefelMax](#schwefelmax)
+    - [SchwefelAbs](#schwefelabs)
+    - [SchwefelSin](#schwefelsin)
+    - [Stairs](#stairs)
+    - [Abs](#abs)
+    - [Michalewicz](#michalewicz)
+    - [Scheffer](#scheffer)
+    - [Eggholder](#eggholder)
     - [Weierstrass](#weierstrass)
   - [Using GA in reinforcement learning with Keras](#using-ga-in-reinforcement-learning-with-keras)
 - [Popular questions](#popular-questions)
@@ -802,117 +818,89 @@ When we study the convergence of a genetic algorithm we compare the objective fu
 
 ## Optimization test functions
 
-Implementation of geneticalgorithm2 for some benchmark problems:
+Here there is the implementation of `geneticalgorithm2` for some benchmark problems. Test functions are got from my [`OptimizationTestFunctions`](https://github.com/PasaOpasen/OptimizationTestFunctions) package. 
 
-### [Rastrigin](https://en.wikipedia.org/wiki/Rastrigin_function)
+The code for optimizations process is same for each function and is contained [in file](tests/optimization_test_functions.py).
 
-![](https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Rastrigin_function.png/600px-Rastrigin_function.png)
+### [Sphere](https://github.com/PasaOpasen/OptimizationTestFunctions#sphere)
+![](https://github.com/PasaOpasen/OptimizationTestFunctions/blob/main/tests/heatmap%20for%20Sphere.png)
+![](tests/Optimization%20process%20for%20Sphere.png)
+
+### [Ackley](https://github.com/PasaOpasen/OptimizationTestFunctions#ackley)
+![](https://github.com/PasaOpasen/OptimizationTestFunctions/blob/main/tests/heatmap%20for%20Ackley.png)
+![](tests/Optimization%20process%20for%20Ackley.png)
+
+### [AckleyTest](https://github.com/PasaOpasen/OptimizationTestFunctions#ackleytest)
+![](https://github.com/PasaOpasen/OptimizationTestFunctions/blob/main/tests/heatmap%20for%20AckleyTest.png)
+![](tests/Optimization%20process%20for%20AckleyTest.png)
+
+### [Rosenbrock](https://github.com/PasaOpasen/OptimizationTestFunctions#rosenbrock)
+![](https://github.com/PasaOpasen/OptimizationTestFunctions/blob/main/tests/heatmap%20for%20Rosenbrock.png)
+![](tests/Optimization%20process%20for%20Rosenbrock.png)
+
+### [Fletcher](https://github.com/PasaOpasen/OptimizationTestFunctions#fletcher)
+![](https://github.com/PasaOpasen/OptimizationTestFunctions/blob/main/tests/heatmap%20for%20Fletcher.png)
+![](tests/Optimization%20process%20for%20Fletcher.png)
+
+### [Griewank](https://github.com/PasaOpasen/OptimizationTestFunctions#griewank)
+![](https://github.com/PasaOpasen/OptimizationTestFunctions/blob/main/tests/heatmap%20for%20Griewank.png)
+![](tests/Optimization%20process%20for%20Griewank.png)
+
+### [Penalty2](https://github.com/PasaOpasen/OptimizationTestFunctions#penalty2)
+![](https://github.com/PasaOpasen/OptimizationTestFunctions/blob/main/tests/heatmap%20for%20Penalty2.png)
+![](tests/Optimization%20process%20for%20Penalty2.png)
+
+### [Quartic](https://github.com/PasaOpasen/OptimizationTestFunctions#quartic)
+![](https://github.com/PasaOpasen/OptimizationTestFunctions/blob/main/tests/heatmap%20for%20Quartic.png)
+![](tests/Optimization%20process%20for%20Quartic.png)
+
+### [Rastrigin](https://github.com/PasaOpasen/OptimizationTestFunctions#rastrigin)
+![](https://github.com/PasaOpasen/OptimizationTestFunctions/blob/main/tests/heatmap%20for%20Rastrigin.png)
+![](tests/Optimization%20process%20for%20Rastrigin.png)
+
+### [SchwefelDouble](https://github.com/PasaOpasen/OptimizationTestFunctions#schwefeldouble)
+![](https://github.com/PasaOpasen/OptimizationTestFunctions/blob/main/tests/heatmap%20for%20SchwefelDouble.png)
+![](tests/Optimization%20process%20for%20SchwefelDouble.png)
+
+### [SchwefelMax](https://github.com/PasaOpasen/OptimizationTestFunctions#schwefelmax)
+![](https://github.com/PasaOpasen/OptimizationTestFunctions/blob/main/tests/heatmap%20for%20SchwefelMax.png)
+![](tests/Optimization%20process%20for%20SchwefelMax.png)
+
+### [SchwefelAbs](https://github.com/PasaOpasen/OptimizationTestFunctions#schwefelabs)
+![](https://github.com/PasaOpasen/OptimizationTestFunctions/blob/main/tests/heatmap%20for%20SchwefelAbs.png)
+![](tests/Optimization%20process%20for%20SchwefelAbs.png)
+
+### [SchwefelSin](https://github.com/PasaOpasen/OptimizationTestFunctions#schwefelsin)
+![](https://github.com/PasaOpasen/OptimizationTestFunctions/blob/main/tests/heatmap%20for%20SchwefelSin.png)
+![](tests/Optimization%20process%20for%20SchwefelSin.png)
+
+### [Stairs](https://github.com/PasaOpasen/OptimizationTestFunctions#stairs)
+![](https://github.com/PasaOpasen/OptimizationTestFunctions/blob/main/tests/heatmap%20for%20Stairs.png)
+![](tests/Optimization%20process%20for%20Stairs.png)
+
+### [Abs](https://github.com/PasaOpasen/OptimizationTestFunctions#abs)
+![](https://github.com/PasaOpasen/OptimizationTestFunctions/blob/main/tests/heatmap%20for%20Abs.png)
+![](tests/Optimization%20process%20for%20Abs.png)
+
+### [Michalewicz](https://github.com/PasaOpasen/OptimizationTestFunctions#michalewicz)
+![](https://github.com/PasaOpasen/OptimizationTestFunctions/blob/main/tests/heatmap%20for%20Michalewicz.png)
+![](tests/Optimization%20process%20for%20Michalewicz.png)
+
+### [Scheffer](https://github.com/PasaOpasen/OptimizationTestFunctions#scheffer)
+![](https://github.com/PasaOpasen/OptimizationTestFunctions/blob/main/tests/heatmap%20for%20Scheffer.png)
+![](tests/Optimization%20process%20for%20Scheffer.png)
+
+### [Eggholder](https://github.com/PasaOpasen/OptimizationTestFunctions#eggholder)
+![](https://github.com/PasaOpasen/OptimizationTestFunctions/blob/main/tests/heatmap%20for%20Eggholder.png)
+![](tests/Optimization%20process%20for%20Eggholder.png)
+
+### [Weierstrass](https://github.com/PasaOpasen/OptimizationTestFunctions#weierstrass)
+![](https://github.com/PasaOpasen/OptimizationTestFunctions/blob/main/tests/heatmap%20for%20Weierstrass.png)
+![](tests/Optimization%20process%20for%20Weierstrass.png)
 
 
-```python
-
-import math
-import numpy as np
-from geneticalgorithm2 import geneticalgorithm2 as ga
-
-def f(X):
-    return np.sum((X**2)-10*np.cos(2*math.pi*X)+10)
-    
-    
-varbound=np.array([[-5.12,5.12]]*2)
-
-model=ga(function=f,dimension=2,variable_type='real',variable_boundaries=varbound)
-
-model.run()
-
-```
-
-![](https://github.com/rmsolgi/geneticalgorithm/blob/master/genetic_algorithm_Rastrigin.gif)
 
 
-### [Ackley](https://en.wikipedia.org/wiki/Ackley_function)
-![](https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Ackley%27s_function.pdf/page1-600px-Ackley%27s_function.pdf.jpg)
-
-```python
-
-
-import math
-import numpy as np
-from geneticalgorithm2 import geneticalgorithm2 as ga
-
-def f(X):
-
-    dim=len(X)
-        
-    t1 = np.sum(X**2)
-    t2 = np.sum(np.cos(2*math.pi*X)) 
-            
-    OF=20+math.e-20*math.exp((t1/dim)*-0.2)-math.exp(t2/dim)
- 
-    return OF
-    
-varbound=np.array([[-32.768,32.768]]*2)
-
-model=ga(function=f,dimension=2,variable_type='real',variable_boundaries=varbound)
-
-model.run()
-
-```
-
-![](https://github.com/rmsolgi/geneticalgorithm/blob/master/genetic_algorithm_Ackley.gif)
-
-### [Weierstrass](http://infinity77.net/global_optimization/test_functions_nd_W.html)
-![](http://infinity77.net/global_optimization/_images/Weierstrass.png)
-
-
-```python
-
-import numpy as np
-import math
-from geneticalgorithm2 import geneticalgorithm2 as ga
-
-def f(X):
-
-    dim=len(X) 
-   
-    a=0.5
-    b=3
-    OF=0
-    for i in range (0,dim):
-        t1=0
-        for k in range (0,21):
-            t1+=(a**k)*math.cos((2*math.pi*(b**k))*(X[i]+0.5))
-        OF+=t1
-    t2=0    
-    for k in range (0,21):
-        t2+=(a**k)*math.cos(math.pi*(b**k))
-    OF-=dim*t2
- 
-    return OF
-    
-    
-varbound=np.array([[-0.5,0.5]]*2)
-
-algorithm_param = {'max_num_iteration': 1000,
-                   'population_size':100,
-                   'mutation_probability':0.1,
-                   'elit_ratio': 0.01,
-                   'crossover_probability': 0.5,
-                   'parents_portion': 0.3,
-                   'crossover_type':'uniform',
-                   'mutation_type': 'uniform_by_center',
-                   'selection_type': 'roulette',
-                   'max_iteration_without_improv':None}
-
-model=ga(function=f,dimension=2,\
-         variable_type='real',\
-             variable_boundaries=varbound,
-             algorithm_parameters=algorithm_param)
-
-model.run()
-
-```
-![](https://github.com/rmsolgi/geneticalgorithm/blob/master/genetic_algorithm_Weierstrass.gif)
 
 ## Using GA in reinforcement learning with Keras 
 
