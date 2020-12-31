@@ -157,6 +157,7 @@ model.run(
     revolution_part = 0.3,
     population_initializer = Population_initializer(select_best_of = 1, local_optimization_step = 'never', local_optimizer = None),
     stop_when_reached = None,
+    callbacks = [],
     seed = None
     )
 ```
@@ -189,6 +190,17 @@ Your best solution is computed!
 * param **population_initializer** (`tuple(int, func)`) - object for actions at population initialization step to create better start population. [Take a look](#creating-better-start-population)
 
 * param **stop_when_reached** (`None`/`float`) - stop searching after reaching this value (it can be potential minimum or something else)
+
+* param **callbacks** (`list`) - list of callback functions with structure:
+  ```python 
+  def callback(generation_number, report_list, last_population_as_2D_array, last_population_scores_as_1D_array):
+      #
+      # do some action
+      #
+  ```
+    See [example of using callbacks](tests/callbacks.py). There are several callbacks in `Callbacks` class, such as:
+    * `Callbacks.SavePopulation(folder, save_gen_step = 50, file_prefix = 'population')`
+    * `Callbacks.PlotOptimizationProcess(folder, save_gen_step = 50, show = False, main_color = 'green', file_prefix = 'report')`
 
 * param **seed** - random seed (None is doesn't matter)
 
