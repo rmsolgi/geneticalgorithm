@@ -47,6 +47,7 @@ from .crossovers import Crossover
 from .mutations import Mutations
 from .selections import Selection
 from .initializer import Population_initializer
+from .callbacks import Callbacks
 
 
 ###############################################################################
@@ -348,6 +349,7 @@ class geneticalgorithm2:
             revolution_part = 0.3,
             population_initializer = Population_initializer(select_best_of = 1, local_optimization_step = 'never', local_optimizer = None), 
             stop_when_reached = None,
+            callbacks = [], 
             seed = None):
         """
         @param no_plot <boolean> - do not plot results using matplotlib by default
@@ -376,6 +378,8 @@ class geneticalgorithm2:
 
         @param stop_when_reached (None/float) - stop searching after reaching this value (it can be potential minimum or something else)
 
+        @param callbacks (list) - list of callback functions with structure: (generation_number, report_list, last_population, last_scores) -> do some action
+
         @param seed - random seed (None is doesn't matter)
         """
         
@@ -385,6 +389,7 @@ class geneticalgorithm2:
         assert current_gen_number(remove_duplicates_generation_step), "must be None or int and >0"
         assert can_be_prob(revolution_part), f"revolution_part must be in [0,1], not {revolution_part}"
         assert (stop_when_reached is None or type(stop_when_reached) in (int, float))
+        assert (type(callbacks) == list), "callbacks should be list of callbacks functions"
 
         if not (seed is None):
             random.seed(seed)
@@ -395,6 +400,11 @@ class geneticalgorithm2:
         get_parents_inds = (lambda par_count: (0, random.randrange(1, par_count))) if studEA else (lambda par_count: tuple(np.random.randint(0, par_count, 2)))
         
         stop_by_val = (lambda best_f: False) if stop_when_reached is None else (lambda best_f: best_f <= stop_when_reached)
+        
+        def total_callback( generation_number, report_list, last_population, last_scores): 
+            for cb in callbacks: 
+                cb(generation_number, report_list, last_population, last_scores)
+        
         ############################################################# 
         # Initial Population
         
@@ -558,8 +568,8 @@ class geneticalgorithm2:
         counter = 0
         while t <= self.iterate:
             
-            
             show_progress(t, self.iterate, f"GA is running...{t} gen from {self.iterate}")
+
             #############################################################
             #Sort
             pop = pop[pop[:,self.dim].argsort()]
@@ -641,7 +651,10 @@ class geneticalgorithm2:
             pop = revolution(pop, counter)          
             
         #############################################################       
+            total_callback(t, self.report, pop[:,:-1], pop[:, -1])
+            
             t += 1
+
             if counter > self.mniwi or stop_by_val(self.best_function):
                 pop = pop[pop[:,self.dim].argsort()]
                 if pop[0,self.dim] >= self.best_function:
