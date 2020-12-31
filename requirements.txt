@@ -3,5 +3,5 @@ joblib==0.15.1
 numpy==1.18.4
 func_timeout==4.3.5
 DiscreteHillClimbing==1.0.2
-OppOpPopInit==1.0.2
+OppOpPopInit==1.1.1
 OptimizationTestFunctions==1.0.0
