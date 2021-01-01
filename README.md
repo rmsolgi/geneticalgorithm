@@ -158,6 +158,7 @@ model.run(
     population_initializer = Population_initializer(select_best_of = 1, local_optimization_step = 'never', local_optimizer = None),
     stop_when_reached = None,
     callbacks = [],
+    time_limit_secs = None, 
     seed = None
     )
 ```
@@ -201,6 +202,18 @@ Your best solution is computed!
     See [example of using callbacks](tests/callbacks.py). There are several callbacks in `Callbacks` class, such as:
     * `Callbacks.SavePopulation(folder, save_gen_step = 50, file_prefix = 'population')`
     * `Callbacks.PlotOptimizationProcess(folder, save_gen_step = 50, show = False, main_color = 'green', file_prefix = 'report')`
+
+* param **time_limit_secs** (`None`/ number>0) - limit time of working (in seconds). If `None`, there is no time limit (limit only for count of generation and so on). See [little example of using](tests/time_limit.py). Also there is simple conversion function for conversion some time in seconds:
+  ```python
+  from geneticalgorithm2 import time_to_seconds
+
+  total_seconds = time_to_seconds(
+      days = 2, # 2 days
+      hours = 13, # plus 13 hours
+      minutes = 7, # plus 7 minutes
+      seconds = 44 # plus 44 seconds
+  )
+  ```
 
 * param **seed** - random seed (None is doesn't matter)
 

@@ -29,3 +29,4 @@ from .selections import Selection
 from .initializer import Population_initializer
 from .cache import np_lru_cache
 from .callbacks import Callbacks
+from .times_funcs import time_to_seconds

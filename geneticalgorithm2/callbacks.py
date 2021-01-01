@@ -48,7 +48,7 @@ class Callbacks:
             ax = plt.axes()
             ax.xaxis.set_major_locator(MaxNLocator(integer=True))
             
-            plt.plot(report_list, color = main_color, label = 'best of generation', linewidth = 2)
+            plt.plot(np.arange(1, 1 + len(report_list)), report_list, color = main_color, label = 'best of generation', linewidth = 2)
             
             plt.xlabel('Generation')
             plt.ylabel('Minimized function')

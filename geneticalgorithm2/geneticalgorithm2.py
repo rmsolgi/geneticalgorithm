@@ -349,7 +349,8 @@ class geneticalgorithm2:
             revolution_part = 0.3,
             population_initializer = Population_initializer(select_best_of = 1, local_optimization_step = 'never', local_optimizer = None), 
             stop_when_reached = None,
-            callbacks = [], 
+            callbacks = [],
+            time_limit_secs = None,  
             seed = None):
         """
         @param no_plot <boolean> - do not plot results using matplotlib by default
@@ -380,6 +381,8 @@ class geneticalgorithm2:
 
         @param callbacks (list) - list of callback functions with structure: (generation_number, report_list, last_population, last_scores) -> do some action
 
+        @param time_limit_secs (None/ number>0) - limit time of working (in seconds)
+
         @param seed - random seed (None is doesn't matter)
         """
         
@@ -390,6 +393,8 @@ class geneticalgorithm2:
         assert can_be_prob(revolution_part), f"revolution_part must be in [0,1], not {revolution_part}"
         assert (stop_when_reached is None or type(stop_when_reached) in (int, float))
         assert (type(callbacks) == list), "callbacks should be list of callbacks functions"
+        assert (time_limit_secs is None or time_limit_secs > 0), 'time_limit_secs must be None of number > 0'
+        
 
         if not (seed is None):
             random.seed(seed)
@@ -405,6 +410,9 @@ class geneticalgorithm2:
             for cb in callbacks: 
                 cb(generation_number, report_list, last_population, last_scores)
         
+        start_time = time.time()
+        time_is_done = (lambda: False) if time_limit_secs is None else (lambda: int(time.time() - start_time) >= time_limit_secs)
+
         ############################################################# 
         # Initial Population
         
@@ -655,7 +663,7 @@ class geneticalgorithm2:
             
             t += 1
 
-            if counter > self.mniwi or stop_by_val(self.best_function):
+            if counter > self.mniwi or stop_by_val(self.best_function) or time_is_done():
                 pop = pop[pop[:,self.dim].argsort()]
                 if pop[0,self.dim] >= self.best_function:
                     t = self.iterate # to stop loop
@@ -701,10 +709,12 @@ class geneticalgorithm2:
         if not no_plot:
             self.plot_results()
 
-        if self.stop_mniwi==True:
+        if self.stop_mniwi:
             sys.stdout.write('\nWarning: GA is terminated due to the maximum number of iterations without improvement was met!')
         elif stop_by_val(self.best_function):
             sys.stdout.write(f'\nWarning: GA is terminated because of reaching stop_when_reached (current val {self.best_function} <= {stop_when_reached})!')
+        elif time_is_done():
+            sys.stdout.write(f'\nWarning: GA is terminated because of time limit ({time_limit_secs} secs) of working!')
 
 ##############################################################################         
 
