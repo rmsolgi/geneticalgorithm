@@ -82,16 +82,22 @@ pip install geneticalgorithm2
 
 # Working process
 
-Firstly, u should **import needed packages**:
+Firstly, u should **import needed packages**. All available imports are:
 
 ```python
 import numpy as np
 
-from geneticalgorithm2 import geneticalgorithm2 as ga
+from geneticalgorithm2 import geneticalgorithm2 as ga # for creating and running optimization model
 
 from geneticalgorithm2 import Crossover, Mutations, Selection # classes for specific mutation and crossover behavior
 
 from geneticalgorithm2 import Population_initializer # for creating better start population
+
+from geneticalgorithm2 import np_lru_cache # for cache function (if u want)
+
+from geneticalgorithm2 import Callbacks # simple callbacks
+
+from geneticalgorithm2 import time_to_seconds # for conversion time to seconds for time_limit
 ```
 Next step: **define minimized function** like
 
