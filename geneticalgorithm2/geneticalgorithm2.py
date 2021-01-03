@@ -48,6 +48,7 @@ from .mutations import Mutations
 from .selections import Selection
 from .initializer import Population_initializer
 from .callbacks import Callbacks
+from .another_plotting_tools import plot_pop_scores
 
 
 ###############################################################################
@@ -745,6 +746,15 @@ class geneticalgorithm2:
 
         plt.show()
 
+    def plot_generation_scores(self, title = 'Last generation scores', save_as = None):
+        """
+        Plots barplot of scores of last population
+        """
+
+        if not hasattr(self, 'output_dict'):
+            raise Exception("There is no output_dict field into ga object! Before plotting generation u need to run seaching process")
+
+        plot_pop_scores(self.output_dict['last_generation']['scores'], title, save_as)
 
 
 ###############################################################################  

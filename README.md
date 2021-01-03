@@ -59,6 +59,7 @@ version](https://badge.fury.io/py/geneticalgorithm2.svg)](https://pypi.org/proje
   - [Using GA in reinforcement learning with Keras](#using-ga-in-reinforcement-learning-with-keras)
 - [Popular questions](#popular-questions)
   - [How to disable autoplot?](#how-to-disable-autoplot)
+  - [How to plot population scores?](#how-to-plot-population-scores)
   - [How to specify evaluated function for all population?](#how-to-specify-evaluated-function-for-all-population)
   - [What about parallelism?](#what-about-parallelism)
   - [How to initialize start population? How to continue optimization with new run?](#how-to-initialize-start-population-how-to-continue-optimization-with-new-run)
@@ -94,6 +95,8 @@ from geneticalgorithm2 import Crossover, Mutations, Selection # classes for spec
 from geneticalgorithm2 import Population_initializer # for creating better start population
 
 from geneticalgorithm2 import np_lru_cache # for cache function (if u want)
+
+from geneticalgorithm2 import plot_pop_scores # for plotting population scores, if u want
 
 from geneticalgorithm2 import Callbacks # simple callbacks
 
@@ -964,6 +967,55 @@ plt.ylabel('Objective function')
 plt.title('Genetic Algorithm')
 plt.show()
 ```
+
+## How to plot population scores?
+
+There are 2 ways to plot of scores of population:
+* use `plot_pop_scores(scores, title = 'Population scores', save_as = None)` function from `geneticalgorithm2` environment
+* use `plot_generation_scores(self, title = 'Last generation scores', save_as = None)` method of `ga` object for plotting scores of last generation (yes, it's wrapper of previous function)
+
+Let's check example:
+```python
+import numpy as np
+
+from geneticalgorithm2 import geneticalgorithm2 as ga
+
+from geneticalgorithm2 import plot_pop_scores # for plotting scores without ga object
+
+def f(X):
+    return 50*np.sum(X) - np.sum(np.sqrt(X)*np.sin(X))
+    
+dim = 25
+varbound = np.array([[0,10]]*dim)
+
+# create start population
+start_pop = np.random.uniform(0, 10, (50, dim))
+# eval scores of start population
+start_scores = np.array([f(start_pop[i]) for i in range(start_pop.shape[0])])
+
+# plot start scores using plot_pop_scores function
+plot_pop_scores(start_scores, title = 'Population scores before beggining of searching', save_as= 'plot_scores_start.png')
+
+
+model = ga(function=f, dimension=dim, variable_type='real', variable_boundaries=varbound)
+# run optimization process
+model.run(no_plot = True,
+          start_generation={
+              'variables': start_pop,
+              'scores': start_scores
+              })
+# plot and save optimization process plot
+model.plot_results(save_as = 'plot_scores_process.png')
+
+# plot scores of last population
+model.plot_generation_scores(title = 'Population scores after ending of searching', save_as= 'plot_scores_end.png')
+```
+![](tests/plot_scores_start.png)
+![](tests/plot_scores_process.png)
+![](tests/plot_scores_end.png)
+
+
+
 ## How to specify evaluated function for all population?
 
 U can do it using `set_function` parameter into `run()` method.
