@@ -528,11 +528,16 @@ class geneticalgorithm2:
             #for i in self.indexes_float:
             #    pop[:, i] = np.random.uniform(self.var_bound[i][0], self.var_bound[i][1], self.pop_s*pop_coef)
             
+            time_counter = 0
+
             for p in range(0, self.pop_s*pop_coef):    
                 var = pop[p, :-1]
                 solo = pop[p, :]
-                obj = self.sim(var)  # simulation returns exception or func value -- check the time of evaluating           
+                obj, eval_time = self.sim(var)  # simulation returns exception or func value -- check the time of evaluating           
                 solo[self.dim] = obj
+                time_counter += eval_time
+            
+            print(f"\n\r Average time of function evaluating (secs): {time_counter/pop.shape[0]}\n")
                 
         else:
             assert (start_generation['variables'].shape[1] == self.dim), f"incorrect dimention ({start_generation['variables'].shape[1]}) of population, should be {self.dim}"
@@ -816,6 +821,7 @@ class geneticalgorithm2:
         self.temp = X#.copy()
         
         obj = None
+        eval_time = time.time()
         try:
             obj = func_timeout(self.funtimeout, self.evaluate)
         except FunctionTimedOut:
@@ -826,7 +832,7 @@ class geneticalgorithm2:
                 
         assert ((type(obj)==int or type(obj)==float or obj.size==1)), "Function should return a number or an np.array with len == 1"
         
-        return obj
+        return obj, time.time() - eval_time
 
 ###############################################################################
     def progress(self, count, total, status=''):
