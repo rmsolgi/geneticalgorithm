@@ -34,7 +34,8 @@ version](https://badge.fury.io/py/geneticalgorithm2.svg)](https://pypi.org/proje
   - [Revolutions](#revolutions)
   - [Duplicates removing](#duplicates-removing)
   - [Cache](#cache)
-  - [Hints on how to adjust genetic algorithm's parameters](#hints-on-how-to-adjust-genetic-algorithms-parameters)
+  - [How to compare efficiency of several versions of GA optimization](#how-to-compare-efficiency-of-several-versions-of-ga-optimization)
+  - [Hints on how to adjust genetic algorithm's parameters (from `geneticalgorithm` package)](#hints-on-how-to-adjust-genetic-algorithms-parameters-from-geneticalgorithm-package)
 - [Examples pretty collection](#examples-pretty-collection)
   - [Optimization test functions](#optimization-test-functions)
     - [Sphere](#sphere)
@@ -811,7 +812,11 @@ def minimized_func(arr):
 minimized_func.cache_clear()
 ```
 
-## Hints on how to adjust genetic algorithm's parameters
+## How to compare efficiency of several versions of GA optimization
+
+To compare efficiency of several versions of GA optimization (such as several values of several hyperparamenters or including/excepting some actions like oppositions) u should make some count of simulations and compare results using some statistical test. I have realized this logic [here](https://github.com/PasaOpasen/ab-testing-results-difference) 
+
+## Hints on how to adjust genetic algorithm's parameters (from `geneticalgorithm` package)
 
 In general the performance of a genetic algorithm or any evolutionary algorithm
 depends on its parameters. Parameter setting of an evolutionary algorithm is important. Usually these parameters are adjusted based on experience and by conducting a sensitivity analysis.
@@ -821,12 +826,9 @@ It is impossible to provide a general guideline to parameter setting but the sug
 selecting a very large number of iterations increases the run time significantly. So this is actually a compromise between
 the accuracy you want and the time and computational cost you spend. 
 
-* **Population size**: Given a constant number of functional evaluations (`max_num_iterations` times population_size) I would 
-select smaller population size and greater iterations. However, a very small choice of 
-population size is also deteriorative. For most problems I would select a population size of 100 unless the dimension of the problem is very large that needs a bigger population size.
+* **Population size**: Given a constant number of functional evaluations (`max_num_iterations` times population_size) I would select smaller population size and greater iterations. However, a very small choice of population size is also deteriorative. For most problems I would select a population size of 100 unless the dimension of the problem is very large that needs a bigger population size.
 
-* **elit_ratio**: Although having few elites is usually a good idea and may increase the rate of 
-convergence in some problems, having too many elites in the population may cause the algorithm to easily trap in a local optima. I would usually select only one elite in most cases. Elitism is not always necessary and in some problems may even be deteriorative.
+* **elit_ratio**: Although having few elites is usually a good idea and may increase the rate of convergence in some problems, having too many elites in the population may cause the algorithm to easily trap in a local optima. I would usually select only one elite in most cases. Elitism is not always necessary and in some problems may even be deteriorative.
 
 * **mutation_probability**: This is a parameter you may need to adjust more than the other ones. Its appropriate value heavily depends on the problem. Sometimes we may select
 mutation_probability as small as 0.01 (i.e. 1 percent) and sometimes even as large as 0.5 (i.e. 50 percent) or even larger. In general if the genetic algorithm trapped 
