@@ -702,9 +702,11 @@ class geneticalgorithm2:
             }
         
         show=' '*200
-        sys.stdout.write('\r%s' % (show))
-        sys.stdout.write('\r The best solution found:\n %s' % (self.best_variable))
-        sys.stdout.write('\n\n Objective function:\n %s\n' % (self.best_function))
+        sys.stdout.write(f'\r{show}\n')
+        sys.stdout.write(f'\r The best found solution:\n {self.best_variable}')
+        sys.stdout.write(f'\n\n Objective function:\n {self.best_function}\n')
+        sys.stdout.write(f'\n Used generations: {len(self.report)}')
+        sys.stdout.write(f'\n Used time: {int(time.time() - start_time)} seconds\n')
         sys.stdout.flush() 
         
         if not no_plot:
