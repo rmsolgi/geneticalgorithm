@@ -169,6 +169,7 @@ model.run(
     stop_when_reached = None,
     callbacks = [],
     time_limit_secs = None, 
+    save_last_generation_as = None,
     seed = None
     )
 ```
@@ -182,11 +183,11 @@ Your best solution is computed!
 
 * param **disable_progress_bar** <boolean> - do not show progress bar (also it can be faster by 10-20 seconds)
         
-* param **set_function**: 2D-array -> 1D-array function, which applyes to matrix of population (size (samples, dimention)) to estimate their values
+* param **set_function**: 2D-array -> 1D-array function, which applies to matrix of population (size (samples, dimension)) to estimate their values
         
 * param **apply_function_to_parents** <boolean> - apply function to parents from previous generation (if it's needed, it can be needed at working with games agents)
 
-* param **start_generation** <dictionary> - a dictionary with structure `{'variables':2D-array of samples, 'scores': function values on samples}`. If `'scores'` value is `None` the scores will be compute. [See this](#how-to-initialize-start-population-how-to-continue-optimization-with-new-run)  
+* param **start_generation** <dictionary/str> - a dictionary with structure `{'variables':2D-array of samples, 'scores': function values on samples}` or path to `.npz` file (`str`) with saved generation (see [example](#how-to-initialize-start-population-how-to-continue-optimization-with-new-run)). If `'scores'` value is `None` the scores will be compute. [See this](#how-to-initialize-start-population-how-to-continue-optimization-with-new-run)  
 
 * param **studEA** <boolean> - using stud EA strategy (crossover with best object always). Default is false. [Take a look](#standard-crossover-vs-stud-ea-crossover)
 
@@ -224,6 +225,8 @@ Your best solution is computed!
       seconds = 44 # plus 44 seconds
   )
   ```
+
+* param **save_last_generation_as** (`str`) - path to `.npz` file for saving last_generation as numpy dictionary like `{'population': 2D-array, 'scores': 1D-array}`, `None` if doesn't need to save in file; [take a look](#how-to-initialize-start-population-how-to-continue-optimization-with-new-run)
 
 * param **seed** - random seed (None is doesn't matter)
 
@@ -1153,4 +1156,41 @@ model.run(no_plot = True, start_generation=model.output_dict['last_generation'])
 ##
 
 ```
+
+Also u can save and load populations using likely code:
+
+```python
+import numpy as np
+
+from geneticalgorithm2 import geneticalgorithm2 as ga
+
+from OptimizationTestFunctions import Eggholder
+
+
+dim = 2*15
+
+f =  Eggholder(dim)
+
+xmin, xmax, ymin, ymax = f.bounds
+        
+varbound = np.array([[xmin, xmax], [ymin, ymax]]*15)
+    
+model = ga(function=f,
+               dimension = dim,
+               variable_type='real',
+               variable_boundaries=varbound,
+               algorithm_parameters = {
+                       'max_num_iteration': 300,
+                       'population_size': 100
+                       })
+
+# first run and save last generation to file
+filename = "eggholder_lastgen.npz"
+model.run(save_last_generation_as = filename)
+
+
+# load start generation from file and run again (continue optimization)
+model.run(start_generation=filename)
+```
+
 

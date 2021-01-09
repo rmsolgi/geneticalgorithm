@@ -335,6 +335,26 @@ class geneticalgorithm2:
 
         ############################################################# 
     
+
+    def __convert_start_generation(self, start_generation):
+
+        tp = type(start_generation)
+        if tp == dict:
+            assert(('variables' in start_generation and 'scores' in start_generation) and (start_generation['variables'] is None or start_generation['scores'] is None) or (start_generation['variables'].shape[0] == start_generation['scores'].size)), "start_generation object must contain 'variables' and 'scores' keys which are None or 2D- and 1D-arrays with same shape"
+        elif tp == str:
+            st = np.load(start_generation) 
+            start_generation = {'variables':st['population'], 'scores': st['scores']}
+        else:
+            raise TypeError(f"invalid type of start_generation argument! Must be str or dict, not {tp}")
+        
+
+        assert(start_generation['variables'] is None or start_generation['variables'].shape[1] == self.dim), f"start_generation['variables'] must be None or 2D-array with dimension == {self.dim} count of columns"
+
+        return start_generation
+
+
+
+
     def run(self, no_plot = False, 
             disable_progress_bar = False, 
             set_function = None, 
@@ -352,6 +372,7 @@ class geneticalgorithm2:
             stop_when_reached = None,
             callbacks = [],
             time_limit_secs = None,  
+            save_last_generation_as = None,
             seed = None):
         """
         @param no_plot <boolean> - do not plot results using matplotlib by default
@@ -363,7 +384,7 @@ class geneticalgorithm2:
         
         @param apply_function_to_parents <boolean> - apply function to parents from previous generation (if it's needed)
                                                                                                          
-        @param start_generation <dictionary> - a dictionary with structure {'variables':2D-array of samples, 'scores': function values on samples}                                                                                                
+        @param start_generation <dictionary/str> - a dictionary with structure {'variables':2D-array of samples, 'scores': function values on samples} or path to .npz file (str) with saved generation                                                                                                
         if 'scores' value is None the scores will be compute
 
         @param studEA <boolean> - using stud EA strategy (crossover with best object always)
@@ -382,7 +403,9 @@ class geneticalgorithm2:
 
         @param callbacks (list) - list of callback functions with structure: (generation_number, report_list, last_population, last_scores) -> do some action
 
-        @param time_limit_secs (None/ number>0) - limit time of working (in seconds)
+        @param time_limit_secs (None / number>0) - limit time of working (in seconds)
+
+        @param save_last_generation_as (str) - path to .npz file for saving last_generation as numpy dictionary like {'population': 2D-array, 'scores': 1D-array}, None if doesn't need to save in file
 
         @param seed - random seed (None is doesn't matter)
         """
@@ -396,6 +419,8 @@ class geneticalgorithm2:
         assert (type(callbacks) == list), "callbacks should be list of callbacks functions"
         assert (time_limit_secs is None or time_limit_secs > 0), 'time_limit_secs must be None of number > 0'
         
+        start_generation = self.__convert_start_generation(start_generation)
+
 
         if not (seed is None):
             random.seed(seed)
@@ -706,6 +731,12 @@ class geneticalgorithm2:
                 }
             }
         
+
+        if not (save_last_generation_as is None):
+            np.savez(save_last_generation_as, population = self.output_dict['last_generation']['variables'], scores = self.output_dict['last_generation']['scores'] )
+
+
+
         show=' '*200
         sys.stdout.write(f'\r{show}\n')
         sys.stdout.write(f'\r The best found solution:\n {self.best_variable}')
