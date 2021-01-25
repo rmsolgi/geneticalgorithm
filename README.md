@@ -24,6 +24,7 @@ version](https://badge.fury.io/py/geneticalgorithm2.svg)](https://pypi.org/proje
   - [Optimization problems with constraints](#optimization-problems-with-constraints)
   - [Select fixed count of objects from set](#select-fixed-count-of-objects-from-set)
 - [U should know these features](#u-should-know-these-features)
+  - [Available crossovers](#available-crossovers)
   - [Function timeout](#function-timeout)
   - [Standard GA vs. Elitist GA](#standard-ga-vs-elitist-ga)
   - [Standard crossover vs. stud EA crossover](#standard-crossover-vs-stud-ea-crossover)
@@ -402,11 +403,14 @@ If this parameter's value is `None` the algorithm sets maximum number of iterati
     * `Crossover.one_point()`
     * `Crossover.two_point()`
     * `Crossover.uniform()`
+    * `Crossover.uniform_window(window = 7)`
     * `Crossover.shuffle()`
     * `Crossover.segment()`
-    * `Crossover.mixed()` only for real variables
+    * `Crossover.mixed(alpha = 0.5)` only for real variables
     * `Crossover.arithmetic()` only for real variables
     
+    Have a look at [crossovers' logic](#available-crossovers)
+
     If u want, write your own crossover function using syntax:
     ```python
     def my_crossover(parent_a, parent_b):
@@ -669,6 +673,59 @@ model.run(no_plot = False, start_generation={'variables': start_generation, 'sco
 ```
 
 # U should know these features
+
+## Available crossovers
+
+For two example parents (*one with ones* and *one with zeros*) next crossovers will give same children: 
+
+* **one_point**:
+
+|0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1 | 1 | 1 | 1 | 1 | 1|
+|:---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---:|
+|1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0|
+
+* **two_point**:
+
+|1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1 | 1|
+|:---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---:|
+|0 | 0 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 0|
+
+* **uniform**:
+
+|1 | 1 | 1 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0|
+|:---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---:|
+|0 | 0 | 0 | 1 | 0 | 0 | 1 | 1 | 1 | 1 | 1 | 0 | 1 | 1 | 1|
+
+* **uniform_window**:
+
+|1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 | 0 | 1 | 1 | 1|
+|:---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---:|
+|0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 1 | 1 | 0 | 0 | 0|
+
+* **shuffle**:
+
+|0 | 0 | 0 | 1 | 1 | 1 | 1 | 0 | 0 | 1 | 1 | 1 | 0 | 1 | 0|
+|:---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---:|
+|1 | 1 | 1 | 0 | 0 | 0 | 0 | 1 | 1 | 0 | 0 | 0 | 1 | 0 | 1|
+
+* **segment**:
+
+|0 | 1 | 1 | 0 | 0 | 1 | 0 | 1 | 0 | 0 | 1 | 0 | 0 | 1 | 1|
+|:---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---:|
+|1 | 0 | 0 | 1 | 1 | 0 | 1 | 0 | 1 | 1 | 0 | 1 | 1 | 0 | 0|
+
+* **arithmetic**:
+
+|0.13 | 0.13 | 0.13 | 0.13 | 0.13 | 0.13 | 0.13 | 0.13 | 0.13 | 0.13 | 0.13 | 0.13 | 0.13 | 0.13 | 0.13|
+|:---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---:|
+|0.87 | 0.87 | 0.87 | 0.87 | 0.87 | 0.87 | 0.87 | 0.87 | 0.87 | 0.87 | 0.87 | 0.87 | 0.87 | 0.87 | 0.87|
+
+* **mixed**:
+
+|0.63 | 0.84 | 1.1 | 0.73 | 0.67 | -0.19 | 0.3 | 0.72 | -0.18 | 0.61 | 0.84 | 1.14 | 1.36 | -0.37 | -0.19|
+|:---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---:|
+|0.51 | 0.58 | 0.43 | 0.42 | 0.55 | 0.49 | 0.57 | 0.48 | 0.46 | 0.56 | 0.56 | 0.54 | 0.44 | 0.51 | 0.4|
+
 
 ## Function timeout
 
