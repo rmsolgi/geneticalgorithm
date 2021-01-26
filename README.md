@@ -676,7 +676,7 @@ model.run(no_plot = False, start_generation={'variables': start_generation, 'sco
 
 ## Available crossovers
 
-For two example parents (*one with ones* and *one with zeros*) next crossovers will give same children: 
+For two example parents (*one with ones* and *one with zeros*) next crossovers will give same children ([examples](tests/crossovers_examples.py)): 
 
 * **one_point**:
 
