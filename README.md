@@ -228,7 +228,8 @@ algorithm_param = {'max_num_iteration': None,\
                    'crossover_probability': 0.5,\
                    'parents_portion': 0.3,\
                    'crossover_type':'uniform',\
-                   'max_iteration_without_improv':None}
+                   'max_iteration_without_improv':None, \
+                   'stop_when_better_than': None}
 
 ```
 The above dictionary refers to the default values that has been set already. 
@@ -268,7 +269,8 @@ algorithm_param = {'max_num_iteration': 3000,\
                    'crossover_probability': 0.5,\
                    'parents_portion': 0.3,\
                    'crossover_type':'uniform',\
-                   'max_iteration_without_improv':None}
+                   'max_iteration_without_improv':None, \
+                   'stop_when_better_than': None}
 
 model=ga(function=f,\
             dimension=3,\
@@ -364,6 +366,8 @@ For example, when there is an infinite loop in the given function.
 are other options
 @ max_iteration_without_improv <int/None> - maximum number of 
 successive iterations without improvement. If None it is ineffective
+@ stop_when_better_than <float> - Default is None; If the best output is lower than
+            this value, the algorithm stops. If None, it is ineffective
 
 
 ## Methods and Outputs:
@@ -380,8 +384,9 @@ found and the value of the given function associated to it.
 {'variable': , 'function': }
 
 report: is a record of the progress of the
-algorithm over iterations
+algorithm over iterations.
 
+total_time: is the total algorithm runtime in seconds.
 
 ## Function timeout
 
@@ -433,6 +438,8 @@ crossover_type: Depends on the problem. I would usually use uniform crossover. B
 max_iteration_without_improv: This is a parameter that I recommend being used cautiously. 
 If this parameter is too small then the algorithm may stop while it trapped in a local optimum.
 So make sure you select a sufficiently large criteria to provide enough time for the algorithm to progress and to avoid immature convergence. 
+
+stop_when_better_than: This parameter can reduce the processing time by stopping evolution prematurely. If you know that the problem is solved 'good enough' when the function return value is below a given threshold, you may want to use this parameter.
 
 Finally to make sure that the parameter setting is fine, we usually should run the 
 algorithm for several times and if connvergence curves of all runs converged to the same objective function value we may accept that solution as the optimum. The number of runs

@@ -26,9 +26,9 @@ SOFTWARE.
 ###############################################################################
 ###############################################################################
 
-import numpy as np
 import sys
-import time
+from time import time
+import numpy as np
 from func_timeout import func_timeout, FunctionTimedOut
 import matplotlib.pyplot as plt
 
@@ -71,7 +71,8 @@ class geneticalgorithm():
                                        'crossover_probability': 0.5,\
                                        'parents_portion': 0.3,\
                                        'crossover_type':'uniform',\
-                                       'max_iteration_without_improv':None},\
+                                       'max_iteration_without_improv':None,\
+                                       'stop_when_better_than': None},\
                      convergence_curve=True,\
                          progress_bar=True):
 
@@ -118,7 +119,9 @@ class geneticalgorithm():
             @ crossover_type <string> - Default is 'uniform'; 'one_point' or 
             'two_point' are other options
             @ max_iteration_without_improv <int> - maximum number of 
-            successive iterations without improvement. If None it is ineffective
+            successive iterations without improvement. If None, it is ineffective
+            @ stop_when_better_than - Default is None; If the best output is lower than
+            this value, the algorithm stops. If None, it is ineffective
         
         @param convergence_curve <True/False> - Plot the convergence curve or not
         Default is True.
@@ -270,6 +273,12 @@ class geneticalgorithm():
             self.mniwi=self.iterate+1
         else: 
             self.mniwi=int(self.param['max_iteration_without_improv'])
+        
+        self.stop_swbt=False
+        if self.param['stop_when_better_than']==None:
+            self.swbt=None
+        else:
+            self.swbt=float(self.param['stop_when_better_than'])
 
         
         ############################################################# 
@@ -279,10 +288,10 @@ class geneticalgorithm():
         ############################################################# 
         # Initial Population
         
+        start_time = time()
+        self.last_run_single = None
         self.integers=np.where(self.var_type=='int')
         self.reals=np.where(self.var_type=='real')
-        
-        
         
         pop=np.array([np.zeros(self.dim+1)]*self.pop_s)
         solo=np.zeros(self.dim+1)
@@ -317,9 +326,7 @@ class geneticalgorithm():
         t=1
         counter=0
         while t<=self.iterate:
-            
-            if self.progress_bar==True:
-                self.progress(t,self.iterate,status="GA is running...")
+
             #############################################################
             #Sort
             pop = pop[pop[:,self.dim].argsort()]
@@ -334,6 +341,10 @@ class geneticalgorithm():
                 counter+=1
             #############################################################
             # Report
+
+            if self.progress_bar==True:
+                lastrun = f', SingleRun={round(self.last_run_single, 1)}s' if self.last_run_single else ''
+                self.progress(t,self.iterate,status=f'GA is running. Gen={t}, Best={self.best_function}{lastrun}...')
 
             self.report.append(pop[0,self.dim])
     
@@ -408,17 +419,21 @@ class geneticalgorithm():
                 solo[self.dim]=obj
                 pop[k+1]=solo.copy()
         #############################################################       
-            t+=1
+            if self.swbt and self.best_function < self.swbt:
+                t=self.iterate
+                if self.progress_bar==True:
+                    self.progress(t,self.iterate,status="GA is running...") # TODO
+                self.stop_swbt
+
             if counter > self.mniwi:
                 pop = pop[pop[:,self.dim].argsort()]
                 if pop[0,self.dim]>=self.best_function:
                     t=self.iterate
                     if self.progress_bar==True:
-                        self.progress(t,self.iterate,status="GA is running...")
-                    time.sleep(2)
-                    t+=1
+                        self.progress(t,self.iterate,status="GA is running...") # TODO
                     self.stop_mniwi=True
-                
+            
+            t+=1
         #############################################################
         #Sort
         pop = pop[pop[:,self.dim].argsort()]
@@ -432,28 +447,30 @@ class geneticalgorithm():
 
         self.report.append(pop[0,self.dim])
         
-        
- 
-        
         self.output_dict={'variable': self.best_variable, 'function':\
                           self.best_function}
+        self.total_time=time()-start_time
         if self.progress_bar==True:
-            show=' '*100
+            show=' '*150
             sys.stdout.write('\r%s' % (show))
-        sys.stdout.write('\r The best solution found:\n %s' % (self.best_variable))
+        sys.stdout.write('\n The best solution found:\n %s' % (self.best_variable))
         sys.stdout.write('\n\n Objective function:\n %s\n' % (self.best_function))
+        sys.stdout.write('\n Total processing time:\n %.1fs\n' % (self.total_time))
         sys.stdout.flush() 
         re=np.array(self.report)
+        
+        if self.stop_mniwi==True:
+            sys.stdout.write('\nWarning: GA is terminated due to the'+\
+                             ' maximum number of iterations without improvement was met!')
+        if self.stop_swbt==True:
+            sys.stdout.write('\nWarning: GA is terminated because stop condition reached!')
+
         if self.convergence_curve==True:
             plt.plot(re)
             plt.xlabel('Iteration')
             plt.ylabel('Objective function')
             plt.title('Genetic Algorithm')
             plt.show()
-        
-        if self.stop_mniwi==True:
-            sys.stdout.write('\nWarning: GA is terminated due to the'+\
-                             ' maximum number of iterations without improvement was met!')
 ##############################################################################         
 ##############################################################################         
     def cross(self,x,y,c_type):
@@ -539,8 +556,11 @@ class geneticalgorithm():
         self.temp=X.copy()
         obj=None
         try:
+            start=time()
             obj=func_timeout(self.funtimeout,self.evaluate)
+            self.last_run_single=time()-start
         except FunctionTimedOut:
+            self.last_run_single=None
             print("given function is not applicable")
         assert (obj!=None), "After "+str(self.funtimeout)+" seconds delay "+\
                 "func_timeout: the given function does not provide any output"
