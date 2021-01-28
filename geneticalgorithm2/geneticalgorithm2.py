@@ -140,7 +140,7 @@ class geneticalgorithm2:
             @ max_num_iteration <int> - stoping criteria of the genetic algorithm (GA)
             @ population_size <int> 
             @ mutation_probability <float in [0,1]>
-            @ elit_ration <float in [0,1]>
+            @ elit_ratio <float in [0,1]>
             @ crossover_probability <float in [0,1]>
             @ parents_portion <float in [0,1]>
             @ crossover_type <string/function> - Default is 'uniform'; 'one_point' or 'two_point' (not only) are other options
@@ -231,10 +231,7 @@ class geneticalgorithm2:
         
         assert ( can_be_prob( self.param['parents_portion'] ) ), "parents_portion must be in range [0,1]" 
         
-        self.par_s = int(self.param['parents_portion']*self.pop_s)
-        trl= self.pop_s - self.par_s
-        if trl % 2 != 0:
-            self.par_s += 1
+        self.__set_par_s(self.param['parents_portion'])
                
         self.prob_mut = self.param['mutation_probability']
         
@@ -246,12 +243,7 @@ class geneticalgorithm2:
         
         assert ( can_be_prob( self.param['elit_ratio']) ),  "elit_ratio must be in range [0,1]"                
         
-        trl = self.pop_s*self.param['elit_ratio']
-        if trl < 1 and self.param['elit_ratio'] > 0:
-            self.num_elit = 1
-        else:
-            self.num_elit = int(trl)
-            
+        self.__set_elit(self.pop_s, self.param['elit_ratio'])
         assert(self.par_s>=self.num_elit), "\n number of parents must be greater than number of elits"
         
         if self.param['max_num_iteration'] == None:
@@ -270,15 +262,26 @@ class geneticalgorithm2:
 
         else:
             self.iterate = int(self.param['max_num_iteration'])
-        
-        
+          
         self.stop_mniwi = False ## what
         if self.param['max_iteration_without_improv'] == None or self.param['max_iteration_without_improv'] < 1:
             self.mniwi = self.iterate + 1
         else: 
             self.mniwi = int(self.param['max_iteration_without_improv'])
 
-        
+    def __set_par_s(self, parents_portion):
+
+        self.par_s = int(parents_portion*self.pop_s)
+        trl= self.pop_s - self.par_s
+        if trl % 2 != 0:
+            self.par_s += 1
+
+    def __set_elit(self, pop_size, elit_ratio):
+        trl = pop_size*elit_ratio
+        if trl < 1 and elit_ratio > 0:
+            self.num_elit = 1
+        else:
+            self.num_elit = int(trl)
 
     def set_crossover_and_mutations(self, crossover, mutation, selection):
         
@@ -353,8 +356,6 @@ class geneticalgorithm2:
         return start_generation
 
 
-
-
     def run(self, no_plot = False, 
             disable_progress_bar = False, 
             set_function = None, 
@@ -371,6 +372,7 @@ class geneticalgorithm2:
             population_initializer = Population_initializer(select_best_of = 1, local_optimization_step = 'never', local_optimizer = None), 
             stop_when_reached = None,
             callbacks = [],
+            middle_callbacks = [],
             time_limit_secs = None,  
             save_last_generation_as = None,
             seed = None):
@@ -403,6 +405,8 @@ class geneticalgorithm2:
 
         @param callbacks (list) - list of callback functions with structure: (generation_number, report_list, last_population, last_scores) -> do some action
 
+        @param middle_callbacks (list) - list of functions made MiddleCallbacks class 
+
         @param time_limit_secs (None / number>0) - limit time of working (in seconds)
 
         @param save_last_generation_as (str) - path to .npz file for saving last_generation as numpy dictionary like {'population': 2D-array, 'scores': 1D-array}, None if doesn't need to save in file
@@ -417,6 +421,7 @@ class geneticalgorithm2:
         assert can_be_prob(revolution_part), f"revolution_part must be in [0,1], not {revolution_part}"
         assert (stop_when_reached is None or type(stop_when_reached) in (int, float))
         assert (type(callbacks) == list), "callbacks should be list of callbacks functions"
+        assert (type(middle_callbacks) == list), "middle_callbacks should be list of MiddleCallbacks functions"
         assert (time_limit_secs is None or time_limit_secs > 0), 'time_limit_secs must be None of number > 0'
         
         start_generation = self.__convert_start_generation(start_generation)
@@ -432,10 +437,83 @@ class geneticalgorithm2:
         
         stop_by_val = (lambda best_f: False) if stop_when_reached is None else (lambda best_f: best_f <= stop_when_reached)
         
-        def total_callback( generation_number, report_list, last_population, last_scores): 
+        def total_callback(generation_number, report_list, last_population, last_scores): 
             for cb in callbacks: 
                 cb(generation_number, report_list, last_population, last_scores)
         
+
+        t = 0
+        counter = 0
+        pop = None
+
+        def get_data():
+            """
+            returns all important data about model
+            """
+            data = {
+                'last_generation': {
+                    'variables': pop[:,:-1],
+                    'scores': pop[:,-1]
+                },
+                'current_generation': t,
+                'report_list': self.report,
+                
+                'mutation_prob': self.prob_mut,
+                'crossover_prob': self.prob_cross,
+                'mutation': self.real_mutation,
+                'crossover': self.crossover,
+                'selection': self.selection,
+
+                'current_stagnation': counter,
+                'max_stagnation': self.mniwi,
+
+                'parents_portion': self.param['parents_portion'],
+                'elit_ratio': self.param['elit_ratio']
+
+            }
+
+            return data
+
+        def set_data(data):
+            """
+            sets data to model
+            """
+            nonlocal pop, t, counter
+            
+            pop = np.hstack((data['last_generation']['variables'], data['last_generation']['scores'].reshape(-1, 1)))
+            self.pop_s = pop.shape[0]
+            self.param['parents_portion'] = data['parents_portion']
+            self.__set_par_s(data['parents_portion'])
+            self.param['elit_ratio'] = data['elit_ratio']
+            self.__set_elit(self.pop_s, data['elit_ratio'])
+
+            self.prob_mut = data['mutation_prob']
+            self.prob_cross = data['crossover_prob']
+            self.real_mutation = data['mutation']
+            self.crossover = data['crossover']
+            self.selection = data['selection']
+
+            counter = data['current_stagnation']
+            self.mniwi = data['max_stagnation']
+            
+
+
+        def total_middle_callback():
+            """
+            applies callbacks and sets new data if there is a sence
+            """
+            data = get_data()
+            flag = False
+            for cb in middle_callbacks:
+                data, has_sense = cb(data)
+                if has_sense: flag = True
+            if flag:
+                set_data(data) 
+
+        if len(middle_callbacks) == 0:
+            total_middle_callback = lambda: None
+
+
         start_time = time.time()
         time_is_done = (lambda: False) if time_limit_secs is None else (lambda: int(time.time() - start_time) >= time_limit_secs)
 
@@ -691,12 +769,13 @@ class geneticalgorithm2:
             
         #############################################################       
             total_callback(t, self.report, pop[:,:-1], pop[:, -1])
-            
+            total_middle_callback()
+
             t += 1
 
             if counter > self.mniwi or stop_by_val(self.best_function) or time_is_done():
                 pop = pop[pop[:,self.dim].argsort()]
-                if pop[0,self.dim] >= self.best_function:
+                if pop[0,self.dim] >= self.best_function or counter == 2*self.mniwi:
                     t = self.iterate # to stop loop
                     show_progress(t, self.iterate, "GA is running... STOP!")
                     #time.sleep(0.7) #time.sleep(2)
