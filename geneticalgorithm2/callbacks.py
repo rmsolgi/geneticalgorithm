@@ -1,5 +1,7 @@
 
 import os
+import random
+
 import numpy as np 
 
 import matplotlib.pyplot as plt
@@ -62,7 +64,117 @@ class Callbacks:
         
         return func
 
+
+
+
+
+
+class Actions:
+
+    @staticmethod
+    def Stop():
         
+        def func(data):
+            data['current_stagnation'] = 2*data['max_stagnation']
+            return data
+        return func
+
+    @staticmethod
+    def ReduceMutationProb(reduce_coef = 0.9):
+        
+        def func(data):
+            data['mutation_prob'] *= reduce_coef
+            return data
+        
+        return func
+
+
+    #def DualStrategyStep():
+    #    pass
+
+
+
+
+    @staticmethod
+    def ChangeRandomCrossover(available_crossovers):
+
+        def func(data):
+            data['crossover'] = random.choice(available_crossovers)
+            return data
+
+        return func
+    
+    @staticmethod
+    def ChangeRandomSelection(available_selections):
+
+        def func(data):
+            data['selection'] = random.choice(available_selections)
+            return data
+
+        return func
+
+    @staticmethod
+    def ChangeRandomMutation(available_mutations):
+
+        def func(data):
+            data['mutation'] = random.choice(available_mutations)
+            return data
+
+        return func
+
+
+
+class ActionConditions:
+    
+    @staticmethod
+    def EachGen(generation_step = 10):
+        def func(data):
+            return data['current_generation'] % generation_step == 0 and data['current_generation'] > 0
+        return func
+
+    @staticmethod
+    def AfterStagnation(stagnation_generations = 50):
+
+        def func(data):
+            return data['current_stagnation'] % stagnation_generations == 0 and data['current_stagnation'] > 0
+        return func
+
+
+    @staticmethod
+    def Several(list_of_conditions):
+        """
+        returns function which checks all conditions from list_of_conditions
+        """
+
+        def func(data):
+            return all((cond(data) for cond in list_of_conditions))
+        
+        return func
+
+
+
+
+class MiddleCallbacks:
+
+    @staticmethod
+    def UniversalCallback(action, condition):
+        
+        def func(data):
+
+            cond = condition(data)
+            if cond:
+                data = action(data)
+
+            return data, cond
+        
+        return func
+
+    #def ReduceMutationGen(reduce = 0.9, each_generation = 50):
+    #    pass
+
+    #def ReduceMutationStagnation(reduce = 0.5, stagnation_gens = 50):
+    #    pass 
+       
 
 
 

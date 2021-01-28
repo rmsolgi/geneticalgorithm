@@ -23,11 +23,15 @@ SOFTWARE.
 '''
 
 from .geneticalgorithm2 import geneticalgorithm2
+
 from .mutations import Mutations
 from .crossovers import Crossover
 from .selections import Selection
+
 from .initializer import Population_initializer
+
 from .cache import np_lru_cache
-from .callbacks import Callbacks
+from .callbacks import Callbacks, Actions, ActionConditions, MiddleCallbacks
+
 from .times_funcs import time_to_seconds
 from .another_plotting_tools import plot_pop_scores
