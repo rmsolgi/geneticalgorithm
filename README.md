@@ -35,6 +35,7 @@ version](https://badge.fury.io/py/geneticalgorithm2.svg)](https://pypi.org/proje
   - [Revolutions](#revolutions)
   - [Duplicates removing](#duplicates-removing)
   - [Cache](#cache)
+  - [Middle callbacks](#middle-callbacks)
   - [How to compare efficiency of several versions of GA optimization](#how-to-compare-efficiency-of-several-versions-of-ga-optimization)
   - [Hints on how to adjust genetic algorithm's parameters (from `geneticalgorithm` package)](#hints-on-how-to-adjust-genetic-algorithms-parameters-from-geneticalgorithm-package)
 - [Examples pretty collection](#examples-pretty-collection)
@@ -58,7 +59,8 @@ version](https://badge.fury.io/py/geneticalgorithm2.svg)](https://pypi.org/proje
     - [Scheffer](#scheffer)
     - [Eggholder](#eggholder)
     - [Weierstrass](#weierstrass)
-  - [Using GA in reinforcement learning with Keras](#using-ga-in-reinforcement-learning-with-keras)
+  - [Using GA in reinforcement learning](#using-ga-in-reinforcement-learning)
+  - [Using GA with image reconstruction by polygons](#using-ga-with-image-reconstruction-by-polygons)
 - [Popular questions](#popular-questions)
   - [How to disable autoplot?](#how-to-disable-autoplot)
   - [How to plot population scores?](#how-to-plot-population-scores)
@@ -169,6 +171,7 @@ model.run(
     population_initializer = Population_initializer(select_best_of = 1, local_optimization_step = 'never', local_optimizer = None),
     stop_when_reached = None,
     callbacks = [],
+    middle_callbacks = [],
     time_limit_secs = None, 
     save_last_generation_as = None,
     seed = None
@@ -214,6 +217,9 @@ Your best solution is computed!
     See [example of using callbacks](tests/callbacks.py). There are several callbacks in `Callbacks` class, such as:
     * `Callbacks.SavePopulation(folder, save_gen_step = 50, file_prefix = 'population')`
     * `Callbacks.PlotOptimizationProcess(folder, save_gen_step = 50, show = False, main_color = 'green', file_prefix = 'report')`
+
+* param **middle_callbacks** (`list`) - list of functions made `MiddleCallbacks` class (please, have a look at [this](#middle-callbacks)) 
+
 
 * param **time_limit_secs** (`None`/ number>0) - limit time of working (in seconds). If `None`, there is no time limit (limit only for count of generation and so on). See [little example of using](tests/time_limit.py). Also there is simple conversion function for conversion some time in seconds:
   ```python
@@ -872,6 +878,56 @@ def minimized_func(arr):
 minimized_func.cache_clear()
 ```
 
+## Middle callbacks
+
+There is an amazing way to control optimization process using `MiddleCallbacks` class. Just learn next logic:
+
+1. u can use several `MiddleCallbacks` callbacks as list at `middle_callbacks` parameter in `run()` method
+2. each middle callback is the pair of `action` and `condition` functions
+3. `condition(data)` function gets `data` object about primary model parameters and makes logical decision about applying `action` function
+4. `action(data)` function modifies `data` objects as u need -- and model will be modified by new `data`
+5. `data` object is the dictionary with several parameters u can modify:
+   ```python
+    data = {
+        'last_generation': {
+            'variables': pop[:,:-1],
+            'scores': pop[:,-1]
+            },
+        'current_generation': t,
+        'report_list': self.report,
+                
+        'mutation_prob': self.prob_mut,
+        'crossover_prob': self.prob_cross,
+        'mutation': self.real_mutation,
+        'crossover': self.crossover,
+        'selection': self.selection,
+
+        'current_stagnation': counter,
+        'max_stagnation': self.mniwi,
+
+        'parents_portion': self.param['parents_portion'],
+        'elit_ratio': self.param['elit_ratio']
+
+    }
+   ```  
+   So, the `action` function gets `data` objects and returns `data` object.
+
+It's very simple to create your own `action` and `condition` functions. But there are save popular functions in `Actions` and `ActionConditions` classes:
+* `actions`:
+  * `Stop()` -- just stop optimization process
+  * `ReduceMutationProb(reduce_coef = 0.9)` -- reduce mutation probability
+  * `ChangeRandomCrossover(available_crossovers)` -- change another (random) crossover from list of crossovers
+  * `ChangeRandomSelection(available_selections)`
+  * `ChangeRandomMutation(available_mutations)`
+* `conditions`:
+  * `ActionConditions.EachGen(generation_step = 10)` -- do action each `generation_step` generations
+  * `ActionConditions.AfterStagnation(stagnation_generations = 50)` -- do action after `stagnation_generations` stagnation generations
+  * `ActionConditions.Several(list_of_conditions)` -- do action if all conditions in list are true
+
+To combine `action` and `condition` to callback, just use `MiddleCallbacks.UniversalCallback(action, condition)` methods.
+
+See [code example](tests/small_middle_callbacks.py)
+
 ## How to compare efficiency of several versions of GA optimization
 
 To compare efficiency of several versions of GA optimization (such as several values of several hyperparamenters or including/excepting some actions like oppositions) u should make some count of simulations and compare results using some statistical test. I have realized this logic [here](https://github.com/PasaOpasen/ab-testing-results-difference) 
@@ -998,9 +1054,19 @@ The code for optimizations process is same for each function and is contained [i
 
 
 
-## Using GA in reinforcement learning with Keras 
+## Using GA in reinforcement learning
 
 See [example of using GA optimization with keras neural networks](https://www.kaggle.com/demetrypascal/opengym-tasks-using-keras-and-geneticalgorithm2) for solving OpenGym tasks.
+
+Better example is [OpenGym using cost2fitness and geneticalgorithm2](https://www.kaggle.com/demetrypascal/opengym-using-cost2fitness-and-geneticalgorithm2) where I use also my [cost2fitness](https://github.com/PasaOpasen/cost2fitness) package for fast forward propagation
+
+
+## Using GA with image reconstruction by polygons
+
+Links:
+1. https://www.kaggle.com/demetrypascal/fork-of-imagereconstruction-with-geneticalgorithm2
+2. https://www.kaggle.com/demetrypascal/imagereconstructionpolygons-with-geneticalgorithm2
+
 
 # Popular questions
 

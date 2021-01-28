@@ -510,6 +510,9 @@ class geneticalgorithm2:
             if flag:
                 set_data(data) 
 
+        if len(middle_callbacks) == 0:
+            total_middle_callback = lambda: None
+
 
         start_time = time.time()
         time_is_done = (lambda: False) if time_limit_secs is None else (lambda: int(time.time() - start_time) >= time_limit_secs)

@@ -92,6 +92,8 @@ class Actions:
     #def DualStrategyStep():
     #    pass
 
+    #def SetFunction():
+    #    pass
 
 
 
