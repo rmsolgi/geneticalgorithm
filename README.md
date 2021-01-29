@@ -104,6 +104,8 @@ from geneticalgorithm2 import plot_pop_scores # for plotting population scores, 
 
 from geneticalgorithm2 import Callbacks # simple callbacks
 
+from geneticalgorithm2 import Actions, ActionConditions, MiddleCallbacks # middle callbacks
+
 from geneticalgorithm2 import time_to_seconds # for conversion time to seconds for time_limit
 ```
 Next step: **define minimized function** like
