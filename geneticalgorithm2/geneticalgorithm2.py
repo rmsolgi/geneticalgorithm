@@ -468,7 +468,9 @@ class geneticalgorithm2:
                 'max_stagnation': self.mniwi,
 
                 'parents_portion': self.param['parents_portion'],
-                'elit_ratio': self.param['elit_ratio']
+                'elit_ratio': self.param['elit_ratio'],
+
+                'set_function': self.set_function
 
             }
 
@@ -495,6 +497,8 @@ class geneticalgorithm2:
 
             counter = data['current_stagnation']
             self.mniwi = data['max_stagnation']
+
+            self.set_function = data['set_function']
             
 
 
@@ -520,8 +524,10 @@ class geneticalgorithm2:
         ############################################################# 
         # Initial Population
         
-        if set_function == None:
-            set_function = geneticalgorithm2.default_set_function(self.f)
+        self.set_function = set_function
+
+        if self.set_function == None:
+            self.set_function = geneticalgorithm2.default_set_function(self.f)
         
         pop_coef, initializer_func = population_initializer
         
@@ -559,7 +565,7 @@ class geneticalgorithm2:
                     pp, count_to_create = without_dup(pop) # pop without dups
                     pp2 = np.empty((count_to_create, self.dim+1)) 
                     pp2[:,:-1] = SampleInitializers.CreateSamples(self.creator, count_to_create) # new pop elements
-                    pp2[:, -1] = set_function(pp2[:,:-1]) # new elements values
+                    pp2[:, -1] = self.set_function(pp2[:,:-1]) # new elements values
                     
                     show_progress(t, self.iterate, f"GA is running...{t} gen from {self.iterate}. Kill dups!")
                     
@@ -579,7 +585,7 @@ class geneticalgorithm2:
                     pp2 = np.empty((count_to_create, self.dim+1)) 
                     # oppose count_to_create worse elements
                     pp2[:,:-1] = OppositionOperators.Reflect(pp[-count_to_create:,:-1], self.dup_oppositor)# new pop elements
-                    pp2[:, -1] = set_function(pp2[:,:-1]) # new elements values
+                    pp2[:, -1] = self.set_function(pp2[:,:-1]) # new elements values
 
                     show_progress(t, self.iterate, f"GA is running...{t} gen from {self.iterate}. Kill dups!")
                     
@@ -602,7 +608,7 @@ class geneticalgorithm2:
                 pp2 = np.empty((part, self.dim+1)) 
                 
                 pp2[:,:-1] = OppositionOperators.Reflect(pop_wide[-part:, :-1], self.revolution_oppositor)
-                pp2[:, -1] = set_function(pp2[:,:-1])
+                pp2[:, -1] = self.set_function(pp2[:,:-1])
 
                 combined = np.vstack((pop_wide, pp2))
                 args = np.argsort(combined[:, -1])
@@ -654,7 +660,7 @@ class geneticalgorithm2:
                 
                 pop[:, -1] = start_generation['scores']
             else:
-                pop[:, -1] = set_function(pop[:,:-1])
+                pop[:, -1] = self.set_function(pop[:,:-1])
             
             obj = pop[-1, -1] # some evaluated value
             var = pop[-1, :-1] # some variable
@@ -758,9 +764,9 @@ class geneticalgorithm2:
                 
             
             if apply_function_to_parents:
-                pop[:,-1] = set_function(pop[:,:-1])
+                pop[:,-1] = self.set_function(pop[:,:-1])
             else:
-                pop[self.par_s:,-1] = set_function(pop[self.par_s:,:-1])
+                pop[self.par_s:,-1] = self.set_function(pop[self.par_s:,:-1])
             
             # remove duplicates
             pop = remover(pop, t)

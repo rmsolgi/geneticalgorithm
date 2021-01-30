@@ -7,6 +7,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 
+from OppOpPopInit import OppositionOperators, SampleInitializers
+
 
 def folder_create(folder):
     if not os.path.exists(folder):
@@ -122,6 +124,91 @@ class Actions:
             data['mutation'] = random.choice(available_mutations)
             return data
 
+        return func
+    
+
+
+    @staticmethod
+    def RemoveDuplicates(oppositor = None, creator = None, converter = None):
+        """
+        Removes duplicates from population
+
+        Parameters
+        ----------
+        oppositor : oppositor from OppOpPopInit, optional
+            oppositor for applying after duplicates removing. By default -- using just random initializer from creator. The default is None.
+        creator : the function creates population samples, optional
+            the function creates population samples if oppositor is None. The default is None.
+        converter : func, optional
+            function converts population samples in new format to compare (if needed). The default is None.
+
+        Raises
+        ------
+        Exception
+            DESCRIPTION.
+
+        Returns
+        -------
+        TYPE
+            DESCRIPTION.
+
+        """
+
+        if creator is None and oppositor is None:
+            raise Exception("No functions to fill population! creator or oppositors must be not None")
+
+        if converter is None:
+            def without_dup(pop, scores): # returns population without dups
+                _, index_of_dups = np.unique(pop, axis = 0, return_index = True) 
+                return np.hstack((pop[index_of_dups,:], scores[index_of_dups].reshape(-1, 1))), pop.shape[0] - index_of_dups.size
+        else:
+             def without_dup(pop, scores): # returns population without dups
+                _, index_of_dups = np.unique(np.array([converter(pop[i]) for i in range(pop.shape[0])]), axis = 0, return_index = True) 
+                return np.hstack((pop[index_of_dups,:], scores[index_of_dups].reshape(-1, 1))), pop.shape[0] - index_of_dups.size           
+
+
+        if oppositor is None:
+            def remover(pop, scores, set_function):
+
+                pp, count_to_create = without_dup(pop, scores) # pop without dups
+                pp2 = np.empty((count_to_create, pp.shape[1])) 
+                pp2[:,:-1] = SampleInitializers.CreateSamples(creator, count_to_create) # new pop elements
+                pp2[:, -1] = set_function(pp2[:,:-1]) # new elements values
+                    
+                new_pop = np.vstack((pp, pp2))
+
+                return new_pop[np.argsort(new_pop[:,-1]),:] # new pop
+
+        else: # using oppositors
+            def remover(pop, scores, set_function):
+
+                pp, count_to_create = without_dup(pop, scores) # pop without dups
+
+                if count_to_create > pp.shape[0]:
+                    raise Exception("Too many duplicates, cannot oppose")
+                
+                if count_to_create == 0:
+                    return pp[np.argsort(pp[:, -1]),:]
+                
+                pp2 = np.empty((count_to_create, pp.shape[1])) 
+                # oppose count_to_create worse elements
+                pp2[:,:-1] = OppositionOperators.Reflect(pp[-count_to_create:,:-1], oppositor)# new pop elements
+                pp2[:, -1] = set_function(pp2[:,:-1]) # new elements values
+                    
+                new_pop = np.vstack((pp, pp2))
+                    
+                return new_pop[np.argsort(new_pop[:,-1]),:] # new pop
+
+
+        def func(data):
+            new_pop = remover(data['last_generation']['variables'], data['last_generation']['scores'], data['set_function'])
+            
+            data['last_generation']['variables'] = new_pop[:,:-1]
+            data['last_generation']['scores'] = new_pop[:,-1]
+
+            return data
+
+        
         return func
 
 

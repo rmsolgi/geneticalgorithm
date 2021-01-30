@@ -921,6 +921,7 @@ It's very simple to create your own `action` and `condition` functions. But ther
   * `ChangeRandomCrossover(available_crossovers)` -- change another (random) crossover from list of crossovers
   * `ChangeRandomSelection(available_selections)`
   * `ChangeRandomMutation(available_mutations)`
+  * `RemoveDuplicates(oppositor = None, creator = None, converter = None)`; see [doc](geneticalgorithm2/callbacks.py)
 * `conditions`:
   * `ActionConditions.EachGen(generation_step = 10)` -- do action each `generation_step` generations
   * `ActionConditions.AfterStagnation(stagnation_generations = 50)` -- do action after `stagnation_generations` stagnation generations
