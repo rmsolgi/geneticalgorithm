@@ -105,8 +105,6 @@ from geneticalgorithm2 import plot_pop_scores # for plotting population scores, 
 from geneticalgorithm2 import Callbacks # simple callbacks
 
 from geneticalgorithm2 import Actions, ActionConditions, MiddleCallbacks # middle callbacks
-
-from geneticalgorithm2 import time_to_seconds # for conversion time to seconds for time_limit
 ```
 Next step: **define minimized function** like
 
@@ -225,7 +223,7 @@ Your best solution is computed!
 
 * param **time_limit_secs** (`None`/ number>0) - limit time of working (in seconds). If `None`, there is no time limit (limit only for count of generation and so on). See [little example of using](tests/time_limit.py). Also there is simple conversion function for conversion some time in seconds:
   ```python
-  from geneticalgorithm2 import time_to_seconds
+  from truefalsepython import time_to_seconds
 
   total_seconds = time_to_seconds(
       days = 2, # 2 days

@@ -33,5 +33,4 @@ from .initializer import Population_initializer
 from .cache import np_lru_cache
 from .callbacks import Callbacks, Actions, ActionConditions, MiddleCallbacks
 
-from .times_funcs import time_to_seconds
 from .another_plotting_tools import plot_pop_scores

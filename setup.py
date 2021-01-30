@@ -28,7 +28,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="geneticalgorithm2", 
-    version="6.1.0",
+    version="6.1.1",
     author="Demetry Pascal",
     author_email="qtckpuhdsa@gmail.com",
     maintainer=['Demetry Pascal'],
@@ -49,7 +49,8 @@ setuptools.setup(
         'numpy',
         'matplotlib',
         'joblib',
-        'OppOpPopInit'
+        'OppOpPopInit',
+        'truefalsepython'
         ]
     
     )
