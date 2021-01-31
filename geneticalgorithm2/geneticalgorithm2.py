@@ -362,6 +362,8 @@ class geneticalgorithm2:
             apply_function_to_parents = False, 
             start_generation = {'variables':None, 'scores': None}, 
             studEA = False, 
+            mutation_indexes = None,
+
             init_creator = None,
             init_oppositors = None,
             duplicates_oppositor = None,
@@ -390,6 +392,8 @@ class geneticalgorithm2:
         if 'scores' value is None the scores will be compute
 
         @param studEA <boolean> - using stud EA strategy (crossover with best object always)
+        
+        @param mutation_indexes <list/tuple/numpy array> - indexes of dimensions where mutation can be performed (all dimensions by default)
 
         @param init_creator: None/function, the function creates population samples. By default -- random uniform for real variables and random uniform for int
         @param init_oppositors: None/function list, the list of oppositors creates oppositions for base population. No by default
@@ -414,6 +418,15 @@ class geneticalgorithm2:
         @param seed - random seed (None is doesn't matter)
         """
         
+        if not (mutation_indexes is None):
+            tmp_indexes = set(mutation_indexes)
+            self.indexes_int_mut = np.array(list(set(self.indexes_int).intersection(tmp_indexes)))
+            self.indexes_float_mut = np.array(list(set(self.indexes_float).intersection(tmp_indexes)))
+        else:
+            self.indexes_float_mut = self.indexes_float
+            self.indexes_int_mut = self.indexes_int
+
+
         current_gen_number = lambda number: (number is None) or (type(number) == int and number > 0)
 
         assert current_gen_number(revolution_after_stagnation_step), "must be None or int and >0"
@@ -652,6 +665,9 @@ class geneticalgorithm2:
             assert (start_generation['variables'].shape[1] == self.dim), f"incorrect dimention ({start_generation['variables'].shape[1]}) of population, should be {self.dim}"
             
             self.pop_s = start_generation['variables'].shape[0]
+            self.__set_elit(self.pop_s, self.param['elit_ratio'])
+            self.__set_par_s(self.param['parents_portion'])
+
             pop = np.empty((self.pop_s, self.dim+1))
             pop[:,:-1] = start_generation['variables']
             
@@ -882,19 +898,19 @@ class geneticalgorithm2:
 
 ###############################################################################  
     
-    def mut(self,x):
+    def mut(self, x):
         """
         just mutation
         """
         random_values = np.random.random(x.size)
-
-        for i in self.indexes_int:
+        #raise Exception()
+        for i in self.indexes_int_mut:
             if random_values[i] < self.prob_mut:
                 x[i] = np.random.randint(self.var_bound[i][0], self.var_bound[i][1]+1) 
                     
         
 
-        for i in self.indexes_float:                
+        for i in self.indexes_float_mut:                
             if random_values[i] < self.prob_mut:
                 x[i] = self.real_mutation(x[i], self.var_bound[i][0], self.var_bound[i][1]) 
             
@@ -908,7 +924,7 @@ class geneticalgorithm2:
         
         random_values = np.random.random(x.size)
 
-        for i in self.indexes_int:
+        for i in self.indexes_int_mut:
 
             if random_values[i] < self.prob_mut:
                 if p1[i] < p2[i]:
@@ -918,7 +934,7 @@ class geneticalgorithm2:
                 else:
                     x[i] = np.random.randint(self.var_bound[i][0], self.var_bound[i][1]+1)
                         
-        for i in self.indexes_float:                
+        for i in self.indexes_float_mut:                
             if random_values[i] < self.prob_mut:   
                 if p1[i] != p2[i]:
                     x[i]=np.random.uniform(p1[i], p2[i]) 

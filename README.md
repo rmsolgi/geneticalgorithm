@@ -161,6 +161,7 @@ model.run(
     apply_function_to_parents = False, 
     start_generation = {'variables':None, 'scores': None},
     studEA = False,
+    mutation_indexes = None,
     init_creator = None,
     init_oppositors = None,
     duplicates_oppositor = None,
@@ -194,6 +195,7 @@ Your best solution is computed!
 * param **start_generation** <dictionary/str> - a dictionary with structure `{'variables':2D-array of samples, 'scores': function values on samples}` or path to `.npz` file (`str`) with saved generation (see [example](#how-to-initialize-start-population-how-to-continue-optimization-with-new-run)). If `'scores'` value is `None` the scores will be compute. [See this](#how-to-initialize-start-population-how-to-continue-optimization-with-new-run)  
 
 * param **studEA** <boolean> - using stud EA strategy (crossover with best object always). Default is false. [Take a look](#standard-crossover-vs-stud-ea-crossover)
+* param **mutation_indexes** <list/tuple/numpy array> - indexes of dimensions where mutation can be performed (all dimensions by default). [Example](tests/mut_indexes.py)
 
 * param **init_creator**: None/function, the function creates population samples. By default -- random uniform for real variables and random uniform for int. [Example](#optimization-with-oppositions)
 * param **init_oppositors**: `None/function` list, the list of oppositors creates oppositions for base population. No by default. [Example](#optimization-with-oppositions)
