@@ -210,6 +210,29 @@ class Actions:
 
         
         return func
+    
+    @staticmethod
+    def CopyBest(by_indexes):
+        """
+        Copies best population object values (from dimensions in by_indexes) to all population
+        """
+
+        if type(by_indexes) != np.ndarray:
+            by_indexes = np.array(by_indexes)
+
+        def func(data):
+
+            pop = data['last_generation']['variables']
+            scores = data['last_generation']['scores']
+
+            pop[:, by_indexes] = pop[np.argmin(scores), by_indexes]
+            
+            data['last_generation']['variables'] = pop
+            data['last_generation']['scores'] = data['set_function'](pop)
+
+            return data
+        return func
+
 
 
 
