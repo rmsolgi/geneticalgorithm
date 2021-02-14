@@ -930,6 +930,12 @@ It's very simple to create your own `action` and `condition` functions. But ther
 
 To combine `action` and `condition` to callback, just use `MiddleCallbacks.UniversalCallback(action, condition)` methods.
 
+
+There are also next high-level useful callbacks:
+
+* `MiddleCallbacks.ReduceMutationGen(reduce_coef = 0.9, min_mutation = 0.005, reduce_each_generation = 50, reload_each_generation = 500)`
+
+
 See [code example](tests/small_middle_callbacks.py)
 
 ## How to compare efficiency of several versions of GA optimization

@@ -281,8 +281,35 @@ class MiddleCallbacks:
         
         return func
 
-    #def ReduceMutationGen(reduce = 0.9, each_generation = 50):
-    #    pass
+    @staticmethod
+    def ReduceMutationGen(reduce_coef = 0.9, min_mutation = 0.005, reduce_each_generation = 50, reload_each_generation = 500):
+
+        start_mutation = None
+
+        def func(data):
+            nonlocal start_mutation
+            
+            gen = data['current_generation']
+            mut = data['mutation']
+
+            if start_mutation is None:
+                start_mutation = mut
+
+            c1 = gen % reduce_each_generation == 0
+            c2 = gen % reload_each_generation == 0
+
+            if c2:
+                mut = start_mutation
+            elif c1:
+                mut *= reduce_coef
+                mut = max(mut, min_mutation)
+
+
+            data['mutation'] = mut
+
+            return data, (c1 or c2)
+
+        return func
 
     #def ReduceMutationStagnation(reduce = 0.5, stagnation_gens = 50):
     #    pass 
