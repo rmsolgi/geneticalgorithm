@@ -290,7 +290,7 @@ class MiddleCallbacks:
             nonlocal start_mutation
             
             gen = data['current_generation']
-            mut = data['mutation']
+            mut = data['mutation_prob']
 
             if start_mutation is None:
                 start_mutation = mut
@@ -305,7 +305,7 @@ class MiddleCallbacks:
                 mut = max(mut, min_mutation)
 
 
-            data['mutation'] = mut
+            data['mutation_prob'] = mut
 
             return data, (c1 or c2)
 

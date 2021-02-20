@@ -979,6 +979,12 @@ class geneticalgorithm2:
         sys.stdout.flush()     
 
 
+    def __str__(self):
+        return f"Genetic algorithm object with parameters {self.param}"
+
+    def __repr__(self):
+        return self.__str__()
+
 
 
 
