@@ -961,8 +961,9 @@ class geneticalgorithm2:
         
         assert (obj is not None), "After "+str(self.funtimeout)+" seconds delay "+\
                 "func_timeout: the given function does not provide any output"
-                
-        assert ((type(obj)==int or type(obj)==float)), "Function should return a number"
+
+        tp = type(obj)        
+        assert (tp in (int, float) or np.issubdtype(tp, np.floating) or np.issubdtype(tp, np.integer) ), f"Minimized function should return a number, but got '{obj}' object with type {tp}"
         
         return obj, time.time() - eval_time
 
