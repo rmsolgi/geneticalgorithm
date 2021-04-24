@@ -14,7 +14,7 @@ version](https://badge.fury.io/py/geneticalgorithm2.svg)](https://pypi.org/proje
 - [Installation](#installation)
 - [Working process](#working-process)
   - [Methods and Properties of model:](#methods-and-properties-of-model)
-  - [Function parameters](#function-parameters)
+  - [Constructor parameters](#constructor-parameters)
   - [Genetic algorithm's parameters](#genetic-algorithms-parameters)
 - [Examples for begginer](#examples-for-begginer)
   - [A minimal example](#a-minimal-example)
@@ -261,7 +261,7 @@ output_dict = {
 * `report`: is a record of the progress of the algorithm over iterations. There are also `report_average` and `report_min` fields which are the average and min generation values by each generation
 
 
-## Function parameters
+## Constructor parameters
 
 * param **function** <Callable> - the given objective function to be minimized  
 NOTE: This implementation minimizes the given objective function. (For maximization multiply function by a negative sign: the absolute value of the output would be the actual objective function)
@@ -487,7 +487,7 @@ them have the same boundaries (For the case the boundaries are different see the
 
     
 **geneticalgorithm2 has some arguments**:   
-1. Obviously the first argument is the function f we already defined (for more details about the argument and output see [Function](#1111-id)).  
+1. Obviously the first argument is the function `f ` we already defined (for more details about the argument and output see [Function](#1111-id)).  
 1. Our problem has three variables so we set dimension equal three.   
 1. Variables are real (continuous) so we use string 'real' to notify the type of 
 variables (geneticalgorithm2 accepts other types including Boolean, Integers and 
