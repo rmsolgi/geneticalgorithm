@@ -71,7 +71,7 @@ Also we can access to the best answer of the defined optimization problem found 
 To do so we complete the code as follows:
 ```python
 convergence=model.report
-solution=model.ouput_dict
+solution=model.output_dict
 ```
 
 output_dict is a dictionary including the best set of variables found and the value of the given function associated to it ({'variable': , 'function': }). 
