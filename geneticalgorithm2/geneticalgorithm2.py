@@ -26,6 +26,9 @@ SOFTWARE.
 ###############################################################################
 ###############################################################################
 
+from typing import Callable
+
+
 import sys
 import time
 import random
@@ -99,10 +102,10 @@ class geneticalgorithm2:
     
     
     #############################################################
-    def __init__(self, function, dimension, variable_type='bool', \
+    def __init__(self, function: Callable, dimension:int, variable_type:str = 'bool', \
                  variable_boundaries=None,\
                  variable_type_mixed=None, \
-                 function_timeout=10,\
+                 function_timeout:float =10,\
                  algorithm_parameters = default_params):
         '''
         @param function <Callable> - the given objective function to be minimized
@@ -358,6 +361,8 @@ class geneticalgorithm2:
 
     def run(self, no_plot = False, 
             disable_progress_bar = False, 
+            disable_printing = False,
+
             set_function = None, 
             apply_function_to_parents = False, 
             start_generation = {'variables':None, 'scores': None}, 
@@ -444,7 +449,7 @@ class geneticalgorithm2:
             random.seed(seed)
             np.random.seed(seed)
 
-        show_progress = (lambda t, t2, s: self.progress(t, t2, status = s)) if not disable_progress_bar else (lambda t, t2, s: None)
+        show_progress = (lambda t, t2, s: self.__progress(t, t2, status = s)) if not disable_progress_bar else (lambda t, t2, s: None)
         
         get_parents_inds = (lambda par_count: (0, random.randrange(1, par_count))) if studEA else (lambda par_count: tuple(np.random.randint(0, par_count, 2)))
         
@@ -655,11 +660,11 @@ class geneticalgorithm2:
             for p in range(0, self.pop_s*pop_coef):    
                 var = pop[p, :-1]
                 solo = pop[p, :]
-                obj, eval_time = self.sim(var)  # simulation returns exception or func value -- check the time of evaluating           
+                obj, eval_time = self.__sim(var)  # simulation returns exception or func value -- check the time of evaluating           
                 solo[self.dim] = obj
                 time_counter += eval_time
             
-            print(f"\n\r Average time of function evaluating (secs): {time_counter/pop.shape[0]}\n")
+            if not disable_printing: print(f"\n\r Average time of function evaluating (secs): {time_counter/pop.shape[0]}\n")
                 
         else:
             assert (start_generation['variables'].shape[1] == self.dim), f"incorrect dimention ({start_generation['variables'].shape[1]}) of population, should be {self.dim}"
@@ -837,24 +842,25 @@ class geneticalgorithm2:
             np.savez(save_last_generation_as, population = self.output_dict['last_generation']['variables'], scores = self.output_dict['last_generation']['scores'] )
 
 
-
-        show=' '*200
-        sys.stdout.write(f'\r{show}\n')
-        sys.stdout.write(f'\r The best found solution:\n {self.best_variable}')
-        sys.stdout.write(f'\n\n Objective function:\n {self.best_function}\n')
-        sys.stdout.write(f'\n Used generations: {len(self.report)}')
-        sys.stdout.write(f'\n Used time: {int(time.time() - start_time)} seconds\n')
-        sys.stdout.flush() 
+        if not disable_printing:
+            show=' '*200
+            sys.stdout.write(f'\r{show}\n')
+            sys.stdout.write(f'\r The best found solution:\n {self.best_variable}')
+            sys.stdout.write(f'\n\n Objective function:\n {self.best_function}\n')
+            sys.stdout.write(f'\n Used generations: {len(self.report)}')
+            sys.stdout.write(f'\n Used time: {int(time.time() - start_time)} seconds\n')
+            sys.stdout.flush() 
         
         if not no_plot:
             self.plot_results()
 
-        if self.stop_mniwi:
-            sys.stdout.write('\nWarning: GA is terminated due to the maximum number of iterations without improvement was met!')
-        elif stop_by_val(self.best_function):
-            sys.stdout.write(f'\nWarning: GA is terminated because of reaching stop_when_reached (current val {self.best_function} <= {stop_when_reached})!')
-        elif time_is_done():
-            sys.stdout.write(f'\nWarning: GA is terminated because of time limit ({time_limit_secs} secs) of working!')
+        if not disable_printing:
+            if self.stop_mniwi:
+                sys.stdout.write('\nWarning: GA is terminated due to the maximum number of iterations without improvement was met!')
+            elif stop_by_val(self.best_function):
+                sys.stdout.write(f'\nWarning: GA is terminated because of reaching stop_when_reached (current val {self.best_function} <= {stop_when_reached})!')
+            elif time_is_done():
+                sys.stdout.write(f'\nWarning: GA is terminated because of time limit ({time_limit_secs} secs) of working!')
 
 ##############################################################################         
 
@@ -944,18 +950,18 @@ class geneticalgorithm2:
 
 
 ###############################################################################     
-    def evaluate(self):
+    def __evaluate(self):
         return self.f(self.temp)
     
 ###############################################################################    
-    def sim(self, X):
+    def __sim(self, X):
         
         self.temp = X#.copy()
         
         obj = None
         eval_time = time.time()
         try:
-            obj = func_timeout(self.funtimeout, self.evaluate)
+            obj = func_timeout(self.funtimeout, self.__evaluate)
         except FunctionTimedOut:
             print("given function is not applicable")
         
@@ -968,7 +974,7 @@ class geneticalgorithm2:
         return obj, time.time() - eval_time
 
 ###############################################################################
-    def progress(self, count, total, status=''):
+    def __progress(self, count, total, status=''):
         
         bar_len = 50
         filled_len = int(round(bar_len * count / float(total)))

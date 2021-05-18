@@ -157,11 +157,14 @@ model = ga(function, dimension = 3,
 model.run(
     no_plot = False, 
     disable_progress_bar = False,
+    disable_printing = False,
+
     set_function = None, 
     apply_function_to_parents = False, 
     start_generation = {'variables':None, 'scores': None},
     studEA = False,
     mutation_indexes = None,
+
     init_creator = None,
     init_oppositors = None,
     duplicates_oppositor = None,
@@ -169,7 +172,9 @@ model.run(
     revolution_oppositor = None,
     revolution_after_stagnation_step = None,
     revolution_part = 0.3,
+    
     population_initializer = Population_initializer(select_best_of = 1, local_optimization_step = 'never', local_optimizer = None),
+    
     stop_when_reached = None,
     callbacks = [],
     middle_callbacks = [],
@@ -187,7 +192,9 @@ Your best solution is computed!
 * param **no_plot** <boolean> - do not plot results using matplotlib by default
 
 * param **disable_progress_bar** <boolean> - do not show progress bar (also it can be faster by 10-20 seconds)
-        
+
+* param **disable_printing** <boolean> - don't print any text (except progress bar)
+
 * param **set_function**: 2D-array -> 1D-array function, which applies to matrix of population (size (samples, dimension)) to estimate their values
         
 * param **apply_function_to_parents** <boolean> - apply function to parents from previous generation (if it's needed, it can be needed at working with games agents)
@@ -487,7 +494,7 @@ them have the same boundaries (For the case the boundaries are different see the
 
     
 **geneticalgorithm2 has some arguments**:   
-1. Obviously the first argument is the function `f ` we already defined (for more details about the argument and output see [Function](#1111-id)).  
+1. Obviously the first argument is the function `f` we already defined (for more details about the argument and output see [Function](#1111-id)).  
 1. Our problem has three variables so we set dimension equal three.   
 1. Variables are real (continuous) so we use string 'real' to notify the type of 
 variables (geneticalgorithm2 accepts other types including Boolean, Integers and 
