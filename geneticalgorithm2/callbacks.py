@@ -8,6 +8,9 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 
 from OppOpPopInit import OppositionOperators, SampleInitializers
+from numpy.lib.npyio import save
+
+from .another_plotting_tools import plot_pop_scores
 
 
 def folder_create(folder):
@@ -233,6 +236,23 @@ class Actions:
             return data
         return func
 
+    
+    def PlotPopulationScores(title_pattern = lambda data: f"Generation {data['current_generation']}", save_as_name_pattern = None):
+        """
+        plots population scores
+        needs 2 functions like data->str for title and file name
+        """
+
+        use_save_as = (lambda data: None) if save_as_name_pattern is None else save_as_name_pattern
+
+        def local_plot_callback(data):
+
+            plot_pop_scores(data['last_generation']['scores'], title = title_pattern(data), save_as = use_save_as(data))
+
+            return data
+
+        return local_plot_callback
+
 
 
 
@@ -240,9 +260,25 @@ class ActionConditions:
     
     @staticmethod
     def EachGen(generation_step = 10):
+
+        if generation_step < 1 or type(generation_step) != int:
+            raise Exception(f"Invalid generation step {generation_step}! Should be int and >=1")
+        
+        if generation_step == 1: return ActionConditions.Always()
+
         def func(data):
             return data['current_generation'] % generation_step == 0 and data['current_generation'] > 0
         return func
+
+    @staticmethod
+    def Always():
+        """
+        makes action each generation
+        """
+        return lambda data: True
+
+
+
 
     @staticmethod
     def AfterStagnation(stagnation_generations = 50):

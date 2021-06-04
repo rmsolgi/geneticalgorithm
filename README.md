@@ -930,8 +930,10 @@ It's very simple to create your own `action` and `condition` functions. But ther
   * `ChangeRandomMutation(available_mutations)`
   * `RemoveDuplicates(oppositor = None, creator = None, converter = None)`; see [doc](geneticalgorithm2/callbacks.py)
   * `CopyBest(by_indexes)` -- copies best population object values (from dimensions in `by_indexes`) to all population
+  * `PlotPopulationScores(title_pattern = lambda data: f"Generation {data['current_generation']}", save_as_name_pattern = None)` -- plot population scores; needs 2 functions like `data`->string for title and file name (to save)
 * `conditions`:
   * `ActionConditions.EachGen(generation_step = 10)` -- do action each `generation_step` generations
+  * `ActionConditions.Always()` do action each generations, equals to `ActionConditions.EachGen(1)`
   * `ActionConditions.AfterStagnation(stagnation_generations = 50)` -- do action after `stagnation_generations` stagnation generations
   * `ActionConditions.Several(list_of_conditions)` -- do action if all conditions in list are true
 
