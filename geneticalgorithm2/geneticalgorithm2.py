@@ -371,12 +371,16 @@ class geneticalgorithm2:
 
             init_creator = None,
             init_oppositors = None,
+
             duplicates_oppositor = None,
             remove_duplicates_generation_step = None,
+
             revolution_oppositor = None,
             revolution_after_stagnation_step = None,
             revolution_part = 0.3,
+            
             population_initializer = Population_initializer(select_best_of = 1, local_optimization_step = 'never', local_optimizer = None), 
+            
             stop_when_reached = None,
             callbacks = [],
             middle_callbacks = [],
@@ -530,7 +534,7 @@ class geneticalgorithm2:
                 data, has_sense = cb(data)
                 if has_sense: flag = True
             if flag:
-                set_data(data) 
+                set_data(data) # update global date if there was real callback step
 
         if len(middle_callbacks) == 0:
             total_middle_callback = lambda: None
@@ -595,7 +599,11 @@ class geneticalgorithm2:
                     if gen % remove_duplicates_generation_step != 0:
                         return pop_wide
 
-                    pp, count_to_create = without_dup(pop) # pop without dups
+                    pp, count_to_create = without_dup(pop_wide) # pop without dups
+
+                    if count_to_create == 0: 
+                        show_progress(t, self.iterate, f"GA is running...{t} gen from {self.iterate}. No dups!")
+                        return pop_wide
 
                     if count_to_create > pp.shape[0]:
                         raise Exception(f"Too many duplicates at generation {gen}, cannot oppose")
@@ -610,6 +618,8 @@ class geneticalgorithm2:
                     new_pop = np.vstack((pp, pp2))
                     
                     return new_pop[np.argsort(new_pop[:,-1]),:] # new pop
+
+
 
         # event for revolution
         if revolution_after_stagnation_step is None:

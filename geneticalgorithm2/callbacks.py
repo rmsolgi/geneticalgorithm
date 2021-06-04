@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 
 from OppOpPopInit import OppositionOperators, SampleInitializers
-from numpy.lib.npyio import save
 
 from .another_plotting_tools import plot_pop_scores
 

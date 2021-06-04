@@ -1,6 +1,6 @@
 
-stop criterions: min std, max function evaluations
+stop criterions: min std, max function evaluations (callbacks)
 
 add dual strategy using some oppositor and some decreasing function like temperature function
 
-add cache ?
+better duplicates removing with creating from other parents (difficult to do)
