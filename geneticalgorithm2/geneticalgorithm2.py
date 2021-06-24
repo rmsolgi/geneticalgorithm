@@ -585,6 +585,11 @@ class geneticalgorithm2:
                         return pop_wide
 
                     pp, count_to_create = without_dup(pop) # pop without dups
+                    
+                    if count_to_create == 0: 
+                        show_progress(t, self.iterate, f"GA is running...{t} gen from {self.iterate}. No dups!")
+                        return pop_wide
+
                     pp2 = np.empty((count_to_create, self.dim+1)) 
                     pp2[:,:-1] = SampleInitializers.CreateSamples(self.creator, count_to_create) # new pop elements
                     pp2[:, -1] = self.set_function(pp2[:,:-1]) # new elements values
