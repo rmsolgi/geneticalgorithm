@@ -943,6 +943,7 @@ To combine `action` and `condition` to callback, just use `MiddleCallbacks.Unive
 There are also next high-level useful callbacks:
 
 * `MiddleCallbacks.ReduceMutationGen(reduce_coef = 0.9, min_mutation = 0.005, reduce_each_generation = 50, reload_each_generation = 500)`
+* `MiddleCallbacks.GeneDiversityStats(step_generations_for_plotting:int = 10)` -- plots some duplicates statistics each gen ([example](/tests/plot_diversities.py))
 
 
 See [code example](tests/small_middle_callbacks.py)

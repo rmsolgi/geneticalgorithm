@@ -350,7 +350,78 @@ class MiddleCallbacks:
     #    pass 
        
 
+    @staticmethod
+    def GeneDiversityStats(step_generations_for_plotting:int = 10):
 
+        if step_generations_for_plotting < 1:
+            raise Exception(f"Wrong step = {step_generations_for_plotting}, should be int and > 0!!")
+
+        
+        div = []
+        count = []
+        most = []
+
+
+        def func(data):
+
+            nonlocal div, count, most
+
+            dt = data['last_generation']['variables']
+
+            uniq, counts = np.unique(dt, return_counts=True, axis = 0)
+            # raise Exception()
+            count.append(counts.size)
+            most.append(counts.max())
+
+            gene_diversity = 0
+            for index in range(dt.shape[0]):
+                gene_diversity += np.count_nonzero(dt[index,:] != dt[index:,:])
+            div.append(gene_diversity)
+
+
+            if data['current_generation'] % step_generations_for_plotting == 0:
+
+                fig, axes = plt.subplots(3, 1)
+
+                (ax1, ax2, ax3) = axes
+
+                ax1.plot(count)
+                #axs[0, 0].set_title('Axis [0, 0]')
+
+                ax2.plot(most, 'tab:orange')
+                #axs[0, 1].set_title('Axis [0, 1]')
+
+                ax3.plot(div, 'tab:green')
+                #axs[1, 0].set_title('Axis [1, 0]')
+
+
+                ylabs = [
+                    'Count of unique objects',
+                    'Count of most popular object',
+                    'Simple gene diversity'
+                ]
+
+
+                for i, ax in enumerate(axes):
+                    ax.set(xlabel='Generation number')
+                    ax.set_title(ylabs[i])
+
+                # Hide x labels and tick labels for top plots and y ticks for right plots.
+                for ax in axes:
+                    ax.label_outer()
+
+                fig.suptitle(f'Diversity report (pop size = {dt.shape[0]})')    
+                fig.tight_layout()
+                plt.show()
+
+
+            return data, False
+
+
+
+
+        
+        return func
 
 
 

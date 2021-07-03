@@ -28,7 +28,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="geneticalgorithm2", 
-    version="6.2.10",
+    version="6.2.11",
     author="Demetry Pascal",
     author_email="qtckpuhdsa@gmail.com",
     maintainer=['Demetry Pascal'],
