@@ -374,9 +374,9 @@ class MiddleCallbacks:
             most.append(counts.max())
 
             gene_diversity = 0
-            for index in range(dt.shape[0]):
-                gene_diversity += np.count_nonzero(dt[index,:] != dt[index:,:])
-            div.append(gene_diversity)
+            for index in range(dt.shape[0]-1):
+                gene_diversity += np.count_nonzero(dt[index,:] != dt[index:,:])/(dt.shape[0]-index)
+            div.append(gene_diversity/dt.shape[1])
 
 
             if data['current_generation'] % step_generations_for_plotting == 0:
